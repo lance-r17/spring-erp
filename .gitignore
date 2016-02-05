@@ -3,6 +3,9 @@ idea
 .mvn
 *.iml
 *.ipr
+.classpath
+.project
+.settings
 build
 target
 .gradle

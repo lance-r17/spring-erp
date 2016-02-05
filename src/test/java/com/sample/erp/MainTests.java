@@ -2,14 +2,14 @@ package com.sample.erp;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = SpringERPApplication.class)
+@SpringApplicationConfiguration(classes = Main.class)
 @WebAppConfiguration
-public class SpringERPApplicationTests {
+public class MainTests {
 
 	@Test
 	public void contextLoads() {
