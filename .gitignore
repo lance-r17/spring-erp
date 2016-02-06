@@ -10,6 +10,7 @@ build
 target
 .gradle
 node_modules
+bower_components
 site
 out
 *.iws
