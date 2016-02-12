@@ -1,10 +1,10 @@
 package com.sample.erp;
 
+import lombok.Data;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-
-import lombok.Data;
 
 /**
  * @author Lance Chen
@@ -19,15 +19,15 @@ public class Employee {
 	private Long id;
 	private String firstName;
 	private String lastName;
-	private String descripiton;
+	private String description;
 
 	private Employee() {
 	};
 
-	public Employee(String firstName, String lastName, final String descripiton) {
+	public Employee(String firstName, String lastName, final String description) {
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.descripiton = descripiton;
+		this.description = description;
 	}
 }
 // end::code[]
