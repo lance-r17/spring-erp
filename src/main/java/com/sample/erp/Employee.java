@@ -1,10 +1,12 @@
 package com.sample.erp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Version;
 
 /**
  * @author Lance Chen
@@ -20,6 +22,10 @@ public class Employee {
 	private String firstName;
 	private String lastName;
 	private String description;
+
+	@Version
+	@JsonIgnore
+	private Long version;
 
 	private Employee() {
 	};
