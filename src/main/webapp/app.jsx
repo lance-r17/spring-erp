@@ -7,6 +7,7 @@ define(function (require){
         when = require('when'),
 	    client = require('./client'),
 		follow = require('./follow'),
+		stompClient = require('./websocket-listener'),
 		root = '/api';
 	// end::vars[]
 
@@ -28,6 +29,7 @@ define(function (require){
 					return employeeCollection;
 				});
 			}).then(employeeCollection => {
+				this.page = employeeCollection.entity.page;
 				return employeeCollection.entity._embedded.employees.map(employee =>
 					client({
 						method: 'GET',
@@ -38,6 +40,7 @@ define(function (require){
 				return when.all(employeePromises);
 			}).done(employees => {
 				this.setState({
+					page: this.page,
 					employees: employees,
 					attributes: Object.keys(this.schema.properties),
 					pageSize: pageSize,
@@ -49,20 +52,14 @@ define(function (require){
 		// tag::create[]
 		onCreate: function (employee) {
 			follow(client, root, ['employees']
-			).then(employeeCollection => {
+			).done(response => {
 				return client({
 					method: 'POST',
-					path: employeeCollection.entity._links.self.href,
+					path: response.entity._links.self.href,
 					entity: employee,
 					headers: {'Content-Type': 'application/json'}
 				})
-			}).then(response => {
-				return follow(client, root, [
-					{rel: 'employees', params: {size: this.state.pageSize}}
-				]);
-			}).done(response => {
-				this.onNavigate(response.entity._links.last.href);
-			});
+			})
 		},
 		// end::create[]
         // tag::update[]
@@ -76,7 +73,8 @@ define(function (require){
                     'If-Match': employee.headers.Etag
                 }
             }).done(response => {
-                this.loadFromServer(this.state.pageSize);
+                // this.loadFromServer(this.state.pageSize);
+                /* Let the websocket handler update the state */
             }, response => {
                 if (response.status.code === 412) {
                     alert('DENIED: Unable to update ' + employee.entity._links.self.href + '. Your copy is stale.');
@@ -88,7 +86,7 @@ define(function (require){
 		onDelete: function (employee) {
 			client({
 				method: 'DELETE',
-				path: employee._links.self.href
+				path: employee.entity._links.self.href
 			}).done(response => {
 				this.loadFromServer(this.state.pageSize);
 			});
@@ -101,6 +99,7 @@ define(function (require){
 				path: navUri
 			}).then(employeeCollection => {
                 this.links = employeeCollection.entity._links;
+                this.page = employeeCollection.entity.page;
 
                 return employeeCollection.entity._embedded.employees.map(employee =>
                     client({
@@ -112,6 +111,7 @@ define(function (require){
                 return when.all(employeePromises);
             }).done(employees => {
 				this.setState({
+					page: this.page,
 					employees: employees,
 					attributes: Object.keys(this.schema.properties),
 					pageSize: this.state.pageSize,
@@ -127,6 +127,47 @@ define(function (require){
 			}
 		},
 		// end::update-page-size[]
+		// tag::refresh-and-go-to-last-page[]
+		refreshAndGoToLastPage: function() {
+			follow(client, root, [{
+				rel: 'employees',
+				params: {size: this.state.pageSize}
+			}]).done(response => {
+				this.onNavigate(response.entity._links.last.href);
+			});
+		},
+		// end::refresh-and-go-to-last-page[]
+		// tag::refresh-current-page[]
+		refreshCurrentPage: function() {
+			follow(client, root, [{
+				rel: 'employees',
+				params: {
+					size: this.state.pageSize,
+					page: this.state.page.number
+				}
+			}]).then(employeeCollection => {
+				this.links = employeeCollection.entity._links;
+				this.page = employeeCollection.entity.page;
+
+				return employeeCollection.entity._embedded.employees.map(employee => {
+					return client({
+						method: 'GET',
+						path: employee._links.self.href
+					})
+				});
+			}).then(employeePromises => {
+				return when.all(employeePromises);
+			}).done(employees => {
+				this.setState({
+					page: this.page,
+					employees: employees,
+					attributes: Object.keys(this.schema.properties),
+					pageSize: this.state.pageSize,
+					links: this.links
+				})
+			});
+		},
+		// end::refresh-current-page[]
 		getInitialState: function() {
 			return ({
 				employees: [],
@@ -137,6 +178,11 @@ define(function (require){
 		},
 		componentDidMount: function() {
 			this.loadFromServer(this.state.pageSize);
+			stompClient.register([
+				{route: '/topic/newEmployee', callback: this.refreshAndGoToLastPage},
+				{route: '/topic/updateEmployee', callback: this.refreshCurrentPage},
+				{route: '/topic/deleteEmployee', callback: this.refreshCurrentPage}
+			]);
 		},
 		render: function () {
 			return (
