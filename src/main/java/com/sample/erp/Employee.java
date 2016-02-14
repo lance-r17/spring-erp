@@ -1,12 +1,14 @@
 package com.sample.erp;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.Version;
+
+import lombok.Data;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author Lance Chen
@@ -27,13 +29,17 @@ public class Employee {
 	@JsonIgnore
 	private Long version;
 
-	private Employee() {
-	};
+	@ManyToOne
+	private Manager manager;
 
-	public Employee(String firstName, String lastName, final String description) {
+	protected Employee() {
+	}
+
+	public Employee(String firstName, String lastName, String description, Manager manager) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.description = description;
+		this.manager = manager;
 	}
 }
 // end::code[]

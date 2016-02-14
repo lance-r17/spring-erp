@@ -24,6 +24,15 @@ define(function (require){
 					path: employeeCollection.entity._links.profile.href,
 					headers: {'Accept': 'application/schema+json'}
 				}).then(schema => {
+					Object.keys(schema.entity.properties).forEach(property => {
+						if (schema.entity.properties[property].hasOwnProperty('format') && 
+							schema.entity.properties[property].format === 'uri') {
+							delete schema.entity.properties[property];
+						}
+						if (schema.entity.properties[property].hasOwnProperty('$ref')) {
+							delete schema.entity.properties[property];
+						}
+					});
 					this.schema = schema.entity;
                     this.links = employeeCollection.entity._links;
 					return employeeCollection;
@@ -73,9 +82,11 @@ define(function (require){
                     'If-Match': employee.headers.Etag
                 }
             }).done(response => {
-                // this.loadFromServer(this.state.pageSize);
                 /* Let the websocket handler update the state */
             }, response => {
+            	if (response.status.code === 403) {
+            		alert('ACCESS DENIED: You are not authorized to update ' + employee.entity._links.self.href);
+            	}
                 if (response.status.code === 412) {
                     alert('DENIED: Unable to update ' + employee.entity._links.self.href + '. Your copy is stale.');
                 }
@@ -88,7 +99,11 @@ define(function (require){
 				method: 'DELETE',
 				path: employee.entity._links.self.href
 			}).done(response => {
-				this.loadFromServer(this.state.pageSize);
+				/* let the websocket handle updating the UI */
+			}, response => {
+				if (response.status.code === 403) {
+					alert('ACCESS DENIED: You are not authorized to delete ' + employee.entity._links.self.href);
+				}
 			});
 		},
 		// end::delete[]
@@ -357,6 +372,7 @@ define(function (require){
 								<th>First Name</th>
 								<th>Last Name</th>
 								<th>Description</th>
+								<th>Manager</th>
                                 <th></th>
 								<th></th>
 							</tr>
@@ -386,6 +402,7 @@ define(function (require){
 					<td>{this.props.employee.entity.firstName}</td>
 					<td>{this.props.employee.entity.lastName}</td>
 					<td>{this.props.employee.entity.description}</td>
+					<td>{this.props.employee.entity.manager.name}</td>
                     <td>
                         <UpdateDialog employee={this.props.employee}
                                       attributes={this.props.attributes}
