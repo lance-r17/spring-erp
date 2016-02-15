@@ -5,7 +5,7 @@ import when from 'when'
 import client from './client'
 import follow from './follow'
 import stompClient from './websocket-listener'
-import './less/nifty.less'
+//import './less/nifty.less'
 
 define(function (require){
 	'use strict';
