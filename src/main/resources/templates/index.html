@@ -1,19 +1,33 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-	<head lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+	<head>
 	    <meta charset="UTF-8"/>
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	    <title>Spring ERP</title>
+	    
+	    <!--STYLESHEET-->
+		<!--=================================================-->
+		
+		<!--Open Sans Font [ OPTIONAL ] -->
+		<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&amp;subset=latin" rel="stylesheet" />
+		
+		<!--Bootstrap Stylesheet [ REQUIRED ] -->
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
+		
+		<!--Font Awesome [ OPTIONAL ]-->
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" />
 	</head>
-	<body>
-	
-		<div>
-		    Hello, <span th:text="${#authentication.name}">user</span>.
-		    <form th:action="@{/logout}" method="post">
-		        <input type="submit" value="Log Out"/>
-		    </form>
-		</div>
-	
+	<body>	
 	    <div id="react"></div>
+	    
+	    <!--JAVASCRIPT-->
+		<!--=================================================-->
 		<script src="/site/bundle.js" />
+		
+		<!--jQuery [ REQUIRED ]-->
+		<script src="https://code.jquery.com/jquery-2.2.0.min.js" />
+		
+		<!--BootstrapJS [ RECOMMENDED ]-->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" />
 	</body>
 </html>

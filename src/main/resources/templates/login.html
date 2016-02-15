@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4">
+    <head>
+        <meta charset="utf-8" />
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	    <title>Login page | Spring ERP</title>
+	    
+	    <!--STYLESHEET-->
+		<!--=================================================-->
+		
+		<!--Open Sans Font [ OPTIONAL ] -->
+		<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&amp;subset=latin" rel="stylesheet" />
+		
+		<!--Bootstrap Stylesheet [ REQUIRED ] -->
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
+		
+		<!--Nifty Stylesheet [ REQUIRED ]-->
+    	<link href="/site/nifty.min.css" rel="stylesheet" />
+    
+		<!--Font Awesome [ OPTIONAL ]-->
+		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+    </head>
+    <body>
+	    <div id="container" class="cls-container">
+			
+			<!-- BACKGROUND IMAGE -->
+			<!--===================================================-->
+			<div id="bg-overlay" class="bg-img img-balloon"></div>
+			
+			
+			<!-- HEADER -->
+			<!--===================================================-->
+			<div class="cls-header cls-header-lg">
+				<div class="cls-brand">
+					<a class="box-inline" href="index.html">
+						<!-- <img alt="Nifty Admin" src="img/logo.png" class="brand-icon"> -->
+						<span class="brand-title">Spring ERP</span>
+					</a>
+				</div>
+			</div>
+			<!--===================================================-->
+			
+			
+			<!-- LOGIN FORM -->
+			<!--===================================================-->
+			<div class="cls-content">
+				<div class="cls-content-sm panel">
+					<div class="panel-body">
+						<p class="pad-btm">Sign In to your account</p>
+						<div th:if="${param.error}">
+				            Invalid username and password.
+				        </div>
+				        <div th:if="${param.logout}">
+				            You have been logged out.
+				        </div>
+						<form th:action="@{/login}" method="POST">
+							<div class="form-group">
+								<div class="input-group">
+									<div class="input-group-addon"><i class="fa fa-user"></i></div>
+									<input type="text" class="form-control" placeholder="Username" name="username" />
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="input-group">
+									<div class="input-group-addon"><i class="fa fa-asterisk"></i></div>
+									<input type="password" class="form-control" placeholder="Password" name="password" />
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-xs-8 text-left checkbox">
+									<label class="form-checkbox form-icon">
+										<input type="checkbox"> Remember me</input>
+									</label>
+								</div>
+								<div class="col-xs-4">
+									<div class="form-group text-right">
+										<button class="btn btn-success text-uppercase" type="submit">Sign In</button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+			<!--===================================================-->			
+			
+		</div>
+		<!--===================================================-->
+		<!-- END OF CONTAINER -->
+        
+        <!--JAVASCRIPT-->
+		<!--=================================================-->
+		
+		<!--jQuery [ REQUIRED ]-->
+		<script src="https://code.jquery.com/jquery-2.2.0.min.js" />
+		
+		<!--BootstrapJS [ RECOMMENDED ]-->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" />
+		
+		<!--Nifty Admin [ RECOMMENDED ]-->
+    	<script src="/site/nifty.min.js"></script>
+    </body>
+</html>
