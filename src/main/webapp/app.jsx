@@ -1,23 +1,50 @@
-import { render } from 'react-dom'
-import { Router, Route, Link, browserHistory } from 'react-router'
+import React from 'react'
+import { findDOMNode, render } from 'react-dom'
+import { Router, Route, Link, hashHistory } from 'react-router'
+import when from 'when'
+import client from './client'
+import follow from './follow'
+import stompClient from './websocket-listener'
+import './less/main.less'
 
 define(function (require){
 	'use strict';
 	
 	// tag::vars[]
-	var React = require('react'),
-		ReactDOM = require('react-dom'),
-        when = require('when'),
-	    client = require('./client'),
-		follow = require('./follow'),
-		stompClient = require('./websocket-listener'),
-		root = '/api';
+	var	root = '/api';
 	// end::vars[]
-
-	require('./less/main.less');
 
 	// tag::app[]
 	var App = React.createClass({
+		render: function () {
+			return (
+				<div>
+					<h1>Spring ERP</h1>
+					<ul>
+						<li><Link to="/about">About</Link></li>
+						<li><Link to="/employees">Employees</Link></li>
+					</ul>
+					{this.props.children}
+				</div>
+			)
+		}
+	});
+	// end::app[]
+
+	// tag::about[]
+    var About = React.createClass({
+        render: function() {
+            return (
+                <h3>
+                    About Spring ERP
+                </h3>
+            )
+        }
+    });
+    // end::about[]
+
+	// tag::employees[]
+	var Employees = React.createClass({
 		// tag::follow-2[]
 		loadFromServer: function(pageSize) {
 			follow(client, root, [{rel: 'employees', params:{size: pageSize}}]
@@ -218,19 +245,7 @@ define(function (require){
 			)
 		}
 	});
-	// end::app[]
-
-    // tag::about[]
-    var About = React.createClass({
-        render: function() {
-            return (
-                <div>
-                    About Spring ERP
-                </div>
-            )
-        }
-    });
-    // end::about[]
+	// end::employees[]
 
 	// tag::create-dialog[]
 	var CreateDialog = React.createClass({
@@ -240,14 +255,14 @@ define(function (require){
 
 			var newEmployee = {};
 			this.props.attributes.forEach(attribute => {
-				newEmployee[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
+				newEmployee[attribute] = findDOMNode(this.refs[attribute]).value.trim();
 			});
 			console.log(newEmployee);
 			this.props.onCreate(newEmployee);
 
 			// Clear out the dialog's input
 			this.props.attributes.forEach(attribute => {
-				ReactDOM.findDOMNode(this.refs[attribute]).value = '';
+				findDOMNode(this.refs[attribute]).value = '';
 			});
 
 			// Navigate away from the dialog to hide it
@@ -290,7 +305,7 @@ define(function (require){
 
             var updatedEmployee = {};
             this.props.attributes.forEach(attribute => {
-                updatedEmployee[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
+                updatedEmployee[attribute] = findDOMNode(this.refs[attribute]).value.trim();
             });
             this.props.onUpdate(this.props.employee, updatedEmployee);
             window.location = "#";
@@ -332,11 +347,11 @@ define(function (require){
 		// tag::handle-page-size-update[]
 		handleInput: function(e) {
 			e.preventDefault();
-			var pageSize = ReactDOM.findDOMNode(this.refs.pageSize).value;
+			var pageSize = findDOMNode(this.refs.pageSize).value;
 			if (/^[0-9]+$/.test(pageSize)) {
 				this.props.updatePageSize(pageSize);
 			} else {
-				ReactDOM.findDOMNode(this.refs.pageSize).value = pageSize.substring(0, pageSize.length - 1);
+				findDOMNode(this.refs.pageSize).value = pageSize.substring(0, pageSize.length - 1);
 			}
 		},
 		// end::handle-page-size-update[]
@@ -433,20 +448,16 @@ define(function (require){
 	// end::employee[]
 
 	// tag::render[]
-	//ReactDOM.render(
-	//	<App />,
-	//	document.getElementById('react')
-	//)
     // Declarative route configuration (could also load this config lazily
     // instead, all you really need is a single root route, you don't need to
     // colocate the entire config).
     render((
-            <Router history={browserHistory}>
-                <Route path="/" component={App} />
-                <Route path="/about" component={About} />
-            </Router>
-        ),
-        document.getElementById('react')
-    )
+		<Router history={hashHistory} >
+			<Route path="/" component={App}>
+				<Route path="about" component={About} />
+				<Route path="employees" component={Employees} />
+			</Route>
+		</Router>
+	), document.getElementById('react') );
 	// end::render[]
 });
