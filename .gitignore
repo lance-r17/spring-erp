@@ -14,3 +14,4 @@ bower_components
 site
 out
 *.iws
+npm-debug.log

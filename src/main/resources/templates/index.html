@@ -11,26 +11,35 @@
 		<!--Open Sans Font [ OPTIONAL ] -->
 		<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700&amp;subset=latin" rel="stylesheet" />
 		
+		<!--Vendors' Stylesheet, including -->
 		<!--Bootstrap Stylesheet [ REQUIRED ] -->
-		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
-
-		<!--Nifty Stylesheet [ REQUIRED ]-->
-		<link href="/site/nifty.css" rel="stylesheet" />
-
 		<!--Font Awesome [ OPTIONAL ]-->
-		<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+		<link href="/site/vendors.style.min.css" rel="stylesheet" />
+		
+		<!--Nifty Stylesheet [ REQUIRED ]-->
+		<link href="/site/nifty.min.css" rel="stylesheet" />
 	</head>
 	<body>	
 	    <div id="react"></div>
 	    
 	    <!--JAVASCRIPT-->
 		<!--=================================================-->
-		<script src="/site/bundle.js" />
 		
-		<!--jQuery [ REQUIRED ]-->
-		<script src="https://code.jquery.com/jquery-2.2.0.min.js" />
-		
+		<!--Vendors' bundle scripts, including: -->
+		<!--jQuery [ REQUIRED ] -->
 		<!--BootstrapJS [ RECOMMENDED ]-->
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" />
+		<!--React [ REQUIRED ] -->
+		<script src="/site/vendors.bundle.js"></script>
+
+		
+		<!--Nifty [ RECOMMENDED ]-->
+    	<script src="/site/nifty.min.js"></script>
+    	
+    	
+    	<!--React bundle [ REQUIRED ] -->
+    	<script src="/site/react.bundle.js"></script>
+    	
+		
+		<script src="/site/bundle.js" />
 	</body>
 </html>
