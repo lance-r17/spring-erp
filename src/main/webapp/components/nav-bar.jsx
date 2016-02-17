@@ -1,4 +1,5 @@
 import React from 'react'
+import classNames from 'classnames'
 import { Icons } from '../controls'
 
 define(function(require) {
@@ -6,6 +7,7 @@ define(function(require) {
 
 	const messages = [
 		{
+			id: 1,
 			from: {
 				name: 'Andy',
 				avatarUrl: 'img/av2.png'
@@ -14,6 +16,7 @@ define(function(require) {
 			since: '15 minutes ago'
 		},
 		{
+			id: 2,
 			from: {
 				name: 'Lucy',
 				avatarUrl: 'img/av4.png'
@@ -22,6 +25,7 @@ define(function(require) {
 			since: '30 minutes ago'
 		},
 		{
+			id: 3,
 			from: {
 				name: 'Jackson',
 				avatarUrl: 'img/av3.png'
@@ -30,6 +34,7 @@ define(function(require) {
 			since: '40 minutes ago'
 		},
 		{
+			id: 4,
 			from: {
 				name: 'Donna',
 				avatarUrl: 'img/av6.png'
@@ -38,6 +43,7 @@ define(function(require) {
 			since: '5 hours ago'
 		},
 		{
+			id: 5,
 			from: {
 				name: 'Lucy',
 				avatarUrl: 'img/av4.png'
@@ -46,6 +52,7 @@ define(function(require) {
 			since: 'Yesterday'
 		},
 		{
+			id: 6,
 			from: {
 				name: 'Jackson',
 				avatarUrl: 'img/av3.png'
@@ -58,42 +65,55 @@ define(function(require) {
 
 	const notifications = [
 		{
-			type: 'progress',
-			subject: 'Database Repair',
-			progress: '70%'
+			id: 1,
+			progress: {
+                subject: 'Database Repair',
+                percentage: '70%'
+            }
 		}, 
 		{
-			type: 'progress',
-			subject: 'Upgrade Progress',
-			progress: '10%'
+            id: 2,
+			progress: {
+                subject: 'Upgrade Progress',
+                percentage: '10%',
+                status: 'warning'
+            }
 		},
 		{
-			type: 'message',
-			icon: 'comment',
-			subject: 'New comments waiting approval',
-			since: '15 minutes ago'
+            id: 3,
+			message: {
+                icon: 'comment',
+                subject: 'New comments waiting approval',
+                since: '15 minutes ago'
+            }
 		},
 		{
-			type: 'message',
-			icon: 'hdd',
-			subject: 'HDD is full',
-			since: '50 minutes ago',
-			highlight: {
-				type: 'badge',
-				content: '90%'
-			}
+            id: 4,
+			message: {
+                icon: 'hdd',
+                subject: 'HDD is full',
+                since: '50 minutes ago',
+                highlight: {
+                    type: 'badge',
+                    content: '90%'
+                }
+            }
 		},
 		{
-			type: 'message',
-			icon: 'word',
-			subject: 'Write a news article',
-			since: 'Last Update 8 hours ago'
+            id: 5,
+            message: {
+                icon: 'word',
+                subject: 'Write a news article',
+                since: 'Last Update 8 hours ago'
+            }
 		},
 		{
-			type: 'message',
-			icon: 'user',
-			subject: 'New User Registered',
-			since: '4 minutes ago'
+            id: 6,
+            message: {
+                icon: 'user',
+                subject: 'New User Registered',
+                since: '4 minutes ago'
+            }
 		}
 	];
 
@@ -406,13 +426,13 @@ define(function(require) {
 			var badge = messages.length > 0 ? (<span className="badge badge-header badge-warning">{messages.length}</span>) : "";
 			var messageList = [];
 			messages.forEach(message => {
-				messageList.push(<MessageDropdownItem message={message} />)
+				messageList.push(<MessageDropdownItem message={message} key={"message-" + message.id} />)
 			});
 
 			return (
 				<li className="dropdown">
 					<a href="#" data-toggle="dropdown" className="dropdown-toggle">
-						<i className="fa fa-envelope fa-lg"></i>
+						<i className="fa fa-envelope fa-lg" />
 						{badge}
 					</a>
 					{/* Message dropdown menu */}
@@ -432,7 +452,7 @@ define(function(require) {
 						{/* Dropdown footer */}
 						<div className="pad-all bord-top">
 							<a href="#" className="btn-link text-dark box-block">
-								<i className="fa fa-angle-right fa-lg pull-right"></i>Show All Messages
+								<i className="fa fa-angle-right fa-lg pull-right" />Show All Messages
 							</a>
 						</div>
 					</div>
@@ -446,7 +466,7 @@ define(function(require) {
 	var MessageDropdownItem = React.createClass({
 		render: function () {
 			return (
-				<li key={this.props.message.id}>
+				<li>
 					<a href="#" className="media">
 						<div className="media-left">
 							<img src={this.props.message.from.avatarUrl} alt="Profile Picture" className="img-circle img-sm" />
@@ -469,13 +489,13 @@ define(function(require) {
 			var badge = notifications.length > 0 ? (<span className="badge badge-header badge-danger">{notifications.length}</span>) : "";
 			var notificationList = [];
 			notifications.forEach(notification => {
-				notificationList.push(<NotificationDropdownItem notification={notification} />)
+				notificationList.push(<NotificationDropdownItem key={"notification-" + notification.id} notification={notification} />)
 			});
 
 			return (
 				<li className="dropdown">
 					<a href="#" data-toggle="dropdown" className="dropdown-toggle">
-						<i className="fa fa-bell fa-lg"></i>
+						<i className="fa fa-bell fa-lg" />
 						{badge}
 					</a>
 
@@ -496,7 +516,7 @@ define(function(require) {
 						{/* Dropdown footer */}
 						<div className="pad-all bord-top">
 							<a href="#" className="btn-link text-dark box-block">
-								<i className="fa fa-angle-right fa-lg pull-right"></i>Show All Notifications
+								<i className="fa fa-angle-right fa-lg pull-right" />Show All Notifications
 							</a>
 						</div>
 					</div>
@@ -511,13 +531,13 @@ define(function(require) {
 		render: function () {
 			var type = this.props.notification.type;
 			var notificatonEL = "";
-			if (type === 'progress') {
-				notificatonEL = <ProgressNotification notification={this.props.notification} />
-			} else if (type === 'message') {
-				notificatonEL = <MessageNotification notification={this.props.notification} />
+			if (this.props.notification.progress) {
+				notificatonEL = <ProgressNotification progress={this.props.notification.progress} />
+			} else if (this.props.notification.message) {
+				notificatonEL = <MessageNotification message={this.props.notification.message} />
 			}
 			return (
-				<li key={this.props.notification.id}>
+				<li>
 					{notificatonEL}
 				</li>
 			)
@@ -528,15 +548,17 @@ define(function(require) {
 	// tag::progress-notification[]
 	var ProgressNotification = React.createClass({
 		render: function () {
+            var progress = this.props.progress;
+            var progressClassName = classNames('progress-bar', progress.status ? 'progress-bar-' + progress.status : '');
 			return (
 				<a href="#">
 					<div className="clearfix">
-						<p className="pull-left">{this.props.notification.subject}</p>
-						<p className="pull-right">{this.props.notification.progress}</p>
+						<p className="pull-left">{progress.subject}</p>
+						<p className="pull-right">{progress.percentage}</p>
 					</div>
 					<div className="progress progress-sm">
-						<div style={{width: this.props.notification.progress}} className="progress-bar">
-							<span className="sr-only">{this.props.notification.progress} Complete</span>
+						<div style={{width: progress.percentage}} className={progressClassName}>
+							<span className="sr-only">{progress.percentage} Complete</span>
 						</div>
 					</div>
 				</a>
@@ -548,16 +570,16 @@ define(function(require) {
 	// tag::message-notification[]
 	var MessageNotification = React.createClass({
 		render: function () {
-			var highlight = this.props.notification.highlight;
+			var message = this.props.message;
 			var highlightEl = null;
-			if (highlight !== null && highlight !== undefined) {
-				if (highlight.type === 'badge') {
-					highlightEl = <span className="badge badge-success pull-right">{highlight.content}</span>;
-				} else if (highlight.type === 'label') {
-					highlightEl = <span className="label label-danger pull-right">{highlight.content}</span>
+			if (message.highlight) {
+				if (message.highlight.type === 'badge') {
+					highlightEl = <span className="badge badge-success pull-right">{message.highlight.content}</span>
+				} else if (message.highlight.type === 'label') {
+					highlightEl = <span className="label label-danger pull-right">{message.highlight.content}</span>
 				}
 			}
-			var iconEl = Icons[this.props.notification.icon];
+			var iconEl = Icons[message.icon];
 			return (
 				<a href="#" className="media">
 					{highlightEl}
@@ -565,8 +587,8 @@ define(function(require) {
 						{iconEl}
 					</div>
 					<div className="media-body">
-						<div className="text-nowrap">{this.props.notification.subject}</div>
-						<small className="text-muted">{this.props.notification.since}</small>
+						<div className="text-nowrap">{message.subject}</div>
+						<small className="text-muted">{message.since}</small>
 					</div>
 				</a>
 			)
