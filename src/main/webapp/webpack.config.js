@@ -93,9 +93,9 @@ var config = {
     },
     plugins: [
         // Remove all before output
-        new WebpackCleanupPlugin({
-            exclude: []
-        }),
+        //new WebpackCleanupPlugin({
+        //    exclude: []
+        //}),
         new webpack.ProvidePlugin({
             $               : 'jquery',
             jQuery          : 'jquery',
@@ -108,10 +108,10 @@ var config = {
             filename: '[name].js'
         }),
         new ExtractTextPlugin('[name].css'),
-        new webpack.optimize.UglifyJsPlugin({
-            include: /\.min\.js$/,
-            minimize: true
-        })
+        //new webpack.optimize.UglifyJsPlugin({
+        //    include: /\.min\.js$/,
+        //    minimize: true
+        //})
     ],
     node: {
         net: 'empty'
