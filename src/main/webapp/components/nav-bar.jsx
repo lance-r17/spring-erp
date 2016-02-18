@@ -79,8 +79,30 @@ define(function(require) {
                 status: 'warning'
             }
 		},
-		{
+        {
             id: 3,
+            message: {
+                from: {
+                    name: 'Lucy',
+                    avatarUrl: 'img/av4.png'
+                },
+                subject: 'Lucy sent you a message',
+                since: '30 minutes ago'
+            }
+        },
+        {
+            id: 4,
+            message: {
+                from: {
+                    name: 'Jackson',
+                    avatarUrl: 'img/av3.png'
+                },
+                subject: 'Jackson sent you a message',
+                since: '40 minutes ago'
+            }
+        },
+		{
+            id: 5,
 			message: {
                 icon: 'comment',
                 subject: 'New comments waiting approval',
@@ -88,7 +110,7 @@ define(function(require) {
             }
 		},
 		{
-            id: 4,
+            id: 6,
 			message: {
                 icon: 'hdd',
                 subject: 'HDD is full',
@@ -100,7 +122,7 @@ define(function(require) {
             }
 		},
 		{
-            id: 5,
+            id: 7,
             message: {
                 icon: 'word',
                 subject: 'Write a news article',
@@ -108,13 +130,24 @@ define(function(require) {
             }
 		},
 		{
-            id: 6,
+            id: 8,
             message: {
                 icon: 'user',
                 subject: 'New User Registered',
                 since: '4 minutes ago'
             }
-		}
+		},
+        {
+            id: 9,
+            message: {
+                from: {
+                    name: 'Jackson',
+                    avatarUrl: 'img/av3.png'
+                },
+                subject: 'Jackson sent you a message',
+                since: 'Yesterday'
+            }
+        }
 	];
 
 	// tag::nav-bar[]
@@ -170,20 +203,20 @@ define(function(require) {
 	var NavBarDropdownMain = React.createClass({
 		render: function() {
 			return (
-				<ul className="nav navbar-top-links pull-left">
+                <ul className="nav navbar-top-links pull-left">
 					{/* Navigation toogle button */}
 					{/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */}
-					<li className="tgl-menu-btn">
-						<a className="mainnav-toggle" href="#">
-							<i className="fa fa-navicon fa-lg"></i>
-						</a>
-					</li>
+                    <li classNamee="tgl-menu-btn">
+                        <a className="mainnav-toggle" href="#">
+                            <i className="fa fa-navicon fa-lg"></i>
+                        </a>
+                    </li>
 					{/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */}
 					{/* End Navigation toogle button */}
 
 
 					{/* message dropdown list */}
-					<MessageDropdownList messages={this.props.messages} />
+                    {/*<MessageDropdownList messages={this.props.messages} />*/}
 
 
 					{/* notification dropdown list */}
@@ -486,7 +519,7 @@ define(function(require) {
 	var NotificationDropdownList = React.createClass({
 		render: function() {
 			var notifications = this.props.notifications;
-			var badge = notifications.length > 0 ? (<span className="badge badge-header badge-danger">{notifications.length}</span>) : "";
+			var badge = notifications.length > 0 ? (<span className="badge badge-header badge-danger">{notifications.length}</span>) : null;
 			var notificationList = [];
 			notifications.forEach(notification => {
 				notificationList.push(<NotificationDropdownItem key={"notification-" + notification.id} notification={notification} />)
@@ -495,32 +528,32 @@ define(function(require) {
 			return (
 				<li className="dropdown">
 					<a href="#" data-toggle="dropdown" className="dropdown-toggle">
-						<i className="fa fa-bell fa-lg" />
-						{badge}
+						<i className="fa fa-bell fa-lg"></i>
+						<span className="badge badge-header badge-danger">9</span>
 					</a>
 
-					{/* Notification dropdown menu */}
-					<div className="dropdown-menu dropdown-menu-md with-arrow">
+                    {/* Notification dropdown menu */}
+					<div className="dropdown-menu dropdown-menu-md">
 						<div className="pad-all bord-btm">
-							<p className="text-lg text-muted text-thin mar-no">You have {notifications.length} messages.</p>
+							<p className="text-lg text-muted text-semibold mar-no">You have {notifications.length} notifications.</p>
 						</div>
 						<div className="nano scrollable">
 							<div className="nano-content">
 								<ul className="head-list">
 									{/*  notification list */}
 									{notificationList}
-								</ul>
-							</div>
-						</div>
+                                </ul>
+                            </div>
+                        </div>
 
-						{/* Dropdown footer */}
-						<div className="pad-all bord-top">
-							<a href="#" className="btn-link text-dark box-block">
-								<i className="fa fa-angle-right fa-lg pull-right" />Show All Notifications
-							</a>
-						</div>
-					</div>
-				</li>
+                        {/* Dropdown footer */}
+                        <div className="pad-all bord-top">
+                            <a href="#" className="btn-link text-dark box-block">
+                                <i className="fa fa-angle-right fa-lg pull-right"></i>Show All Notifications
+                            </a>
+                        </div>
+                    </div>
+                </li>
 			)
 		}
 	});
@@ -579,12 +612,18 @@ define(function(require) {
 					highlightEl = <span className="label label-danger pull-right">{message.highlight.content}</span>
 				}
 			}
-			var iconEl = Icons[message.icon];
+			var imgEl = null;
+
+            if (message.icon) {
+                imgEl = Icons[message.icon];
+            } else if (message.from) {
+                imgEl = <img src={message.from.avatarUrl} alt="Profile Picture" className="img-circle img-sm" />
+            }
 			return (
 				<a href="#" className="media">
 					{highlightEl}
 					<div className="media-left">
-						{iconEl}
+						{imgEl}
 					</div>
 					<div className="media-body">
 						<div className="text-nowrap">{message.subject}</div>

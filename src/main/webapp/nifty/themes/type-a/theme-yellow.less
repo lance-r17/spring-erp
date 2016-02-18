@@ -1,32 +1,21 @@
-@import "../../variables.less";
-@import "../themes.less";
+@import "../../_variables.less";
+@import "../_themes.less";
 
+
+
+
+// BODY
 //============================================
-
-
-
-
-
 @body-bg                    : #F7F2F2;
 @body-color					: #5f5f5f;
 
 
 
 
-
-
-// NAVBAR & LOGO
+// GENERAL COMPONENTS
 //============================================
-@navbar-bg                  : @state-active-bg;
-@navbar-color               : @state-active-color;
-@brand-bg                   : transparent;
-@brand-bg-overlay           : @mainnav-bg;
-@brand-color                : @mainnav-hover-color;
-@brand-color-overlay        : @brand-color;
-
-
-
-
+@state-active-bg            : #f1da71;
+@state-active-color         : #897727;
 
 
 
@@ -43,10 +32,14 @@
 
 
 
-
-
-
-
+// NAVBAR & LOGO
+//============================================
+@navbar-bg                  : @state-active-bg;
+@navbar-color               : @state-active-color;
+@brand-bg                   : transparent;
+@brand-bg-overlay           : @mainnav-bg;
+@brand-color                : @mainnav-hover-color;
+@brand-color-overlay        : @brand-color;
 
 
 
@@ -61,27 +54,7 @@
 
 
 
-
-
-
-
-
-
 // FOOTER
 //============================================
-@footer-bg                  : multiply(@body-bg, #ddd);
+@footer-bg                  : desaturate(darken(@body-bg, 13%), 21%);
 @footer-color               : @body-color;
-
-
-
-
-
-
-
-
-// COMPONENT
-//============================================
-@state-active-bg            : #f1da71;
-@state-active-color         : #897727;
-
-
