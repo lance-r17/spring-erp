@@ -12,6 +12,7 @@
     "classnames": "^2.2.3",
     "font-awesome": "^4.5.0",
     "jquery": "^2.2.0",
+    "lodash": "^4.5.0",
     "react": "^0.14.7",
     "react-dom": "^0.14.7",
     "react-router": "^2.0.0",

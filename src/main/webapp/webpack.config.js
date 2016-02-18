@@ -15,7 +15,8 @@ var config = {
         'vendors': [
             'jquery',
             'bootstrap-webpack!./config/bootstrap.config.js',
-            'font-awesome-webpack!./config/font-awesome.config.js'
+            'font-awesome-webpack!./config/font-awesome.config.js',
+            'lodash'
         ],
         'nifty': ['nifty-script', 'nifty-style'],
         'react.bundle': [
@@ -98,7 +99,8 @@ var config = {
         new webpack.ProvidePlugin({
             $               : 'jquery',
             jQuery          : 'jquery',
-            'window.jQuery' : 'jquery'
+            'window.jQuery' : 'jquery',
+            '_'             : 'lodash'
         }),
         new webpack.optimize.CommonsChunkPlugin({
             // vendors must be the last one of names which is the boost
