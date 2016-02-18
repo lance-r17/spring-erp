@@ -301,6 +301,20 @@ define(function(require) {
 		}
 	];
 
+    const user = {
+        id: 1,
+        role: 'Manager',
+        firstName: 'John',
+        lastName: 'Doe',
+        avatarUrl: 'img/av1.png',
+        setting: {
+            label: {
+                content: 'New',
+                color: 'success'
+            }
+        }
+    };
+
 	// tag::controls[]
 	// tag::badge[]
 	var Badge = React.createClass({
@@ -336,7 +350,7 @@ define(function(require) {
 
 						<NavBarBrand brandName="Spring ERP" />
 
-						<NavBarContent notifications={notifications} mega={mega} languages={languages} />
+						<NavBarContent notifications={notifications} mega={mega} languages={languages} user={user} />
 
 					</div>
 				</header>
@@ -369,7 +383,7 @@ define(function(require) {
 				<div className="navbar-content clearfix">
 					<NavBarDropdownMain notifications={this.props.notifications} mega={this.props.mega} />
 					
-					<NavBarDropdownSlave languages={this.props.languages} />
+					<NavBarDropdownSlave languages={this.props.languages} user={user} />
 				</div>
 			)
 		}
@@ -411,70 +425,7 @@ define(function(require) {
 
 
 					{/* User dropdown */}
-					{/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */}
-					<li id="dropdown-user" className="dropdown">
-						<a href="#" data-toggle="dropdown" className="dropdown-toggle text-right">
-							<span className="pull-right">
-								<img className="img-circle img-user media-object" src="img/av1.png" alt="Profile Picture" />
-							</span>
-							<div className="username hidden-xs">John Doe</div>
-						</a>
-
-
-						<div className="dropdown-menu dropdown-menu-md dropdown-menu-right panel-default">
-
-							{/*  Dropdown heading  */}
-							<div className="pad-all bord-btm">
-								<p className="text-lg text-muted text-thin mar-btm">750Gb of 1,000Gb Used</p>
-								<div className="progress progress-sm">
-									<div className="progress-bar" style={{width: "70%"}}>
-										<span className="sr-only">70%</span>
-									</div>
-								</div>
-							</div>
-
-
-							{/*  User dropdown menu  */}
-							<ul className="head-list">
-								<li>
-									<a href="#">
-										<i className="fa fa-user fa-fw fa-lg"></i> Profile
-									</a>
-								</li>
-								<li>
-									<a href="#">
-										<span className="badge badge-danger pull-right">9</span>
-										<i className="fa fa-envelope fa-fw fa-lg"></i> Messages
-									</a>
-								</li>
-								<li>
-									<a href="#">
-										<span className="label label-success pull-right">New</span>
-										<i className="fa fa-gear fa-fw fa-lg"></i> Settings
-									</a>
-								</li>
-								<li>
-									<a href="#">
-										<i className="fa fa-question-circle fa-fw fa-lg"></i> Help
-									</a>
-								</li>
-								<li>
-									<a href="#">
-										<i className="fa fa-lock fa-fw fa-lg"></i> Lock screen
-									</a>
-								</li>
-							</ul>
-
-							{/*  Dropdown footer  */}
-							<div className="pad-all text-right">
-								<a href="/logout" className="btn btn-primary">
-									<i className="fa fa-sign-out fa-fw"></i> Logout
-								</a>
-							</div>
-						</div>
-					</li>
-					{/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */}
-					{/* End user dropdown */}
+					<UserDropdown user={this.props.user} />
 
 				</ul>
 			)
@@ -631,7 +582,7 @@ define(function(require) {
 	});
 	// end::message-notification[]
 
-	// tag::meaga-menu-dropdown[]
+	// tag::mega-menu-dropdown[]
 	var MegaMenuDropdown = React.createClass({
 		getInitialState: function() {
 			return (
@@ -679,9 +630,9 @@ define(function(require) {
 			)
 		}
 	});
-	// end::meaga-menu-dropdown[]
+	// end::mega-menu-dropdown[]
 
-	// tag::meaga-menu-news-widget[]
+	// tag::mega-menu-news-widget[]
 	var MegaMenuNewsWidget = React.createClass({
 		render: function() {
 			return (
@@ -700,9 +651,9 @@ define(function(require) {
 			)
 		}
 	});
-	// end::meaga-menu-news-widget[]
+	// end::mega-menu-news-widget[]
 
-	// tag::meaga-menu-col-list[]
+	// tag::mega-menu-col-list[]
 	var MegaMenuColList = React.createClass({
 		createHeader: function(name, key) {
 			return (
@@ -761,7 +712,7 @@ define(function(require) {
 			)
 		}
 	});
-	// end::meaga-menu-col-list[]
+	// end::mega-menu-col-list[]
 
 	// tag::language[]
 
@@ -825,6 +776,163 @@ define(function(require) {
 	// end::language-option-item[]
 
 	// end::language[]
+
+	// tag::user[]
+
+	// tag::user-dropdown[]
+	var UserDropdown = React.createClass({
+		render: function () {
+            var user = this.props.user;
+            return (
+                <li id="dropdown-user" className="dropdown">
+                    <a href="#" data-toggle="dropdown" className="dropdown-toggle text-right">
+                        <span className="pull-right">
+                            <img className="img-circle img-user media-object" src={user.avatarUrl} alt="Profile Picture" />
+                        </span>
+                        <div className="username hidden-xs">{user.firstName} {user.lastName}</div>
+                    </a>
+
+                    <UserMenu user={user} />
+
+                </li>
+            )
+		}
+	});
+	// end::user-dropdown[]
+
+    // tag::user-menu[]
+    var UserMenu = React.createClass({
+        render: function () {
+            var user = this.props.user;
+            return (
+                <div className="dropdown-menu dropdown-menu-md dropdown-menu-right panel-default">
+
+                    {/* Dropdown heading */}
+                    <div className="pad-all bord-btm">
+                        <p className="text-lg text-muted text-semibold mar-no">{user.role}</p>
+                    </div>
+
+                    {/*  User dropdown menu  */}
+                    <ul className="head-list">
+                        <li>
+                            <UserProfile profile={user.profile} />
+                        </li>
+
+                        <li>
+                            <UserSetting setting={user.setting} />
+                        </li>
+
+                        <li>
+                            <UserHelp help={user.help} />
+                        </li>
+
+                        <li>
+                            <UserLock />
+                        </li>
+                    </ul>
+
+                    {/*  Dropdown footer  */}
+                    <div className="pad-all text-right">
+                        <a href="/logout" className="btn btn-primary">
+                            <i className="fa fa-sign-out fa-fw"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            )
+        }
+    });
+    // end::user-menu[]
+
+    // tag::user-profile[]
+    var UserProfile = React.createClass({
+        render: function () {
+            var profile = this.props.profile;
+            var highlightEl = null;
+            if (profile) {
+                var options = {}
+                 if (profile.badge) {
+                    _.extend(options, profile.badge, {right: true});
+                    highlightEl = <Badge options={options} />
+                } else if (profile.label) {
+                     _.extend(options, profile.label, {right: true});
+                     highlightEl = <Label options={options} />
+                 }
+            }
+            return (
+                <a href="#">
+                    {highlightEl}
+                    <i className="fa fa-user fa-fw fa-lg"></i> Profile
+                </a>
+            )
+        }
+    });
+    // end::user-profile[]
+
+    // tag::user-setting[]
+    var UserSetting = React.createClass({
+        render: function () {
+            var setting = this.props.setting;
+            var highlightEl = null;
+            if (setting) {
+                var options = {}
+                if (setting.badge) {
+                    _.extend(options, setting.badge, {right: true});
+                    highlightEl = <Badge options={options} />
+                } else if (setting.label) {
+                    _.extend(options, setting.label, {right: true});
+                    highlightEl = <Label options={options} />
+                }
+            }
+            return (
+                <a href="#">
+                    {highlightEl}
+                    <i className="fa fa-gear fa-fw fa-lg"></i> Settings
+                </a>
+            )
+        }
+    });
+    // end::user-setting[]
+
+    // tag::user-help[]
+    var UserHelp = React.createClass({
+        render: function () {
+            var help = this.props.help;
+            var highlightEl = null;
+            if (help) {
+                var options = {}
+                if (help.badge) {
+                    _.extend(options, help.badge, {right: true});
+                    highlightEl = <Badge options={options} />
+                } else if (help.label) {
+                    _.extend(options, help.label, {right: true});
+                    highlightEl = <Label options={options} />
+                }
+            }
+            return (
+                <a href="#">
+                    {highlightEl}
+                    <i className="fa fa-question-circle fa-fw fa-lg"></i> Help
+                </a>
+            )
+        }
+    });
+    // end::user-help[]
+
+    // tag::user-lock[]
+    var UserLock = React.createClass({
+        render: function () {
+            return (
+                <a href="#">
+                    <i className="fa fa-lock fa-fw fa-lg"></i> Lock screen
+                </a>
+            )
+        }
+    });
+    // end::user-lock[]
+
+	// end::user[]
+
+
 
 	return NavBar;
 });
