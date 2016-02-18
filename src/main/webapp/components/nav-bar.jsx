@@ -1,67 +1,10 @@
 import React from 'react'
 import classNames from 'classnames'
+import _ from 'lodash'
 import { Icons } from '../controls'
 
 define(function(require) {
 	'use strict';
-
-	const messages = [
-		{
-			id: 1,
-			from: {
-				name: 'Andy',
-				avatarUrl: 'img/av2.png'
-			},
-			subject: 'Andy sent you a message',
-			since: '15 minutes ago'
-		},
-		{
-			id: 2,
-			from: {
-				name: 'Lucy',
-				avatarUrl: 'img/av4.png'
-			},
-			subject: 'Lucy sent you a message',
-			since: '30 minutes ago'
-		},
-		{
-			id: 3,
-			from: {
-				name: 'Jackson',
-				avatarUrl: 'img/av3.png'
-			},
-			subject: 'Jackson sent you a message',
-			since: '40 minutes ago'
-		},
-		{
-			id: 4,
-			from: {
-				name: 'Donna',
-				avatarUrl: 'img/av6.png'
-			},
-			subject: 'Donna sent you a message',
-			since: '5 hours ago'
-		},
-		{
-			id: 5,
-			from: {
-				name: 'Lucy',
-				avatarUrl: 'img/av4.png'
-			},
-			subject: 'Lucy sent you a message',
-			since: 'Yesterday'
-		},
-		{
-			id: 6,
-			from: {
-				name: 'Jackson',
-				avatarUrl: 'img/av3.png'
-			},
-			subject: 'Jackson sent you a message',
-			since: 'Yesterday'
-		}
-		
-	];
 
 	const notifications = [
 		{
@@ -115,9 +58,9 @@ define(function(require) {
                 icon: 'hdd',
                 subject: 'HDD is full',
                 since: '50 minutes ago',
-                highlight: {
-                    type: 'badge',
-                    content: '90%'
+                badge: {
+                    content: '90%',
+                    color: 'success'
                 }
             }
 		},
@@ -134,7 +77,11 @@ define(function(require) {
             message: {
                 icon: 'user',
                 subject: 'New User Registered',
-                since: '4 minutes ago'
+                since: '4 minutes ago',
+                label: {
+                    content: 'New',
+                    color: 'danger'
+                }
             }
 		},
         {
@@ -150,6 +97,236 @@ define(function(require) {
         }
 	];
 
+	const mega = {
+		news: {
+			subject: 'Weekend shopping',
+			content: 'Members get <span className="text-lg text-bold">50%</span> more points. Lorem ipsum dolor sit amet!'
+		},
+		cols: [
+			{
+				rows: [
+					{
+						header: {
+							name: 'Pages'
+						}
+					},
+					{
+						link: {
+							name: 'Profile',
+							href: '#'
+						}
+					},
+					{
+						link: {
+							name: 'Search Result',
+							href: '#'
+						}
+					},
+					{
+						link: {
+							name: 'FAQ',
+							href: '#'
+						}
+					},
+					{
+						link: {
+							name: 'Screen Lock',
+							href: '#'
+						}
+					},
+					{
+						link: {
+							name: 'Disabled',
+							href: '#',
+							disabled: true
+						}
+					},
+					{
+						divider: {}
+					},
+					{
+						header: {
+							name: 'Icons'
+						}
+					},
+					{
+						link: {
+							name: 'Font Awesome',
+							href: '#',
+							badge: {
+			                    content: '479',
+			                    color: 'purple'
+			                }
+						}
+					},
+					{
+						link: {
+							name: 'Skycons',
+							href: '#'
+						}
+					}
+				]
+			},
+			{
+				rows: [
+					{
+						header: {
+							name: 'Mailbox'
+						}
+					},
+					{
+						link: {
+							name: 'Indox',
+							href: '#',
+							label: {
+								content: 'Hot',
+								color: 'danger'
+							}
+						}
+					},
+					{
+						link: {
+							name: 'Read Message',
+							href: '#'
+						}
+					},
+					{
+						link: {
+							name: 'Compose',
+							href: '#'
+						}
+					},
+					{
+						divider: {}
+					},
+					{
+						header: {
+							name: 'Featured'
+						}
+					},
+					{
+						link: {
+							name: 'Smart navigation',
+							href: '#'
+						}
+					},
+					{
+						link: {
+							name: 'Exclusive plugins',
+							href: '#',
+							badge: {
+								content: '6',
+								color: 'success'
+							}
+						}
+					},
+					{
+						link: {
+							name: 'Lot of themes',
+							href: '#'
+						}
+					},
+					{
+						link: {
+							name: 'Transition effects',
+							href: '#'
+						}
+					}
+				]
+			},
+			{
+				rows: [
+					{
+						header: {
+							name: 'Components'
+						},
+					},
+					{
+						link: {
+							name: 'Tables',
+							href: '#'
+						}
+					},
+					{
+						link: {
+							name: 'Charts',
+							href: '#'
+						}
+					},
+					{
+						link: {
+							name: 'Forms',
+							href: '#'
+						}
+					},
+					{
+						divider: {}
+					},
+					{
+						widget: {
+							type: 'newsletter'
+						}
+					}
+				]
+			}
+		]
+	};
+
+	const languages = [
+		{
+			id: 'EN',
+			name: 'English',
+			flagUrl: 'img/flags/united-kingdom.png',
+			active: true
+		},
+		{
+			id: 'FR',
+			name: 'Fran&ccedil;ais',
+			flagUrl: 'img/flags/france.png'
+		},
+		{
+			id: 'DE',
+			name: 'Deutsch',
+			flagUrl: 'img/flags/germany.png'
+		},
+		{
+			id: 'IT',
+			name: 'Italiano',
+			flagUrl: 'img/flags/italy.png'
+		},
+		{
+			id: 'ES',
+			name: 'Espa&ntilde;ol',
+			flagUrl: 'img/flags/spain.png'
+		}
+	];
+
+	// tag::controls[]
+	// tag::badge[]
+	var Badge = React.createClass({
+		render: function () {
+			var { header, color, right, content } = this.props.options;
+			var className = classNames('badge', header ? 'badge-header' : '', color ? 'badge-' + color : '', right ? 'pull-right' : '');
+			return (
+				<span className={className}>{content}</span>
+			)
+		}
+	});
+	// end::badge[]
+
+	// tag::label[]
+	var Label = React.createClass({
+		render: function () {
+			var { color, right, content } = this.props.options;
+			var className = classNames('label', color ? 'label-' + color : '', right ? 'pull-right' : '');
+			return (
+				<span className={className}>{content}</span>
+			)
+		}
+	});
+	// end::label[]
+	// end::controls[]
+
 	// tag::nav-bar[]
 	var NavBar = React.createClass({
 		render: function () {
@@ -159,7 +336,7 @@ define(function(require) {
 
 						<NavBarBrand brandName="Spring ERP" />
 
-						<NavBarContent messages={messages} notifications={notifications} />
+						<NavBarContent notifications={notifications} mega={mega} languages={languages} />
 
 					</div>
 				</header>
@@ -190,9 +367,9 @@ define(function(require) {
 		render: function() {
 			return (
 				<div className="navbar-content clearfix">
-					<NavBarDropdownMain messages={this.props.messages} notifications={this.props.notifications} />
+					<NavBarDropdownMain notifications={this.props.notifications} mega={this.props.mega} />
 					
-					<NavBarDropdownSlave />
+					<NavBarDropdownSlave languages={this.props.languages} />
 				</div>
 			)
 		}
@@ -205,109 +382,18 @@ define(function(require) {
 			return (
                 <ul className="nav navbar-top-links pull-left">
 					{/* Navigation toogle button */}
-					{/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */}
                     <li classNamee="tgl-menu-btn">
                         <a className="mainnav-toggle" href="#">
                             <i className="fa fa-navicon fa-lg"></i>
                         </a>
                     </li>
-					{/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */}
-					{/* End Navigation toogle button */}
 
 
-					{/* message dropdown list */}
-                    {/*<MessageDropdownList messages={this.props.messages} />*/}
+					{/* notification dropdown */}
+					<NotificationDropdown notifications={this.props.notifications} />
 
-
-					{/* notification dropdown list */}
-					<NotificationDropdownList notifications={this.props.notifications} />
-
-
-
-					{/* Mega dropdown */}
-					{/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */}
-					<li className="mega-dropdown">
-						<a href="#" className="mega-dropdown-toggle">
-							<i className="fa fa-th-large fa-lg"></i>
-						</a>
-						<div className="dropdown-menu mega-dropdown-menu">
-							<div className="clearfix">
-								<div className="col-sm-12 col-md-3">
-
-									{/* Mega menu widget */}
-									<div className="text-center bg-purple pad-all">
-										<h3 className="text-thin mar-no">Weekend shopping</h3>
-										<div className="pad-ver box-inline">
-											<span className="icon-wrap icon-wrap-lg icon-circle bg-trans-light">
-												<i className="fa fa-shopping-cart fa-4x"></i>
-											</span>
-										</div>
-										<p className="pad-btm">
-											Members get <span className="text-lg text-bold">50%</span> more points. Lorem ipsum dolor sit amet!
-										</p>
-										<a href="#" className="btn btn-purple">Learn More...</a>
-									</div>
-
-								</div>
-								<div className="col-sm-4 col-md-3">
-
-									{/* Mega menu list */}
-									<ul className="list-unstyled">
-										<li className="dropdown-header">Pages</li>
-										<li><a href="#">Profile</a></li>
-										<li><a href="#">Search Result</a></li>
-										<li><a href="#">FAQ</a></li>
-										<li><a href="#">Sreen Lock</a></li>
-										<li><a href="#" className="disabled">Disabled</a></li>
-										<li className="divider"></li>
-										<li className="dropdown-header">Icons</li>
-										<li><a href="#"><span className="pull-right badge badge-purple">479</span> Font Awesome</a></li>
-										<li><a href="#">Skycons</a></li>
-									</ul>
-
-								</div>
-								<div className="col-sm-4 col-md-3">
-
-									{/* Mega menu list */}
-									<ul className="list-unstyled">
-										<li className="dropdown-header">Mailbox</li>
-										<li><a href="#"><span className="pull-right label label-danger">Hot</span>Indox</a></li>
-										<li><a href="#">Read Message</a></li>
-										<li><a href="#">Compose</a></li>
-										<li className="divider"></li>
-										<li className="dropdown-header">Featured</li>
-										<li><a href="#">Smart navigation</a></li>
-										<li><a href="#"><span className="pull-right badge badge-success">6</span>Exclusive plugins</a></li>
-										<li><a href="#">Lot of themes</a></li>
-										<li><a href="#">Transition effects</a></li>
-									</ul>
-
-								</div>
-								<div className="col-sm-4 col-md-3">
-
-									{/* Mega menu list */}
-									<ul className="list-unstyled">
-										<li className="dropdown-header">Components</li>
-										<li><a href="#">Tables</a></li>
-										<li><a href="#">Charts</a></li>
-										<li><a href="#">Forms</a></li>
-										<li className="divider"></li>
-										<li>
-											<form role="form" className="form">
-												<div className="form-group">
-													<label className="dropdown-header" htmlFor="demo-megamenu-input">Newsletter</label>
-													<input id="demo-megamenu-input" type="email" placeholder="Enter email" className="form-control" />
-												</div>
-												<button className="btn btn-primary btn-block" type="submit">Submit</button>
-											</form>
-										</li>
-									</ul>
-								</div>
-							</div>
-						</div>
-					</li>
-					{/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */}
-					{/* End mega dropdown */}
+					{/* Mega menu dropdown */}
+					<MegaMenuDropdown mega={this.props.mega} />
 				</ul>
 			)
 		}
@@ -321,63 +407,7 @@ define(function(require) {
 				<ul className="nav navbar-top-links pull-right">
 
 					{/* Language selector */}
-					{/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */}
-					<li className="dropdown">
-						<a id="demo-lang-switch" className="lang-selector dropdown-toggle" href="#" data-toggle="dropdown">
-							<span className="lang-selected">
-								<img className="lang-flag" src="img/flags/united-kingdom.png" alt="English" />
-								<span className="lang-id">EN</span>
-								<span className="lang-name">English</span>
-							</span>
-						</a>
-
-						{/* Language selector menu */}
-						<ul className="head-list dropdown-menu with-arrow">
-							<li>
-								{/* English */}
-								<a href="#" className="active">
-									<img className="lang-flag" src="img/flags/united-kingdom.png" alt="English" />
-									<span className="lang-id">EN</span>
-									<span className="lang-name">English</span>
-								</a>
-							</li>
-							<li>
-								{/* France */}
-								<a href="#">
-									<img className="lang-flag" src="img/flags/france.png" alt="France" />
-									<span className="lang-id">FR</span>
-									<span className="lang-name">Fran&ccedil;ais</span>
-								</a>
-							</li>
-							<li>
-								{/* Germany */}
-								<a href="#">
-									<img className="lang-flag" src="img/flags/germany.png" alt="Germany" />
-									<span className="lang-id">DE</span>
-									<span className="lang-name">Deutsch</span>
-								</a>
-							</li>
-							<li>
-								{/* Italy */}
-								<a href="#">
-									<img className="lang-flag" src="img/flags/italy.png" alt="Italy" />
-									<span className="lang-id">IT</span>
-									<span className="lang-name">Italiano</span>
-								</a>
-							</li>
-							<li>
-								{/* Spain */}
-								<a href="#">
-									<img className="lang-flag" src="img/flags/spain.png" alt="Spain" />
-									<span className="lang-id">ES</span>
-									<span className="lang-name">Espa&ntilde;ol</span>
-								</a>
-							</li>
-						</ul>
-					</li>
-					{/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */}
-					{/* End language selector */}
-
+					<LanguageDropdown languages={this.props.languages} />
 
 
 					{/* User dropdown */}
@@ -391,7 +421,7 @@ define(function(require) {
 						</a>
 
 
-						<div className="dropdown-menu dropdown-menu-md dropdown-menu-right with-arrow panel-default">
+						<div className="dropdown-menu dropdown-menu-md dropdown-menu-right panel-default">
 
 							{/*  Dropdown heading  */}
 							<div className="pad-all bord-btm">
@@ -451,109 +481,72 @@ define(function(require) {
 		}
 	});
 	// end::nav-bar-dropdown-slave[]
+	
 
-	// tag::messages-dropdown-list[]
-	var MessageDropdownList = React.createClass({
-		render: function () {
-			var messages = this.props.messages;
-			var badge = messages.length > 0 ? (<span className="badge badge-header badge-warning">{messages.length}</span>) : "";
-			var messageList = [];
-			messages.forEach(message => {
-				messageList.push(<MessageDropdownItem message={message} key={"message-" + message.id} />)
-			});
-
-			return (
-				<li className="dropdown">
-					<a href="#" data-toggle="dropdown" className="dropdown-toggle">
-						<i className="fa fa-envelope fa-lg" />
-						{badge}
-					</a>
-					{/* Message dropdown menu */}
-					<div className="dropdown-menu dropdown-menu-md with-arrow">
-						<div className="pad-all bord-btm">
-							<p className="text-lg text-muted text-thin mar-no">You have {messages.length} messages.</p>
-						</div>
-						<div className="nano scrollable">
-							<div className="nano-content">
-								<ul className="head-list">
-									{/*  message list */}
-									{messageList}
-								</ul>
-							</div>
-						</div>
-
-						{/* Dropdown footer */}
-						<div className="pad-all bord-top">
-							<a href="#" className="btn-link text-dark box-block">
-								<i className="fa fa-angle-right fa-lg pull-right" />Show All Messages
-							</a>
-						</div>
-					</div>
-				</li>
-			)
-		}
-	});
-	// end::message-dropdown-list[]
-
-	// tag::messag-dropdown-item[]
-	var MessageDropdownItem = React.createClass({
-		render: function () {
-			return (
-				<li>
-					<a href="#" className="media">
-						<div className="media-left">
-							<img src={this.props.message.from.avatarUrl} alt="Profile Picture" className="img-circle img-sm" />
-						</div>
-						<div className="media-body">
-							<div className="text-nowrap">{this.props.message.subject}</div>
-							<small className="text-muted">{this.props.message.since}</small>
-						</div>
-					</a>
-				</li>
-			)
-		}
-	});
-	// end::message-dropdown-item[]
-
-	// tag::notification-dropdown-list[]
-	var NotificationDropdownList = React.createClass({
+	// tag::notification-dropdown[]
+	var NotificationDropdown = React.createClass({
 		render: function() {
-			var notifications = this.props.notifications;
-			var badge = notifications.length > 0 ? (<span className="badge badge-header badge-danger">{notifications.length}</span>) : null;
-			var notificationList = [];
-			notifications.forEach(notification => {
-				notificationList.push(<NotificationDropdownItem key={"notification-" + notification.id} notification={notification} />)
-			});
+			var length = this.props.notifications.length;
+			var options = {color: 'danger', content: length, header: true};
+			var badgeEl = length > 0 ? (<Badge options={options} />) : null;
+			
 
 			return (
 				<li className="dropdown">
 					<a href="#" data-toggle="dropdown" className="dropdown-toggle">
 						<i className="fa fa-bell fa-lg"></i>
-						<span className="badge badge-header badge-danger">9</span>
+						{badgeEl}
 					</a>
 
                     {/* Notification dropdown menu */}
-					<div className="dropdown-menu dropdown-menu-md">
-						<div className="pad-all bord-btm">
-							<p className="text-lg text-muted text-semibold mar-no">You have {notifications.length} notifications.</p>
-						</div>
-						<div className="nano scrollable">
-							<div className="nano-content">
-								<ul className="head-list">
-									{/*  notification list */}
-									{notificationList}
-                                </ul>
-                            </div>
-                        </div>
+					<NotificationDropdownMenu notifications={this.props.notifications} />
+                </li>
+			)
+		}
+	});
+	// end::notification-dropdown[]
 
-                        {/* Dropdown footer */}
-                        <div className="pad-all bord-top">
-                            <a href="#" className="btn-link text-dark box-block">
-                                <i className="fa fa-angle-right fa-lg pull-right"></i>Show All Notifications
-                            </a>
+
+	// tag::notification-dropdown-menu[]
+	var NotificationDropdownMenu = React.createClass({
+		render: function() {
+			
+			return (
+				<div className="dropdown-menu dropdown-menu-md">
+					<div className="pad-all bord-btm">
+						<p className="text-lg text-muted text-semibold mar-no">You have {this.props.notifications.length} notifications.</p>
+					</div>
+					<div className="nano scrollable">
+						<div className="nano-content">
+							<NotificationDropdownList notifications={this.props.notifications} />
                         </div>
                     </div>
-                </li>
+
+                    {/* Dropdown footer */}
+                    <div className="pad-all bord-top">
+                        <a href="#" className="btn-link text-dark box-block">
+                            <i className="fa fa-angle-right fa-lg pull-right"></i>Show All Notifications
+                        </a>
+                    </div>
+                </div>
+			)
+		}
+	});
+	// end::notification-dropdown-menu[]
+
+
+	// tag::notification-dropdown-list[]
+	var NotificationDropdownList = React.createClass({
+		render: function () {
+			var notificationListEl = [];
+			this.props.notifications.forEach(notification => {
+				notificationListEl.push(<NotificationDropdownItem key={"notification-" + notification.id} notification={notification} />)
+			});
+			return (
+				<ul className="head-list">
+					{/*  notification list */}
+					{notificationListEl}
+                </ul>
 			)
 		}
 	});
@@ -604,21 +597,24 @@ define(function(require) {
 	var MessageNotification = React.createClass({
 		render: function () {
 			var message = this.props.message;
-			var highlightEl = null;
-			if (message.highlight) {
-				if (message.highlight.type === 'badge') {
-					highlightEl = <span className="badge badge-success pull-right">{message.highlight.content}</span>
-				} else if (message.highlight.type === 'label') {
-					highlightEl = <span className="label label-danger pull-right">{message.highlight.content}</span>
-				}
-			}
-			var imgEl = null;
 
+			var highlightEl = null;
+			var options = {};
+			if (message.badge) {
+				_.extend(options, message.badge, {right: true});
+				highlightEl = <Badge options={options} />
+			} else if (message.label) {
+				_.extend(options, message.label, {right: true});
+				highlightEl = <Label options={options} />
+			}
+
+			var imgEl = null;
             if (message.icon) {
                 imgEl = Icons[message.icon];
             } else if (message.from) {
                 imgEl = <img src={message.from.avatarUrl} alt="Profile Picture" className="img-circle img-sm" />
             }
+
 			return (
 				<a href="#" className="media">
 					{highlightEl}
@@ -635,6 +631,200 @@ define(function(require) {
 	});
 	// end::message-notification[]
 
+	// tag::meaga-menu-dropdown[]
+	var MegaMenuDropdown = React.createClass({
+		getInitialState: function() {
+			return (
+				{
+					maxCols: 3
+				}
+			);
+		},
+		render: function() {
+			var colEls = [];
+			var i = 0;
+			if (this.props.mega.news) {
+				var colEl = (
+					<div className="col-sm-12 col-md-3" key={'mega-col-' + i}>
+						<MegaMenuNewsWidget news={this.props.mega.news} />
+					</div>
+				)
+				colEls.push(colEl);
+			}
+			if (this.props.mega.cols) {
+				
+				this.props.mega.cols.forEach(col => {
+					if (++i > this.state.maxCols) {
+						return;
+					}
+					var colEl = (
+						<div className='col-sm-4 col-md-3' key={'mega-col-' + i}>
+							<MegaMenuColList rows={col.rows} />
+						</div>
+					)
+					colEls.push(colEl);
+				})
+			}
+			return (
+				<li className="mega-dropdown">
+					<a href="#" className="mega-dropdown-toggle">
+						<i className="fa fa-th-large fa-lg"></i>
+					</a>
+					<div className="dropdown-menu mega-dropdown-menu">
+						<div className="clearfix">
+							{colEls}
+						</div>
+					</div>
+				</li>
+			)
+		}
+	});
+	// end::meaga-menu-dropdown[]
+
+	// tag::meaga-menu-news-widget[]
+	var MegaMenuNewsWidget = React.createClass({
+		render: function() {
+			return (
+				<div className="text-center bg-purple pad-all">
+					<h3 className="text-thin mar-no">{this.props.news.subject}</h3>
+					<div className="pad-ver box-inline">
+						<span className="icon-wrap icon-wrap-lg icon-circle bg-trans-light">
+							<i className="fa fa-shopping-cart fa-4x"></i>
+						</span>
+					</div>
+					<p className="pad-btm">
+						{this.props.news.content}
+					</p>
+					<a href="#" className="btn btn-purple">Learn More...</a>
+				</div>
+			)
+		}
+	});
+	// end::meaga-menu-news-widget[]
+
+	// tag::meaga-menu-col-list[]
+	var MegaMenuColList = React.createClass({
+		createHeader: function(name, key) {
+			return (
+				<li key={key} className="dropdown-header">{name}</li>
+			)
+		},
+		createLink: function(link, key) {
+			var className = link.disabled ? 'disabled' : '';
+			var highlightEl = null;
+			var options = {}
+			if (link.badge) {
+				_.extend(options, link.badge, {right: true});
+				highlightEl = <Badge options={options} />
+			} else if (link.label) {
+				_.extend(options, link.label, {right: true});
+				highlightEl = <Label options={options} />
+			}
+			
+			return (
+				<li key={key}>
+					<a href={link.href} className={className}>
+						{highlightEl}
+						{link.name}
+					</a>
+				</li>
+			)
+		},
+		createDivider: function(key) {
+			return <li key={key} className="divider"></li>;
+		},
+		render: function() {
+			var rowEls = [];
+			var i = 0;
+			if (this.props.rows) {
+				this.props.rows.forEach(row => {
+					var rowEl = null;
+					var key = 'mega-row-' + i++;
+					if (row.header) {
+						rowEl = this.createHeader(row.header.name, key);
+					} else if (row.link) {					
+						rowEl = this.createLink(row.link, key);
+					} else if (row.divider) {
+						rowEl = this.createDivider(key);
+					} else if (row.widget) {
+
+					}
+
+					rowEls.push(rowEl);
+				});
+			}
+
+			return (
+				<ul className="list-unstyled">
+					{rowEls}
+				</ul>
+			)
+		}
+	});
+	// end::meaga-menu-col-list[]
+
+	// tag::language[]
+
+	// tag::language-dropdown[]
+	var LanguageDropdown = React.createClass({
+		render: function() {
+			var langSelected = _.find(this.props.languages, {active: true});
+			return (
+				<li className="dropdown">
+					<a id="demo-lang-switch" className="lang-selector dropdown-toggle" href="#" data-toggle="dropdown">
+						<span className="lang-selected">
+							<img className="lang-flag" src={langSelected.flagUrl} alt={langSelected.name} />
+							<span className="lang-id">{langSelected.id}</span>
+							<span className="lang-name">{langSelected.name}</span>
+						</span>
+					</a>
+
+					{/* Language selector menu */}
+					<LanguageOptionList languages={this.props.languages} />
+				</li>
+			)
+		}
+	});
+	// end::language-dropdown[]
+
+	// tag::language-option-list[]
+	var LanguageOptionList = React.createClass({
+		render: function() {
+			var langEls = [];
+			this.props.languages.forEach(language => {
+				var langEl = (
+					<li key={'lan-' + language.id}>
+						<LanguageOptionItem language={language} />
+					</li>
+				)
+				langEls.push(langEl);
+			});
+			return (
+				<ul className="head-list dropdown-menu">
+					{langEls}
+				</ul>
+			)
+		}
+	});
+	// end::language-option-list[]
+
+	// tag::language-option-item[]
+	var LanguageOptionItem = React.createClass({
+		render: function() {
+			var language = this.props.language;
+			var className = language.active ? 'active' : '';
+			return (
+				<a href="#" className={className}>
+					<img className="lang-flag" src={language.flagUrl} alt={language.name} />
+					<span className="lang-id">{language.id}</span>
+					<span className="lang-name">{language.name}</span>
+				</a>
+			)
+		}
+	});
+	// end::language-option-item[]
+
+	// end::language[]
 
 	return NavBar;
 });

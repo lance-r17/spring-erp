@@ -27,8 +27,8 @@ var Icon = React.createClass({
 var Icons = {};
 Icons['comment'] = <Icon shape='circle' bgColor='primary' graph='comment' />;
 Icons['hdd'] = <Icon shape='circle' bgColor='danger' graph='hdd' />;
-Icons['word'] = <Icon shape='circle' bgColor='info' graph='word' />;
-Icons['user'] = <Icon shape='circle' bgColor='success' graph='user' />;
+Icons['word'] = <Icon bgColor='info' graph='word' />;
+Icons['user'] = <Icon bgColor='success' graph='user' />;
 
 module.exports = Icon;
 module.exports.Icons = Icons;
