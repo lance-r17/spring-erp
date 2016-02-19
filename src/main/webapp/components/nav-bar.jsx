@@ -1,7 +1,7 @@
-import React from 'react'
-import classNames from 'classnames'
-import _ from 'lodash'
-import { Icons } from '../controls'
+import React from 'react';
+import classNames from 'classnames';
+import _ from 'lodash';
+import { WrapIcons, Badge, Label } from '../controls';
 
 define(function(require) {
 	'use strict';
@@ -315,32 +315,6 @@ define(function(require) {
         }
     };
 
-	// tag::controls[]
-	// tag::badge[]
-	var Badge = React.createClass({
-		render: function () {
-			var { header, color, right, content } = this.props.options;
-			var className = classNames('badge', header ? 'badge-header' : '', color ? 'badge-' + color : '', right ? 'pull-right' : '');
-			return (
-				<span className={className}>{content}</span>
-			)
-		}
-	});
-	// end::badge[]
-
-	// tag::label[]
-	var Label = React.createClass({
-		render: function () {
-			var { color, right, content } = this.props.options;
-			var className = classNames('label', color ? 'label-' + color : '', right ? 'pull-right' : '');
-			return (
-				<span className={className}>{content}</span>
-			)
-		}
-	});
-	// end::label[]
-	// end::controls[]
-
 	// tag::nav-bar[]
 	var NavBar = React.createClass({
 		render: function () {
@@ -438,8 +412,8 @@ define(function(require) {
 	var NotificationDropdown = React.createClass({
 		render: function() {
 			var length = this.props.notifications.length;
-			var options = {color: 'danger', content: length, header: true};
-			var badgeEl = length > 0 ? (<Badge options={options} />) : null;
+			var options = { color: 'danger', content: length, header: true };
+			var badgeEl = length > 0 ? <Badge options={options} /> : null;
 			
 
 			return (
@@ -561,7 +535,7 @@ define(function(require) {
 
 			var imgEl = null;
             if (message.icon) {
-                imgEl = Icons[message.icon];
+                imgEl = WrapIcons[message.icon];
             } else if (message.from) {
                 imgEl = <img src={message.from.avatarUrl} alt="Profile Picture" className="img-circle img-sm" />
             }

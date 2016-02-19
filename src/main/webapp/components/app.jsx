@@ -1,6 +1,7 @@
 import React from 'react'
 import { Router, Route, Link, hashHistory } from 'react-router'
 import NavBar from './nav-bar.jsx'
+import MainNav from './main-nav.jsx'
 
 define(function (require){
 	'use strict';
@@ -11,7 +12,14 @@ define(function (require){
 			return (
 				<div id="container" className="effect mainnav-lg">
 					<NavBar />
-					{this.props.children}
+
+					<div className="boxed">
+						{/* MAIN CONTENT CONTAINER */}
+						{this.props.children}
+
+						{/* MAIN NAVIGATION */}
+			        	<MainNav />
+			        </div>
 				</div>
 			)
 		}

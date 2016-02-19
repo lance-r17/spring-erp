@@ -1,10 +1,21 @@
-import {Icon, Icons} from './icons.jsx';
+import { Icon, Icons, WrapIcon, WrapIcons } from './icon.jsx';
+import Badge from './badge.jsx';
+import Label from './label.jsx';
+import { MenuItemLink, SubMenu } from './menu.jsx';
 
+// tag::controls[]
 var Controls = {};
 
 Controls.Icon = Icon;
 Controls.Icons = Icons;
+Controls.WrapIcon = WrapIcon;
+Controls.WrapIcons = WrapIcons;
+Controls.Badge = Badge;
+Controls.Label = Label;
+Controls.MenuItemLink = MenuItemLink;
+Controls.SubMenu = SubMenu;
 
 module.exports = Controls;
-module.exports.Icon = Controls.Icon;
-module.exports.Icons = Controls.Icons;
+module.exports.Controls = Controls;
+
+// end::controls[]
