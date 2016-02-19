@@ -1,9 +1,9 @@
-import React from 'react'
-import { findDOMNode, render } from 'react-dom'
-import { Router, Route, Link, hashHistory } from 'react-router'
+import React from 'react';
+import { findDOMNode, render } from 'react-dom';
+import { Router, Route, Link, hashHistory } from 'react-router';
 
-import App from './components/app.jsx'
-import EmoloyeesRoute from './routes/employees'
+import { App } from './components';
+import { EmoloyeesRoute } from './routes';
 
 define(function (require){
 	'use strict';

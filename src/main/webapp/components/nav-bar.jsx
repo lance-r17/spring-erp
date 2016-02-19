@@ -906,7 +906,5 @@ define(function(require) {
 
 	// end::user[]
 
-
-
 	return NavBar;
 });
