@@ -25,7 +25,7 @@ var MenuItemLink = React.createClass({
 		}
 
 		var arrowEl = null;
-		if (next) {
+		if (next && !highlightEl) {
 			arrowEl = <i className="arrow"></i>
 		}
 
@@ -33,7 +33,7 @@ var MenuItemLink = React.createClass({
 		if (iconEl) {
 			innerEl = (
                 <span className="menu-title">
-					<strong>{name}</strong>
+					<strong>&nbsp;{name}</strong>
 					{highlightEl}
 				</span>
 			)
@@ -66,8 +66,8 @@ var Divider = React.createClass({
 var SubMenu = React.createClass({
 	
 	render: function() {
-		var { name, icon, badge, link, subMenu} = this.props.options,
-			options = { name, icon, badge, link};
+		var { name, icon, link, badge, label, subMenu} = this.props.options,
+			options = { name, icon, link, badge, label };
 
 		var subMenuEl = [];
 		subMenu.forEach(item => {

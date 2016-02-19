@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import _ from 'lodash'
 
 const shapes = {
-	circle: 'icon-circle',
+	circle: 'icon-circle'
 };
 
 const graphes = {
@@ -38,7 +38,7 @@ var Icons={};
 // _.each(['dashboard', 'th', 'flask', 'briefcase', 'edit', 'table', 'line-chart', 'plug', 'envelope'], 
 _.each(_.keys(graphes),
 	name => {
-		Icons[name] = <Icon options={{graph: name}} />;
+		Icons[name] = <Icon options={{graph: name}} />
 	}
 );
 

@@ -613,7 +613,7 @@ define(function(require) {
 					var className = classNames(link.active ? 'active-link' : '');
 					menuItemEl = (
 						<li className={className}> 
-							<MenuItemLink options={link} />;
+							<MenuItemLink options={link} />
 						</li>
 					)
 				} else if (divider) {
