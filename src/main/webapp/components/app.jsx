@@ -1,30 +1,27 @@
-import React from 'react'
-import { Router, Route, Link, hashHistory } from 'react-router'
-import NavBar from './nav-bar.jsx'
-import MainNav from './main-nav.jsx'
+import React from 'react';
+import { Router, Route, Link, hashHistory } from 'react-router';
+import NavBar from './header.jsx';
+import MainNav from './navigation.jsx';
+import Dashboard from './dashboard.jsx';
 
-define(function (require){
-	'use strict';
+// tag::app[]
+var App = React.createClass({
+	render: function () {
+		return (
+			<div id="container" className="effect mainnav-lg navbar-fixed">
+				<NavBar />
 
-	// tag::app[]
-	var App = React.createClass({
-		render: function () {
-			return (
-				<div id="container" className="effect mainnav-lg">
-					<NavBar />
+				<div className="boxed">
+					{/* MAIN CONTENT CONTAINER */}
+					{this.props.children || <Dashboard />}
 
-					<div className="boxed">
-						{/* MAIN CONTENT CONTAINER */}
-						{this.props.children}
-
-						{/* MAIN NAVIGATION */}
-			        	<MainNav />
-			        </div>
+					{/* MAIN NAVIGATION */}
+					<MainNav />
 				</div>
-			)
-		}
-	});
-	// end::app[]
-
-	return App;
+			</div>
+		)
+	}
 });
+// end::app[]
+
+module.exports = App;
