@@ -415,4 +415,6 @@ define(function(require) {
 		}
 	});
 	// end::employee[]
+
+	return Employees;
 })

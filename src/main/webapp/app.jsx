@@ -1,24 +1,12 @@
 import React from 'react';
 import { findDOMNode, render } from 'react-dom';
-import { Router, Route, Link, hashHistory } from 'react-router';
+import { Router, Route, Link, hashHistory, browserHistory } from 'react-router';
 
 import { App } from './components';
-import { EmoloyeesRoute } from './routes';
+import { DashboardRoute, EmoloyeesRoute } from './routes';
 
 define(function (require){
 	'use strict';
-
-	// tag::about[]
-    var About = React.createClass({
-        render: function() {
-            return (
-                <h3>
-                    About Spring ERP
-                </h3>
-            )
-        }
-    });
-    // end::about[]
 
     const rootRoute = {
 		component: 'div',
@@ -27,10 +15,11 @@ define(function (require){
 				path: '/',
 				component: App,
 				childRoutes: [
+					DashboardRoute,
 					EmoloyeesRoute
 				]
 			}
-		]
+		]	
 	};
 
 	// tag::render[]

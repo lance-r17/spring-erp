@@ -1,14 +1,18 @@
 import React from 'react';
-import { Router, Route, Link, hashHistory } from 'react-router';
+import { ScrollTopButton } from '../controls';
 import NavBar from './header.jsx';
 import MainNav from './navigation.jsx';
-import Dashboard from './dashboard.jsx';
+import Footer from './footer.jsx';
+
+import { FullMenu, SimpleMenu } from '../stubs/menus';
+
+import { Dashboard } from '../routes/dashboard/components';
 
 // tag::app[]
 var App = React.createClass({
 	render: function () {
 		return (
-			<div id="container" className="effect mainnav-lg navbar-fixed">
+			<div id="container" className="effect mainnav-lg navbar-fixed mainnav-fixed">
 				<NavBar />
 
 				<div className="boxed">
@@ -16,8 +20,14 @@ var App = React.createClass({
 					{this.props.children || <Dashboard />}
 
 					{/* MAIN NAVIGATION */}
-					<MainNav />
+					<MainNav menu={SimpleMenu} />
 				</div>
+
+				{/* FOOTER */}
+				<Footer company="Your Company" version="v1.0" />
+
+				{/* SCROLL TOP BUTTON */}
+        		<ScrollTopButton />
 			</div>
 		)
 	}

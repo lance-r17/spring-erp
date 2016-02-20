@@ -104,13 +104,19 @@
                 box-shadow:inset 4px 0 0 0 @mainnav-active-state;
             }
         }
+    /*
     }
+    
     > .active-link{
         >a, >a:hover{
-            color: @mainnav-hover-color;
-            padding-left: 20px;
-            font-weight: @font-semibold;
-            box-shadow:inset 4px 0 0 0 @mainnav-active-state;
+    */
+        >a, >a:hover{
+            &.active-link {
+                color: @mainnav-hover-color;
+                padding-left: 20px;
+                font-weight: @font-semibold;
+                box-shadow:inset 4px 0 0 0 @mainnav-active-state;
+            }
         }
     }
     > .active-sub {

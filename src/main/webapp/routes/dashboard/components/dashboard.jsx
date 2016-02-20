@@ -421,7 +421,7 @@ var Dashboard = React.createClass({
                                     </ul>
                                 </div>
                                 <div className="input-group pad-all">
-                                    <input type="text" className="form-control" placeholder="New task" autocomplete="off" />
+                                    <input type="text" className="form-control" placeholder="New task" autoComplete="off" />
                                     <span className="input-group-btn">
                                         <button type="button" className="btn btn-success"><i className="fa fa-plus"></i></button>
                                     </span>
@@ -571,7 +571,7 @@ var Dashboard = React.createClass({
                                     </div>
                                     <div className="col-sm-6 table-toolbar-right">
                                         <div className="form-group">
-                                            <input type="text" autocomplete="off" className="form-control" placeholder="Search" id="demo-input-search2" />
+                                            <input type="text" autoComplete="off" className="form-control" placeholder="Search" id="demo-input-search2" />
                                         </div>
                                         <div className="btn-group">
                                             <button className="btn btn-default"><i className="fa fa fa-cloud-download"></i></button>

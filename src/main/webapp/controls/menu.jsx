@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router';
 import classNames from 'classnames';
 import { Icons } from './icon.jsx';
 import { Badge } from './badge.jsx';
@@ -42,11 +43,11 @@ var MenuItemLink = React.createClass({
 		}
 		
 		return (
-			<a href={href}>
+			<Link to={href} onlyActiveOnIndex={true} activeClassName='active-link'>
 				{iconEl}
             	{innerEl}
             	{arrowEl}
-            </a>
+            </Link>
 		)
 	}
 });

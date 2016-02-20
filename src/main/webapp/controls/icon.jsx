@@ -11,6 +11,7 @@ const graphes = {
 	'hdd': 			'fa-hdd-o',
 	'word': 		'fa-file-word-o',
 	'user': 		'fa-user',
+	'users': 		'fa-users',
 	'dashboard': 	'fa-dashboard',
 	'th': 			'fa-th',
 	'flask': 		'fa-flask',
@@ -21,7 +22,8 @@ const graphes = {
 	'plug': 		'fa-plug',
 	'envelope': 	'fa-envelope',
 	'file': 		'fa-file',
-	'plus-square': 	'fa-plus-square'
+	'plus-square': 	'fa-plus-square',
+	'chevron-up': 	'fa-chevron-up'
 };
 
 var Icon = React.createClass({
