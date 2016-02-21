@@ -24,7 +24,7 @@ define(function(require) {
 					headers: {'Accept': 'application/schema+json'}
 				}).then(schema => {
 					Object.keys(schema.entity.properties).forEach(property => {
-						if (schema.entity.properties[property].hasOwnProperty('format') && 
+						if (schema.entity.properties[property].hasOwnProperty('format') &&
 							schema.entity.properties[property].format === 'uri') {
 							delete schema.entity.properties[property];
 						}
@@ -344,7 +344,7 @@ define(function(require) {
 		// end::handle-nav[]
 		// tag::employee-list-render[]
 		render: function() {
-			var employees = this.props.employees.map(employee => 
+			var employees = this.props.employees.map(employee =>
 				<Employee key={employee.entity._links.self.href} employee={employee} attributes={this.props.attributes} onUpdate={this.props.onUpdate} onDelete={this.props.onDelete} />
 			);
 

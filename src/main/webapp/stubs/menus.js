@@ -547,13 +547,13 @@ const SimpleMenu = [
 	},
 	{
 		header: {
-			name: 'Administration'
+			name: 'Admin'
 		}
 	},
 	{
 		link: {
-			name: 'Employees',
-			href: '/employees',
+			name: 'Users',
+			href: '/users',
 			icon: {
 				name: 'users'
 			}

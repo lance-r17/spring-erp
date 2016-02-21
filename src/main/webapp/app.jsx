@@ -3,7 +3,7 @@ import { findDOMNode, render } from 'react-dom';
 import { Router, Route, Link, hashHistory, browserHistory } from 'react-router';
 
 import { App } from './components';
-import { DashboardRoute, EmoloyeesRoute } from './routes';
+import { DashboardRoute, UsersRoute } from './routes';
 
 define(function (require){
 	'use strict';
@@ -16,7 +16,7 @@ define(function (require){
 				component: App,
 				childRoutes: [
 					DashboardRoute,
-					EmoloyeesRoute
+					UsersRoute
 				]
 			}
 		]	
