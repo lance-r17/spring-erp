@@ -1,8 +1,5 @@
 package com.sample.erp;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.Resource;
@@ -14,16 +11,18 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Controller
 public class CurrentUserController {
 
 	private UserLinks userLinks;
 
-	@RequestMapping(value = "/api/user", method = RequestMethod.GET)
+	@RequestMapping(value = "/user", method = RequestMethod.GET)
 	public HttpEntity<Resource<User>> currentUser(@ModelAttribute User self) {
 		List<Link> linkList = new ArrayList<Link>();
 		linkList.add(this.userLinks.getSelfLink(self));
-		linkList.add(this.userLinks.getUserLink(self));
 		UserResource userResource = new UserResource(self, linkList);
 
 		return new ResponseEntity<Resource<User>>(userResource, HttpStatus.OK);

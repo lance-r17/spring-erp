@@ -1,7 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import _ from 'lodash';
-import { WrapIcons, Badge, Label } from '../controls';
+import { WrapIcons, Badge, Label, RoleLabels, RoleShortNameLabels } from '../controls';
 
 const notifications = [
 	{
@@ -297,20 +297,6 @@ const languages = [
 		flagUrl: 'img/flags/spain.png'
 	}
 ];
-
-// const user = {
-// 	id: 1,
-// 	role: 'Manager',
-// 	firstName: 'John',
-// 	lastName: 'Doe',
-// 	avatarUrl: 'img/av1.png',
-// 	setting: {
-// 		label: {
-// 			content: 'New',
-// 			color: 'success'
-// 		}
-// 	}
-// };
 
 // tag::nav-bar[]
 var NavBar = React.createClass({
@@ -771,21 +757,22 @@ var UserDropdown = React.createClass({
 });
 // end::user-dropdown[]
 
+
 // tag::user-menu[]
 var UserMenu = React.createClass({
 	render: function () {
 		var user = this.props.user;
+        var roles = [];
+        _.each(user.roles, role => {
+            roles.push(RoleLabels[role]);
+		});
 		return (
 			<div className="dropdown-menu dropdown-menu-md dropdown-menu-right panel-default">
 
 				{/* Dropdown heading */}
 				<div className="pad-all bord-btm">
 					<p className="text-lg text-muted text-semibold mar-no">
-						{
-							_.join(_.each(user.roles, (role)=> {
-								return role.replace('ROLE_', '')
-							}), ', ')
-						}
+						{roles}
 					</p>
 				</div>
 

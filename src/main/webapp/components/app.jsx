@@ -1,4 +1,5 @@
 import React from 'react';
+import cx from 'classnames';
 import { ScrollTopButton } from '../controls';
 import client from '../client';
 import follow from '../follow';
@@ -16,29 +17,17 @@ var	root = '/api';
 // tag::app[]
 var App = React.createClass({
 	loadFromServer: function() {
-		// console.log('load from server');
-		// follow(client, root, [{rel: 'user'}]
-		// ).then(response => {
-		// 	return client({
-		// 		method: 'GET',
-		// 		path: response.entity._links.self.href
-		// 	}).then(user => {
-		// 		return user.entity;
-		// 	})
-		// }).done(user => {
-		// 	this.setState({
-		// 		user: user
-		// 	});
-		// })
 		client({
 			method: 'GET',
-			path: root + '/user'
+			path: '/user'
 		}).then(user => {
 			this.setState({user: user.entity});
 		})
 	},
 	getInitialState: function() {
 		return ({
+			headerFixed: true,
+			navigationFixed: true,
 			user: {}
 		});
 	},
@@ -46,11 +35,19 @@ var App = React.createClass({
 		this.loadFromServer();
 	},
 	render: function () {
+		var containerClass = cx(
+			'effect',
+			'mainnav-lg',
+			this.state.headerFixed ? 'navbar-fixed' : '',
+			this.state.navigationFixed ? 'mainnav-fixed' : ''
+		);
+
 		return (
-			<div id="container" className="effect mainnav-lg navbar-fixed mainnav-fixed">
+			<div id="container" className={containerClass}>
 				<NavBar user={this.state.user} />
 
 				<div className="boxed">
+
 					{/* MAIN CONTENT CONTAINER */}
 					{this.props.children || <Dashboard />}
 

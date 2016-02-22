@@ -9,7 +9,6 @@ import org.springframework.util.Assert;
 @Component
 public class UserLinks {
 
-	private static final String USER_REL = "user";
 	private final EntityLinks entityLinks;
 
 	@Autowired
@@ -21,10 +20,5 @@ public class UserLinks {
 	Link getSelfLink(User user) {
 		return this.entityLinks.linkForSingleResource(User.class, user.getId())
 				.withSelfRel();
-	}
-
-	Link getUserLink(User user) {
-		return this.entityLinks.linkForSingleResource(User.class, user.getId()).withRel(
-				UserLinks.USER_REL);
 	}
 }
