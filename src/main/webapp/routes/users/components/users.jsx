@@ -30,32 +30,14 @@ var Users = React.createClass({
                             <h3 className="panel-title">Users Management</h3>
                         </div>
                         <div className="panel-body">
-                            <div className="form-inline dt-bootstrap no-footer">
-                                <div className="dataTables_length">
-                                    <label>
-                                        Show&nbsp;
-                                        <select name="demo-dt-basic_length" aria-controls="demo-dt-basic" className="form-control input-sm">
-                                            <option value="10">10</option>
-                                            <option value="25">25</option>
-                                            <option value="50">50</option>
-                                            <option value="100">100</option>
-                                        </select>
-                                        &nbsp;entries
-                                    </label>
-                                </div>
+                            <PagingWrapper>
 
                                 {/*  User list  */}
                                 <div className="table-responsive">
                                     <UserTable />
                                 </div>
 
-                                <hr/>
-
-                                {/* Pagination */}
-                                <div className="text-right">
-                                    <Pagination />
-                                </div>
-                            </div>
+                            </PagingWrapper>
                         </div>
                     </div>
                 </div>
@@ -67,24 +49,68 @@ var Users = React.createClass({
 });
 // end::users[]
 
+// tag::controls[]
+// tag::paging-wrapper[]
+var PagingWrapper = React.createClass({
+    render: function() {
+        return (
+            <div className="form-inline dt-bootstrap no-footer">
+                <div className="dataTables_length">
+                    <label>
+                        Show&nbsp;
+                        <select name="demo-dt-basic_length" aria-controls="demo-dt-basic" className="form-control input-sm">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        &nbsp;entries
+                    </label>
+                </div>
+
+                {this.props.children}
+
+                <hr/>
+
+                {/* Pagination */}
+                <Pagination />
+            </div>
+        )
+    }
+});
+// tag::paging-wrapper[]
+
 // tag::pagination[]
 var Pagination = React.createClass({
     render: function() {
         return (
-            <ul className="pagination mar-no">
-                <li className="disabled"><a className="fa fa-angle-double-left" href="#"></a></li>
-                <li className="active"><a href="#">1</a></li>
-                <li><a href="#">2</a></li>
-                <li><a href="#">3</a></li>
-                <li><a href="#">4</a></li>
-                <li><span>...</span></li>
-                <li><a href="#">20</a></li>
-                <li><a className="fa fa-angle-double-right" href="#"></a></li>
-            </ul>
+            <div className="row">
+                <div className="col-sm-6">
+                    <div className="dataTables_info" role="status" aria-live="polite">
+                        Showing 1 to 10 of 57 entries
+                    </div>
+                </div>
+                <div className="col-sm-6">
+                    <div className="text-right">
+                        <ul className="pagination mar-no">
+                            <li className="disabled"><a className="fa fa-angle-left" href="#"></a></li>
+                            <li className="active"><a href="#">1</a></li>
+                            <li><a href="#">2</a></li>
+                            <li><a href="#">3</a></li>
+                            <li><a href="#">4</a></li>
+                            <li><span>...</span></li>
+                            <li><a href="#">20</a></li>
+                            <li><a className="fa fa-angle-right" href="#"></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         )
     }
 });
 // end::pagination[]
+// end::controls[]
 
 // tag::user-table[]
 var UserTable = React.createClass({

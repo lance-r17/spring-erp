@@ -298,19 +298,19 @@ const languages = [
 	}
 ];
 
-const user = {
-	id: 1,
-	role: 'Manager',
-	firstName: 'John',
-	lastName: 'Doe',
-	avatarUrl: 'img/av1.png',
-	setting: {
-		label: {
-			content: 'New',
-			color: 'success'
-		}
-	}
-};
+// const user = {
+// 	id: 1,
+// 	role: 'Manager',
+// 	firstName: 'John',
+// 	lastName: 'Doe',
+// 	avatarUrl: 'img/av1.png',
+// 	setting: {
+// 		label: {
+// 			content: 'New',
+// 			color: 'success'
+// 		}
+// 	}
+// };
 
 // tag::nav-bar[]
 var NavBar = React.createClass({
@@ -321,7 +321,7 @@ var NavBar = React.createClass({
 
 					<NavBarBrand brandName="Spring ERP" />
 
-					<NavBarContent notifications={notifications} mega={mega} languages={languages} user={user} />
+					<NavBarContent notifications={notifications} mega={mega} languages={languages} user={this.props.user} />
 
 				</div>
 			</header>
@@ -354,7 +354,7 @@ var NavBarContent = React.createClass({
 			<div className="navbar-content clearfix">
 				<NavBarDropdownMain notifications={this.props.notifications} mega={this.props.mega} />
 
-				<NavBarDropdownSlave languages={this.props.languages} user={user} />
+				<NavBarDropdownSlave languages={this.props.languages} user={this.props.user} />
 			</div>
 		)
 	}
@@ -758,9 +758,9 @@ var UserDropdown = React.createClass({
 			<li id="dropdown-user" className="dropdown">
 				<a href="#" data-toggle="dropdown" className="dropdown-toggle text-right">
 					<span className="pull-right">
-						<img className="img-circle img-user media-object" src={user.avatarUrl} alt="Profile Picture" />
+						<img className="img-circle img-user media-object" src={"img/" + user.avatarUrl} alt="Profile Picture" />
 					</span>
-					<div className="username hidden-xs">{user.firstName} {user.lastName}</div>
+					<div className="username hidden-xs">{user.firstName + " " + user.lastName}</div>
 				</a>
 
 				<UserMenu user={user} />
@@ -780,7 +780,13 @@ var UserMenu = React.createClass({
 
 				{/* Dropdown heading */}
 				<div className="pad-all bord-btm">
-					<p className="text-lg text-muted text-semibold mar-no">{user.role}</p>
+					<p className="text-lg text-muted text-semibold mar-no">
+						{
+							_.join(_.each(user.roles, (role)=> {
+								return role.replace('ROLE_', '')
+							}), ', ')
+						}
+					</p>
 				</div>
 
 				{/*  User dropdown menu  */}

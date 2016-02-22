@@ -27,6 +27,7 @@ define(function() {
 						path: response.entity._links[rel].href
 					});
 				} else {
+					console.log(response);
 					return api({
 						method: 'GET',
 						path: response.entity._links[rel].href,

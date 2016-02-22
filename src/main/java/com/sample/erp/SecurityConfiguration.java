@@ -18,13 +18,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(this.userDetailsService).passwordEncoder(
-				Manager.PASSWORD_ENCODER);
+				User.PASSWORD_ENCODER);
 	}
 
 	protected void configure(HttpSecurity http) throws Exception {
 		http
 			.authorizeRequests()
 				.antMatchers("/site/**", "/login").permitAll()
+				.antMatchers("/api/users").hasRole("ADMIN")
 				.anyRequest().authenticated()
 				.and()
 			.formLogin()
