@@ -37,6 +37,7 @@ public class User {
 	private String email;
 	private String avatarUrl;
 	private Date joinDate;
+	private boolean active;
 
 	@JsonIgnore
 	private String password;
@@ -50,7 +51,8 @@ public class User {
 	}
 
 	public User(String name, String password, String firstName, String lastName,
-			String email, String avatarUrl, Date joinDate, String... roles) {
+			String email, String avatarUrl, Date joinDate, boolean active,
+			String... roles) {
 		this.name = name;
 		this.setPassword(password);
 		this.firstName = firstName;
@@ -58,6 +60,7 @@ public class User {
 		this.email = email;
 		this.avatarUrl = avatarUrl;
 		this.joinDate = joinDate;
+		this.active = active;
 
 		this.roles = roles;
 	}

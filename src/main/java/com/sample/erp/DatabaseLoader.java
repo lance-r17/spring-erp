@@ -60,22 +60,22 @@ public class DatabaseLoader implements CommandLineRunner {
 						AuthorityUtils.createAuthorityList("ROLE_ADMIN")));
 
 		this.users.save(new User("john", "johndoe", "John", "Doe",
-				"john.doe@example.com", "av1.png", Date.valueOf("2014-10-22"),
+				"john.doe@example.com", "av1.png", Date.valueOf("2014-10-22"), true,
 				"ROLE_MANAGER", "ROLE_APPROVER", "ROLE_OPERATOR", "ROLE_ADMIN"));
 		this.users.save(new User("charles", "charlesboyle", "Charles S", "Boyle",
-				"char_boy90@example.com", "av2.png", Date.valueOf("2014-10-24"),
+				"char_boy90@example.com", "av2.png", Date.valueOf("2014-10-24"), true,
 				"ROLE_OPERATOR"));
 		this.users.save(new User("scott", "scottcal", "Scott S.", "Calabrese",
-				"scot.em23@example.com", "av3.png", Date.valueOf("2014-10-15"),
+				"scot.em23@example.com", "av3.png", Date.valueOf("2014-10-15"), true,
 				"ROLE_APPROVER"));
 		this.users.save(new User("lucy", "lucymoon", "Lucy", "Moon",
 				"just_lucy.doe@example.com", "av4.png", Date.valueOf("2014-10-12"),
-				"ROLE_APPROVER"));
+				false, "ROLE_APPROVER"));
 		this.users.save(new User("teresa", "teresadoe", "Teresa L.", "Doe",
-				"ter.l.doe@example.com", "av5.png", Date.valueOf("2014-10-24"),
+				"ter.l.doe@example.com", "av5.png", Date.valueOf("2014-10-24"), true,
 				"ROLE_ADMIN"));
 		this.users.save(new User("maria", "mariamarz", "Maria", "Marz",
-				"maria_545@example.com", "av6.png", Date.valueOf("2014-10-22"),
+				"maria_545@example.com", "av6.png", Date.valueOf("2014-10-22"), true,
 				"ROLE_OPERATOR"));
 
 		SecurityContextHolder.clearContext();
