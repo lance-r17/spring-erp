@@ -666,6 +666,9 @@ hr{
             position: relative;
             border:0;
             &:after{
+                /* tag::modal-header-bottom-border fix */
+                display: block;
+                /* end::modal-header-bottom-border fix */
                 content: '';
                 position: absolute;
                 bottom: 0;

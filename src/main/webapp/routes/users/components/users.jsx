@@ -1,5 +1,7 @@
 import React from 'react';
 import { findDOMNode, render } from 'react-dom';
+import { Modal, Alert } from 'react-bootstrap';
+import InputElement from 'react-input-mask';
 import cx from 'classnames';
 import when from 'when';
 import client from '../../../client';
@@ -56,6 +58,35 @@ var Users = React.createClass({
             });
         });
     },
+    // tag::update[]
+    onUpdate: function(user, updatedUser, successCallBack, failCallBack) {
+        client({
+            method: 'PUT',
+            path: user.entity._links.self.href,
+            entity: updatedUser,
+            headers: {
+                'Content-Type': 'application/json',
+                'If-Match': user.headers.Etag
+            }
+        }).done(response => {
+            /* Let the websocket handler update the state */
+            if (successCallBack) {
+                successCallBack(response);
+            }
+        }, response => {
+            if (failCallBack) {
+                failCallBack(response);
+            } else {
+                if (response.status.code === 403) {
+                    alert('ACCESS DENIED: You are not authorized to update ' + user.entity._links.self.href);
+                }
+                if (response.status.code === 412) {
+                    alert('DENIED: Unable to update ' + user.entity._links.self.href + '. Your copy is stale.');
+                }
+            }
+        });
+    },
+    // end::update[]
     // tag::update-page-size[]
     updatePageSize: function(pageSize) {
         if (this.state.pageSize !== pageSize) {
@@ -90,13 +121,45 @@ var Users = React.createClass({
         })
     },
     // end::navigate[]
+    // tag::refresh-current-page[]
+    refreshCurrentPage: function() {
+        follow(client, root, [{
+            rel: 'users',
+            params: {
+                size: this.state.pageSize,
+                page: this.state.page.number
+            }
+        }]).then(userCollection => {
+            this.links = userCollection.entity._links;
+            this.page = userCollection.entity.page;
+
+            return userCollection.entity._embedded.users.map(user => {
+                return client({
+                    method: 'GET',
+                    path: user._links.self.href
+                })
+            });
+        }).then(userPromises => {
+            return when.all(userPromises);
+        }).done(users => {
+            this.setState({
+                page: this.page,
+                users: users,
+                attributes: Object.keys(this.schema.properties),
+                pageSize: this.state.pageSize,
+                links: this.links
+            })
+        });
+    },
+    // end::refresh-current-page[]
     // end::update-page-size[]
     getInitialState: function() {
         return ({
             users: [],
             attributes: [],
             pageSize: 1,
-            links: {}
+            links: {},
+            createModalOpen: false
         });
     },
     componentDidMount: function() {
@@ -124,11 +187,14 @@ var Users = React.createClass({
                                            page={this.state.page} 
                                            links={this.state.links} 
                                            updatePageSize={this.updatePageSize}
-                                           onNavigate={this.onNavigate} >
+                                           onNavigate={this.onNavigate}  >
 
                                 {/*  User list  */}
                                 <div className="table-responsive">
-                                    <UserTable users={this.state.users} page={this.state.page} />
+                                    <UserTable users={this.state.users} 
+                                               page={this.state.page} 
+                                               onUpdate={this.onUpdate}
+                                               refreshCurrentPage={this.refreshCurrentPage} />
                                 </div>
 
                             </PagingWrapper>
@@ -137,52 +203,182 @@ var Users = React.createClass({
                 </div>
                 {/* End page content */}
 
-                <Modal />
-
             </div>
         )
     }
 });
 // end::users[]
 
+const RoleMapping = {
+    'ROLE_MANAGER': 'Manager', 
+    'ROLE_APPROVER': 'Approver',
+    'ROLE_OPERATOR': 'Operator',
+    'ROLE_ADMIN': 'Administrator'
+};
 
-// tag::controls[]
-// tag::modal[]
-var Modal = React.createClass({
+// tag::user-edit-modal[]
+var UserEditModal = React.createClass({
+    handleClick: function(e) {
+        e.preventDefault();
+
+       this.open();
+    },
+    handleRoleChange: function (e) {
+    },
+    handleSubmit: function (e) {
+        e.preventDefault();
+
+        // keep avatarUrl and active status unchanged
+        var { name, avatarUrl, active } = this.props.user.entity;
+        var updatedUser = { name, avatarUrl, active };
+
+        _.each(["firstName", "lastName", "email", "joinDate"], ref => {
+            updatedUser[ref] = findDOMNode(this.refs[ref]).value.trim();
+        });
+        updatedUser.roles = [];
+        _.each(["ROLE_MANAGER", "ROLE_APPROVER", "ROLE_OPERATOR", "ROLE_ADMIN"], role => {
+            var ref = role.toLowerCase();
+            var node = findDOMNode(this.refs[ref]);
+            if (node.checked) {
+                updatedUser.roles.push(node.value.trim());
+            }
+        });
+        
+
+        this.props.onUpdate(this.props.user, updatedUser, response => {
+            this.props.refreshCurrentPage();
+            this.close();
+        }, response => {
+            if (response.status.code === 403) {
+                this.setState({
+                    showAlert: true,
+                    alertTitle: 'ACCESS DENIED!',
+                    alertDetails: 'You are not authorized to update this user.'
+                });
+            }
+            if (response.status.code === 412) {
+                this.setState({
+                    showAlert: true,
+                    alertTitle: 'DENIED!',
+                    alertDetails: 'Unable to update. Your copy is stale.'
+                });
+            }
+        });
+        // console.log(updatedUser);
+
+    },
+    getInitialState: function() {
+        return ({ 
+            showModal: false,
+            showAlert: false,
+            alertTitle: '',
+            alertDetails: ''
+        });
+    },
+    close: function() {
+        this.setState({ showModal: false });
+    },
+    open: function() {
+        this.setState({ showModal: true });
+    },
     render: function() {
+        var { name, avatarUrl, firstName, lastName, email, joinDate, active, roles } = this.props.user.entity;
+        var rolesEl = [];
+        _.each(["ROLE_MANAGER", "ROLE_APPROVER", "ROLE_OPERATOR", "ROLE_ADMIN"], role => {
+            var ref = role.toLowerCase();
+            var hasRole = _.some(roles, item => {
+                return item === role;
+            });
+            var labelClass = cx('form-checkbox', 'form-icon', 'form-text', hasRole ? 'active' : '')
+            var roleEl = (
+                <label key={ref} className={labelClass}>
+                    <input ref={ref} name={ref} type="checkbox" value={role} defaultChecked={hasRole} onChange={this.handleRoleChange} /> {RoleMapping[role]}
+                </label>
+            )
+            rolesEl.push(roleEl);
+        });
+        var alertEl = null;
+        if (this.state.showAlert) {
+            alertEl = (
+                <Alert bsStyle="danger" className="media fade in">
+                    <strong>{this.state.alertTitle}</strong> {this.state.alertDetails}
+                </Alert>
+            )
+        }
         return (
-            <div className="bootbox modal fade in" tabIndex="-1" role="dialog" aria-hidden="false" style={{display: 'block', paddingRight: '0px'}}>
-                <div className="modal-backdrop fade in"></div>
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <button type="button" className="bootbox-close-button close" data-dismiss="modal" aria-hidden="true">×</button>
-                            <h4 className="modal-title">That html</h4>
-                        </div>
+            <span>
+                <a className="btn btn-sm btn-default btn-icon btn-hover-success fa fa-pencil add-tooltip" href="#" data-original-title="Edit" data-container="body" onClick={this.handleClick}></a>
 
-                        <div className="modal-body">
-                            <div className="bootbox-body">
-                                <div className="media">
-                                    <div className="media-left">
-                                        <img className="media-object img-lg img-circle" src="img/av3.png" alt="Profile picture" />
-                                    </div>
-                                    <div className="media-body">
-                                        <h4 className="text-thin">You can also use <strong>html</strong></h4>Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
+                <Modal show={this.state.showModal} onHide={this.close}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>User Edit</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {alertEl}
+                        <div className="media">
+                            <div className="media-left">
+                                <img className="media-object img-lg img-circle" src={'img/' + avatarUrl} alt="Profile picture" />
+                            </div>
+                            <div className="media-body">
+                                <div className="row">
+                                    <div className="col-md-12">
+                                        <form className="form-horizontal">
+                                            <div className="form-group">
+                                                <label className="col-md-4 control-label" htmlFor="name">User Name</label>
+                                                <div className="col-md-4">
+                                                    <p className="form-control-static">{name}</p>
+                                                </div>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="col-md-4 control-label" htmlFor="name">First Name</label>
+                                                <div className="col-md-4">
+                                                    <input ref="firstName" defaultValue={firstName} type="text" placeholder="First name" className="form-control input-md" />
+                                                </div>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="col-md-4 control-label" htmlFor="name">Last Name</label>
+                                                <div className="col-md-4">
+                                                    <input ref="lastName" defaultValue={lastName} type="text" placeholder="Last name" className="form-control input-md" />
+                                                </div>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="col-md-4 control-label" htmlFor="name">Email</label>
+                                                <div className="col-md-4">
+                                                    <input ref="email" defaultValue={email} type="email" placeholder="Email" className="form-control input-md" />
+                                                </div>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="col-md-4 control-label" htmlFor="name">Join Date</label>
+                                                <div className="col-md-4">
+                                                    <InputElement ref="joinDate" defaultValue={joinDate} mask="9999-99-99" className="form-control input-md" />
+                                                </div>
+                                            </div>
+                                            <div className="form-group">
+                                                <label className="col-md-4 control-label" htmlFor="name">Roles</label>
+                                                <div className="col-md-8">
+                                                    <div className="form-block">
+                                                        {rolesEl}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        <div className="modal-footer">
-                            <button data-bb-handler="confirm" type="button" className="btn btn-primary">Save</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <button data-bb-handler="confirm" type="button" className="btn btn-primary" onClick={this.handleSubmit}>Save</button>
+                    </Modal.Footer>
+                </Modal>
+            </span>
         )
     }
 });
-// end::modal[]
+// end::user-edit-modal[]
+
+
+// tag::controls[]
 
 // tag::paging-wrapper[]
 var PagingWrapper = React.createClass({
@@ -345,7 +541,11 @@ var UserTable = React.createClass({
             sequence = number * size + 1;
         }
         var users = this.props.users.map(user =>
-            <UserTableRow key={user.entity._links.self.href} user={user} sequence={sequence++} />
+            <UserTableRow key={user.entity._links.self.href} 
+                          user={user} 
+                          sequence={sequence++} 
+                          onUpdate={this.props.onUpdate}
+                          refreshCurrentPage={this.props.refreshCurrentPage} />
         );
         return (
             <table className="table table-hover table-striped table-vcenter mar-top">
@@ -382,6 +582,17 @@ var UserTableHeader = React.createClass({
 
 // tag::user-table-row[]
 var UserTableRow = React.createClass({
+    
+    closeModal: function() {
+        this.setState({
+            editModalOpen: false
+        });
+    },
+    getInitialState: function() {
+        return ({
+            editModalOpen: false
+        });
+    },
     render: function () {
         var { avatarUrl, firstName, lastName, email, joinDate, active, roles } = this.props.user.entity;
         var fullName = `${firstName}  ${lastName}`;
@@ -393,6 +604,7 @@ var UserTableRow = React.createClass({
 
         _.extend(options, (active ? {content: 'active', color: 'success'} : {content: 'disabled', color: 'default'}));
         var statusEl = <Label options={options} />
+        var modalEl = this.state.editModalOpen ? <Modal title={'Edit User'} open={this.state.editModalOpen} user={this.props.user} closeModal={this.closeModal} /> : null;
         return (
             <tr>
                 <td className="min-w-td">{this.props.sequence}</td>
@@ -406,12 +618,14 @@ var UserTableRow = React.createClass({
                 </td>
                 <td className="min-w-td text-center">
                     <div className="btn-group">
-                        <a className="btn btn-sm btn-default btn-icon btn-hover-success fa fa-pencil add-tooltip" href="#" data-original-title="Edit" data-container="body"></a>
+                        <UserEditModal user={this.props.user} 
+                                       onUpdate={this.props.onUpdate}
+                                       refreshCurrentPage={this.props.refreshCurrentPage} />
                         <a className="btn btn-sm btn-default btn-icon btn-hover-danger fa fa-times add-tooltip" href="#" data-original-title="Delete" data-container="body"></a>
-
                         <a className="btn btn-sm btn-default btn-icon btn-hover-warning fa fa-lock add-tooltip" href="#" data-original-title="Ban user" data-container="body"></a>
                     </div>
                 </td>
+                
             </tr>
         )
     }
