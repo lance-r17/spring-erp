@@ -255,13 +255,14 @@ var UserEditModal = React.createClass({
                     alertTitle: 'ACCESS DENIED!',
                     alertDetails: 'You are not authorized to update this user.'
                 });
-            }
-            if (response.status.code === 412) {
+            } else if (response.status.code === 412) {
                 this.setState({
                     showAlert: true,
                     alertTitle: 'DENIED!',
                     alertDetails: 'Unable to update. Your copy is stale.'
                 });
+            } else {
+                console.log(response);
             }
         });
         // console.log(updatedUser);
@@ -276,7 +277,12 @@ var UserEditModal = React.createClass({
         });
     },
     close: function() {
-        this.setState({ showModal: false });
+        this.setState({
+            showModal: false,
+            showAlert: false,
+            alertTitle: '',
+            alertDetails: ''
+        });
     },
     open: function() {
         this.setState({ showModal: true });
@@ -297,14 +303,6 @@ var UserEditModal = React.createClass({
             )
             rolesEl.push(roleEl);
         });
-        var alertEl = null;
-        if (this.state.showAlert) {
-            alertEl = (
-                <Alert bsStyle="danger" className="media fade in">
-                    <strong>{this.state.alertTitle}</strong> {this.state.alertDetails}
-                </Alert>
-            )
-        }
         return (
             <span>
                 <a className="btn btn-sm btn-default btn-icon btn-hover-success fa fa-pencil add-tooltip" href="#" data-original-title="Edit" data-container="body" onClick={this.handleClick}></a>
@@ -314,7 +312,7 @@ var UserEditModal = React.createClass({
                         <Modal.Title>User Edit</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        {alertEl}
+                        <PanelAlert bsStyle="danger" show={this.state.showAlert} title={this.state.alertTitle} details={this.state.alertDetails} />
                         <div className="media">
                             <div className="media-left">
                                 <img className="media-object img-lg img-circle" src={'img/' + avatarUrl} alt="Profile picture" />
@@ -379,6 +377,24 @@ var UserEditModal = React.createClass({
 
 
 // tag::controls[]
+
+// tag::panel-alert[]
+var PanelAlert = React.createClass({
+   render: function() {
+       var className = cx('alert-wrap', this.props.show ? 'in' : '');
+       return (
+           <div className="panel-alert">
+               <div className={className}>
+                   <Alert bsStyle={this.props.bsStyle}>
+                       <strong>{this.props.title}</strong>
+                       {this.props.details}
+                   </Alert>
+               </div>
+           </div>
+       )
+   }
+});
+// end::panel-alert[]
 
 // tag::paging-wrapper[]
 var PagingWrapper = React.createClass({
