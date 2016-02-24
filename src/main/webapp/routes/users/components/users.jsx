@@ -137,42 +137,53 @@ var Users = React.createClass({
                 </div>
                 {/* End page content */}
 
-                <div className="bootbox modal fade in" tabindex="-1" role="dialog" aria-hidden="false" style={{display: 'block', paddingRight: '0px'}}>
-                    <div className="modal-backdrop fade in" style={{height: '398px'}}></div>
-                    <div className="modal-dialog">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <button type="button" className="bootbox-close-button close" data-dismiss="modal" aria-hidden="true">×</button>
-                                <h4 className="modal-title">That html</h4>
-                            </div>
+                <Modal />
 
-                            <div className="modal-body">
-                                <div className="bootbox-body">
-                                    <div className="media">
-                                        <div className="media-left">
-                                            <img className="media-object img-lg img-circle" src="img/av3.png" alt="Profile picture" />
-                                        </div>
-                                        <div className="media-body">
-                                            <h4 className="text-thin">You can also use <strong>html</strong></h4>Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="modal-footer">
-                                <button data-bb-handler="confirm" type="button" className="btn btn-primary">Save</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
             </div>
         )
     }
 });
 // end::users[]
 
+
 // tag::controls[]
+// tag::modal[]
+var Modal = React.createClass({
+    render: function() {
+        return (
+            <div className="bootbox modal fade in" tabIndex="-1" role="dialog" aria-hidden="false" style={{display: 'block', paddingRight: '0px'}}>
+                <div className="modal-backdrop fade in"></div>
+                <div className="modal-dialog">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <button type="button" className="bootbox-close-button close" data-dismiss="modal" aria-hidden="true">×</button>
+                            <h4 className="modal-title">That html</h4>
+                        </div>
+
+                        <div className="modal-body">
+                            <div className="bootbox-body">
+                                <div className="media">
+                                    <div className="media-left">
+                                        <img className="media-object img-lg img-circle" src="img/av3.png" alt="Profile picture" />
+                                    </div>
+                                    <div className="media-body">
+                                        <h4 className="text-thin">You can also use <strong>html</strong></h4>Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="modal-footer">
+                            <button data-bb-handler="confirm" type="button" className="btn btn-primary">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+});
+// end::modal[]
+
 // tag::paging-wrapper[]
 var PagingWrapper = React.createClass({
     // tag::handle-page-size-update[]
