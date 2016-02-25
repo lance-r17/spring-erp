@@ -1,6 +1,7 @@
 import React from 'react';
 import { findDOMNode, render } from 'react-dom';
 import { Modal, Alert } from 'react-bootstrap';
+import Formsy from 'formsy-react';
 import InputElement from 'react-input-mask';
 import cx from 'classnames';
 import when from 'when';
@@ -300,6 +301,16 @@ var UserEditModal = React.createClass({
     open: function() {
         this.setState({ showModal: true });
     },
+    enableButton: function () {
+        this.setState({
+            canSubmit: true
+        });
+    },
+    disableButton: function () {
+        this.setState({
+            canSubmit: false
+        });
+    },
     getInitialState: function() {
         return ({ 
             showModal: false,
@@ -311,64 +322,64 @@ var UserEditModal = React.createClass({
     },
     render: function() {
         var { name, avatarUrl, firstName, lastName, email, joinDate, active, roles } = this.props.user.entity;
-        const InputFields = [
-            {
-                ref: 'firstName',
-                label: 'First name',
-                type: 'input'
-            },
-            {
-                ref: 'lastName',
-                label: 'Last name',
-                type: 'input'
-            },
-            {
-                ref: 'email',
-                label: 'Email',
-                type: 'email'
-            },
-            {
-                ref: 'joinDate',
-                label: 'Join date',
-                type: 'input',
-                mask: '9999-99-99'
-            }
-        ];
-
-        var inputEls = [];
-        _.each(InputFields, field => {
-            var inputEl = null;
-            var defaultProps = {
-                ref: field.ref,
-                defaultValue: this.props.user.entity[field.ref],
-                className: "form-control input-md"
-            };
-            if (field.mask) {
-                inputEl = <InputElement {...defaultProps} mask={field.mask} />
-            } else {
-                inputEl = <input {...defaultProps} type={field.type} placeholder={field.label} />
-            }
-
-            var error = this.state.errors[field.ref];
-            var formGroupClass = cx('form-group', error ? 'has-error has-feedback' : '');
-            var errorIconEl = null,
-                errorFeedbackEl = null;
-            if (error) {
-                errorIconEl = <i className="form-control-feedback fa fa-times-circle fa-lg"></i>
-                errorFeedbackEl = <small className="help-block">{error.message}</small>
-            }
-
-            inputEls.push(
-                <div className={formGroupClass}>
-                    <label className="col-md-4 control-label" htmlFor="name">{field.label}</label>
-                    <div className="col-md-7">
-                        {inputEl}
-                        {errorIconEl}
-                        {errorFeedbackEl}
-                    </div>
-                </div>
-            );
-        });
+        //const InputFields = [
+        //    {
+        //        ref: 'firstName',
+        //        label: 'First name',
+        //        type: 'input'
+        //    },
+        //    {
+        //        ref: 'lastName',
+        //        label: 'Last name',
+        //        type: 'input'
+        //    },
+        //    {
+        //        ref: 'email',
+        //        label: 'Email',
+        //        type: 'email'
+        //    },
+        //    {
+        //        ref: 'joinDate',
+        //        label: 'Join date',
+        //        type: 'input',
+        //        mask: '9999-99-99'
+        //    }
+        //];
+        //
+        //var inputEls = [];
+        //_.each(InputFields, field => {
+        //    var inputEl = null;
+        //    var defaultProps = {
+        //        ref: field.ref,
+        //        defaultValue: this.props.user.entity[field.ref],
+        //        className: "form-control input-md"
+        //    };
+        //    if (field.mask) {
+        //        inputEl = <InputElement {...defaultProps} mask={field.mask} />
+        //    } else {
+        //        inputEl = <input {...defaultProps} type={field.type} placeholder={field.label} />
+        //    }
+        //
+        //    var error = this.state.errors[field.ref];
+        //    var formGroupClass = cx('form-group', error ? 'has-error has-feedback' : '');
+        //    var errorIconEl = null,
+        //        errorFeedbackEl = null;
+        //    if (error) {
+        //        errorIconEl = <i className="form-control-feedback fa fa-times-circle fa-lg"></i>
+        //        errorFeedbackEl = <small className="help-block">{error.message}</small>
+        //    }
+        //
+        //    inputEls.push(
+        //        <div className={formGroupClass}>
+        //            <label className="col-md-4 control-label" htmlFor="name">{field.label}</label>
+        //            <div className="col-md-7">
+        //                {inputEl}
+        //                {errorIconEl}
+        //                {errorFeedbackEl}
+        //            </div>
+        //        </div>
+        //    );
+        //});
 
         var roleEls = [];
         _.each(["ROLE_MANAGER", "ROLE_APPROVER", "ROLE_OPERATOR", "ROLE_ADMIN"], role => {
@@ -392,40 +403,47 @@ var UserEditModal = React.createClass({
                     <Modal.Header closeButton>
                         <Modal.Title>User Edit</Modal.Title>
                     </Modal.Header>
-                    <Modal.Body>
-                        <PanelAlert bsStyle="danger" show={this.state.showAlert} title={this.state.alertTitle} errors={this.state.alertErrors} />
-                        <div className="media">
-                            <div className="media-left">
-                                <img className="media-object img-lg img-circle" src={'img/' + avatarUrl} alt="Profile picture" />
-                            </div>
-                            <div className="media-body">
-                                <div className="row">
-                                    <div className="col-md-12">
-                                        <form className="form-horizontal">
-                                            <div className="form-group">
-                                                <label className="col-md-4 control-label" htmlFor="name">Username</label>
-                                                <div className="col-md-4">
-                                                    <p className="form-control-static">{name}</p>
-                                                </div>
-                                            </div>
-                                            {inputEls}
-                                            <div className="form-group">
-                                                <label className="col-md-4 control-label" htmlFor="name">Roles</label>
-                                                <div className="col-md-8">
-                                                    <div className="form-block">
-                                                        {roleEls}
+                    <Formsy.Form className="form-horizontal" onValidSubmit={this.submit} onValid={this.enableButton} onInvalid={this.disableButton}>
+
+                        <Modal.Body>
+                            <PanelAlert bsStyle="danger" show={this.state.showAlert} title={this.state.alertTitle} errors={this.state.alertErrors} />
+                            <div className="media">
+                                <div className="media-left">
+                                    <img className="media-object img-lg img-circle" src={'img/' + avatarUrl} alt="Profile picture" />
+                                </div>
+                                <div className="media-body">
+                                    <div className="row">
+                                        <div className="col-md-12">
+                                            <form className="form-horizontal">
+                                                <div className="form-group">
+                                                    <label className="col-md-4 control-label" htmlFor="name">Username</label>
+                                                    <div className="col-md-4">
+                                                        <p className="form-control-static">{name}</p>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </form>
+                                                <InputValidation name="firstName" ref="firstName" defaultValue={firstName} type="input" title="First name" required />
+                                                <InputValidation name="lastName" ref="lastName" defaultValue={lastName} type="input" title="Last name" required />
+                                                <InputValidation name="email" ref="email" defaultValue={email} type="email" title="Email" validations="isEmail" validationError="This is not a valid email" required/>
+                                                <div className="form-group">
+                                                    <label className="col-md-4 control-label" htmlFor="name">Roles</label>
+                                                    <div className="col-md-8">
+                                                        <div className="form-block">
+                                                            {roleEls}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <button data-bb-handler="confirm" type="button" className="btn btn-primary" onClick={this.handleSubmit}>Save</button>
-                    </Modal.Footer>
+                        </Modal.Body>
+
+                        <Modal.Footer>
+                            <button type="submit" className="btn btn-primary" disabled={!this.state.canSubmit}>Save</button>
+                        </Modal.Footer>
+
+                    </Formsy.Form>
                 </Modal>
             </span>
         )
@@ -433,8 +451,54 @@ var UserEditModal = React.createClass({
 });
 // end::user-edit-modal[]
 
-
 // tag::controls[]
+
+var InputValidation = React.createClass({
+
+    // Add the Formsy Mixin
+    mixins: [Formsy.Mixin],
+
+    // setValue() will set the value of the component, which in
+    // turn will validate it and the rest of the form
+    changeValue: function (event) {
+        this.setValue(event.currentTarget.value);
+    },
+    render: function() {
+        var { ref, defaultValue, className, type, title, mask } = this.props;
+        className = cx(className, ['form-control', 'input-md']);
+        var props = { ref, defaultValue, className, type };
+        var inputEl = null;
+        if (mask) {
+            inputEl = <InputElement {...props} mask={mask} />
+        } else {
+            inputEl = <input {...props} placeholder={title} />
+        }
+
+        var formGroupClass = 'form-group';
+        var errorIconEl = null,
+            errorFeedbackEl = null;
+        if (this.showError()) {
+            // An error message is returned ONLY if the component is invalid
+            // or the server has returned an error message
+            var errorMessage = this.getErrorMessage();
+
+            formGroupClass = cx(formGroupClass, ['has-error', 'has-feedback']);
+            errorIconEl = <i className="form-control-feedback fa fa-times-circle fa-lg"></i>
+            errorFeedbackEl = <small className="help-block">{errorMessage}</small>
+        }
+
+        return (
+            <div className={formGroupClass}>
+                <label className="col-md-4 control-label" htmlFor={name}>{title}</label>
+                <div className="col-md-7">
+                    {inputEl}
+                    {errorIconEl}
+                    {errorFeedbackEl}
+                </div>
+            </div>
+        )
+    }
+});
 
 // tag::panel-alert[]
 var PanelAlert = React.createClass({
