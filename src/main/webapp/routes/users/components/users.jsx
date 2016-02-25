@@ -225,8 +225,15 @@ var UserEditModal = React.createClass({
     },
     handleRoleChange: function (e) {
     },
+    validate: function (e) {
+        e.preventDefault();
+
+        console.log(e);
+    },
     handleSubmit: function (e) {
         e.preventDefault();
+
+        this.clearErrors();
 
         // keep avatarUrl and active status unchanged
         var { name, avatarUrl, active } = this.props.user.entity;
@@ -249,47 +256,121 @@ var UserEditModal = React.createClass({
             this.props.refreshCurrentPage();
             this.close();
         }, response => {
-            if (response.status.code === 403) {
+            if (response.status.code === 400) {
+                var errors = {};
+                _.each(response.entity.errors, error => {
+                    errors[error.property] = { message: error.message };
+                });
+                this.setState({
+                    showAlert: true,
+                    alertTitle: 'REQUEST REJECTED!',
+                    alertErrors: '',
+                    errors: errors
+                });
+                console.log(response);
+            } else if (response.status.code === 403) {
                 this.setState({
                     showAlert: true,
                     alertTitle: 'ACCESS DENIED!',
-                    alertDetails: 'You are not authorized to update this user.'
+                    alertErrors: 'You are not authorized to update this user.'
                 });
             } else if (response.status.code === 412) {
                 this.setState({
                     showAlert: true,
                     alertTitle: 'DENIED!',
-                    alertDetails: 'Unable to update. Your copy is stale.'
+                    alertErrors: 'Unable to update. Your copy is stale.'
                 });
             } else {
                 console.log(response);
             }
         });
-        // console.log(updatedUser);
-
+    },
+    clearErrors: function () {
+        this.setState({
+            showAlert: false,
+            alertTitle: '',
+            alertErrors: '',
+            errors: {}
+        });
+    },
+    close: function() {
+        this.clearErrors();
+        this.setState({ showModal: false });
+    },
+    open: function() {
+        this.setState({ showModal: true });
     },
     getInitialState: function() {
         return ({ 
             showModal: false,
             showAlert: false,
             alertTitle: '',
-            alertDetails: ''
+            alertErrors: '',
+            errors: {}
         });
-    },
-    close: function() {
-        this.setState({
-            showModal: false,
-            showAlert: false,
-            alertTitle: '',
-            alertDetails: ''
-        });
-    },
-    open: function() {
-        this.setState({ showModal: true });
     },
     render: function() {
         var { name, avatarUrl, firstName, lastName, email, joinDate, active, roles } = this.props.user.entity;
-        var rolesEl = [];
+        const InputFields = [
+            {
+                ref: 'firstName',
+                label: 'First name',
+                type: 'input'
+            },
+            {
+                ref: 'lastName',
+                label: 'Last name',
+                type: 'input'
+            },
+            {
+                ref: 'email',
+                label: 'Email',
+                type: 'email'
+            },
+            {
+                ref: 'joinDate',
+                label: 'Join date',
+                type: 'input',
+                mask: '9999-99-99'
+            }
+        ];
+
+        var inputEls = [];
+        _.each(InputFields, field => {
+            var inputEl = null;
+            var defaultProps = {
+                ref: field.ref,
+                defaultValue: this.props.user.entity[field.ref],
+                className: "form-control input-md"
+            };
+            if (field.mask) {
+                inputEl = <InputElement {...defaultProps} mask={field.mask} />
+            } else {
+                inputEl = <input {...defaultProps} type={field.type} placeholder={field.label} />
+            }
+
+            var error = this.state.errors[field.ref];
+            var formGroupClass = cx('form-group', error ? 'has-error has-feedback' : '');
+            var errorIconEl = null,
+                errorFeedbackEl = null;
+            if (error) {
+                errorIconEl = <i className="form-control-feedback fa fa-times-circle fa-lg"></i>
+                errorFeedbackEl = <small className="help-block">{error.message}</small>
+            }
+
+            inputEls.push(
+                <div className={formGroupClass}>
+                    <label className="col-md-4 control-label" htmlFor="name">{field.label}</label>
+                    <div className="col-md-7">
+                        {inputEl}
+                        {errorIconEl}
+                        {errorFeedbackEl}
+                    </div>
+                </div>
+            );
+        });
+
+        var roleEls = [];
         _.each(["ROLE_MANAGER", "ROLE_APPROVER", "ROLE_OPERATOR", "ROLE_ADMIN"], role => {
             var ref = role.toLowerCase();
             var hasRole = _.some(roles, item => {
@@ -301,7 +382,7 @@ var UserEditModal = React.createClass({
                     <input ref={ref} name={ref} type="checkbox" value={role} defaultChecked={hasRole} onChange={this.handleRoleChange} /> {RoleMapping[role]}
                 </label>
             )
-            rolesEl.push(roleEl);
+            roleEls.push(roleEl);
         });
         return (
             <span>
@@ -312,7 +393,7 @@ var UserEditModal = React.createClass({
                         <Modal.Title>User Edit</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <PanelAlert bsStyle="danger" show={this.state.showAlert} title={this.state.alertTitle} details={this.state.alertDetails} />
+                        <PanelAlert bsStyle="danger" show={this.state.showAlert} title={this.state.alertTitle} errors={this.state.alertErrors} />
                         <div className="media">
                             <div className="media-left">
                                 <img className="media-object img-lg img-circle" src={'img/' + avatarUrl} alt="Profile picture" />
@@ -322,40 +403,17 @@ var UserEditModal = React.createClass({
                                     <div className="col-md-12">
                                         <form className="form-horizontal">
                                             <div className="form-group">
-                                                <label className="col-md-4 control-label" htmlFor="name">User Name</label>
+                                                <label className="col-md-4 control-label" htmlFor="name">Username</label>
                                                 <div className="col-md-4">
                                                     <p className="form-control-static">{name}</p>
                                                 </div>
                                             </div>
-                                            <div className="form-group">
-                                                <label className="col-md-4 control-label" htmlFor="name">First Name</label>
-                                                <div className="col-md-4">
-                                                    <input ref="firstName" defaultValue={firstName} type="text" placeholder="First name" className="form-control input-md" />
-                                                </div>
-                                            </div>
-                                            <div className="form-group">
-                                                <label className="col-md-4 control-label" htmlFor="name">Last Name</label>
-                                                <div className="col-md-4">
-                                                    <input ref="lastName" defaultValue={lastName} type="text" placeholder="Last name" className="form-control input-md" />
-                                                </div>
-                                            </div>
-                                            <div className="form-group">
-                                                <label className="col-md-4 control-label" htmlFor="name">Email</label>
-                                                <div className="col-md-4">
-                                                    <input ref="email" defaultValue={email} type="email" placeholder="Email" className="form-control input-md" />
-                                                </div>
-                                            </div>
-                                            <div className="form-group">
-                                                <label className="col-md-4 control-label" htmlFor="name">Join Date</label>
-                                                <div className="col-md-4">
-                                                    <InputElement ref="joinDate" defaultValue={joinDate} mask="9999-99-99" className="form-control input-md" />
-                                                </div>
-                                            </div>
+                                            {inputEls}
                                             <div className="form-group">
                                                 <label className="col-md-4 control-label" htmlFor="name">Roles</label>
                                                 <div className="col-md-8">
                                                     <div className="form-block">
-                                                        {rolesEl}
+                                                        {roleEls}
                                                     </div>
                                                 </div>
                                             </div>
@@ -381,17 +439,29 @@ var UserEditModal = React.createClass({
 // tag::panel-alert[]
 var PanelAlert = React.createClass({
    render: function() {
-       var className = cx('alert-wrap', this.props.show ? 'in' : '');
-       return (
-           <div className="panel-alert">
-               <div className={className}>
-                   <Alert bsStyle={this.props.bsStyle}>
-                       <strong>{this.props.title}</strong>
-                       {this.props.details}
-                   </Alert>
-               </div>
-           </div>
-       )
+        var className = cx('alert-wrap', this.props.show ? 'in' : '');
+        var messageEls = null;
+        if (this.props.errors) {
+            if ( Object.prototype.toString.call( this.props.errors ) === '[object Array]') {
+                messageEls = this.props.errors.map(error =>
+                    <p>{error.message}</p>
+                )
+            } else {
+                messageEls = <p>{this.props.errors}</p>
+            }
+        }
+        return (
+            <div className="panel-alert">
+                <div className={className}>
+                    <Alert bsStyle={this.props.bsStyle}>
+                        <div className="media">
+                            <strong>{this.props.title}</strong>
+                            {messageEls}
+                        </div>
+                    </Alert>
+                </div>
+            </div>
+        )
    }
 });
 // end::panel-alert[]
