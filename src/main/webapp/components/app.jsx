@@ -1,8 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
 import { ScrollTopButton } from '../controls';
-import client from '../client';
-import follow from '../follow';
+import client from '../lib/client';
 
 import NavBar from './header.jsx';
 import MainNav from './navigation.jsx';

@@ -1,9 +1,9 @@
 import React from 'react'
 import { findDOMNode, render } from 'react-dom'
 import when from 'when'
-import client from '../../../client'
-import follow from '../../../follow'
-import stompClient from '../../../websocket-listener'
+import client from '../../../lib/client'
+import follow from '../../../lib/follow'
+import stompClient from '../../../lib/websocket-listener'
 
 define(function(require) {
 	'use strict';

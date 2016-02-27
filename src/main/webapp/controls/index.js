@@ -3,23 +3,40 @@ import { Buttons, ScrollTopButton } from './button.jsx';
 import Badge from './badge.jsx';
 import { Label, RoleLabel, RoleLabels, RoleShortNameLabels } from './label.jsx';
 import { MenuItemLink, SubMenu } from './menu.jsx';
+import { FormStatic, FormInput, FormCheckboxGroup } from './form.jsx';
+import { Modal, Alert, PanelAlert } from './bootstrap.jsx';
+import { PagingWrapper } from './paging.jsx';
 
 // tag::controls[]
-var Controls = {};
-
-Controls.Icon = Icon;
-Controls.Icons = Icons;
-Controls.WrapIcon = WrapIcon;
-Controls.WrapIcons = WrapIcons;
-Controls.Buttons = Buttons;
-Controls.ScrollTopButton = ScrollTopButton;
-Controls.Badge = Badge;
-Controls.Label = Label;
-Controls.RoleLabel = RoleLabel;
-Controls.RoleLabels = RoleLabels;
-Controls.RoleShortNameLabels = RoleShortNameLabels;
-Controls.MenuItemLink = MenuItemLink;
-Controls.SubMenu = SubMenu;
+var Controls = {
+	Icon,
+	Icons,
+	WrapIcon,
+	WrapIcons,
+	Buttons,
+	ScrollTopButton,
+	Badge,
+	Label,
+	RoleLabel,
+	RoleLabels,
+	RoleShortNameLabels,
+	MenuItemLink,
+	SubMenu,
+	// tag::formsy[]
+	Formsy,
+	FormStatic,
+	FormInput,
+	FormCheckboxGroup,
+	// end::formsy
+	// tag::bootstrap[]
+	Modal, 
+	Alert,
+	PanelAlert,
+	// end::bootstrap[]
+	// tag::paging
+	PagingWrapper
+	// end::paging
+}
 
 module.exports = Controls;
 module.exports.Controls = Controls;

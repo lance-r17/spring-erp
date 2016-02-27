@@ -24,12 +24,14 @@
     "rest": "^1.3.1",
     "sockjs-client": "^1.0.3",
     "stompjs": "^2.3.3",
+    "validator": "^5.0.0",
     "when": "^3.7.7"
   },
   "devDependencies": {
     "babel-loader": "latest",
     "babel-preset-es2015": "latest",
     "babel-preset-react": "latest",
+    "babel-preset-stage-0": "^6.5.0",
     "bootstrap-webpack": "0.0.5",
     "css-loader": "^0.23.1",
     "extract-text-webpack-plugin": "^1.0.1",

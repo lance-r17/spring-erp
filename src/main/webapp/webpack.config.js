@@ -45,7 +45,7 @@ var config = {
                 loader: 'babel-loader',
                 exclude: [node_modules_dir],
                 query: {
-                    presets: ['react', 'es2015']
+                    presets: ['es2015', 'stage-0', 'react']
                 },
             },
             {
