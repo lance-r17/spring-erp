@@ -5,7 +5,7 @@ import { Label, RoleLabel, RoleLabels, RoleShortNameLabels } from './label.jsx';
 import { MenuItemLink, SubMenu } from './menu.jsx';
 import { FormStatic, FormInput, FormCheckboxGroup } from './form.jsx';
 import { Modal, Alert, PanelAlert } from './bootstrap.jsx';
-import { PagingWrapper } from './paging.jsx';
+import Paging from './paging.jsx';
 
 // tag::controls[]
 var Controls = {
@@ -34,7 +34,7 @@ var Controls = {
 	PanelAlert,
 	// end::bootstrap[]
 	// tag::paging
-	PagingWrapper
+	Paging
 	// end::paging
 }
 

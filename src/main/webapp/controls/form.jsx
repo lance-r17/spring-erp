@@ -143,7 +143,7 @@ var FormCheckboxGroup = React.createClass({
                   name={name}
                   onChange={this.changeValue.bind(this, item.value)}
                   checked={contains(this.state.value, item.value, this.state.cmp)}
-                /> {item.display}
+                /> {item.display || item.value}
             </label>
         ));
 

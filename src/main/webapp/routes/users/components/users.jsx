@@ -1,11 +1,8 @@
 import React from 'react';
 import cx from 'classnames';
-import when from 'when';
 import api from '../../../lib/apiHelper';
-import client from '../../../lib/client';
-import follow from '../../../lib/follow';
 
-import { Label, RoleLabel, RoleLabels, Formsy, FormStatic, FormInput, FormCheckboxGroup, Modal, PanelAlert, PagingWrapper } from '../../../controls';
+import { Label, RoleLabel, RoleLabels, Formsy, FormStatic, FormInput, FormCheckboxGroup, Modal, PanelAlert, Paging } from '../../../controls';
 
 
 // tag::vars[]
@@ -34,7 +31,7 @@ const ROLES_OPTION = [
 
 // tag::users[]
 var Users = React.createClass({
-    loadFromServer: function(pageSize) {
+    getUsers: function(pageSize) {
         api.loadPagingData({
             rel: 'users', 
             pageSize: pageSize, 
@@ -51,95 +48,52 @@ var Users = React.createClass({
         });
     },
     // tag::update[]
-    onUpdate: function(user, updatedUser, successCallBack, failCallBack) {
-        client({
-            method: 'PUT',
-            path: user.entity._links.self.href,
-            entity: updatedUser,
-            headers: {
-                'Content-Type': 'application/json',
-                'If-Match': user.headers.Etag
-            }
-        }).done(response => {
-            /* Let the websocket handler update the state */
-            if (successCallBack) {
-                successCallBack(response);
-            }
-        }, response => {
-            if (failCallBack) {
-                failCallBack(response);
-            } else {
-                if (response.status.code === 403) {
-                    alert('ACCESS DENIED: You are not authorized to update ' + user.entity._links.self.href);
-                } else if (response.status.code === 412) {
-                    alert('DENIED: Unable to update ' + user.entity._links.self.href + '. Your copy is stale.');
-                }
-            }
+    onUpdate: function(user, updatedUser, successCallback, errorCallback) {
+        api.update({
+            item: user,
+            updatedItem: updatedUser,
+            onSuccess: successCallback,
+            onError: errorCallback
         });
     },
     // end::update[]
     // tag::update-page-size[]
     updatePageSize: function(pageSize) {
         if (this.state.pageSize !== pageSize) {
-            this.loadFromServer(pageSize);
+            this.getUsers(pageSize);
         }
     },
     // tag::navigate[]
     onNavigate: function(navUri) {
-        client({
-            method: 'GET',
-            path: navUri
-        }).then(userCollection => {
-            this.links = userCollection.entity._links;
-            this.page = userCollection.entity.page;
-
-            return userCollection.entity._embedded.users.map(user =>
-                client({
-                    method: 'GET',
-                    path: user._links.self.href
-                })
-            );
-        }).then(userPromises => {
-            return when.all(userPromises);
-        }).done(users => {
-            this.setState({
-                page: this.page,
-                users: users,
-                attributes: Object.keys(this.state.schema.properties),
-                pageSize: this.state.pageSize,
-                links: this.links
-            })
-        })
+        api.navigateTo({
+            navUri: navUri,
+            resource: 'users',
+            callback: response => {
+                this.setState({
+                    page: response.page,
+                    users: response.items,
+                    links: response.links
+                });
+            }
+        });
     },
     // end::navigate[]
     // tag::refresh-current-page[]
     refreshCurrentPage: function() {
-        follow(client, root, [{
+        api.loadPagingData({
             rel: 'users',
-            params: {
-                size: this.state.pageSize,
-                page: this.state.page.number
+            pageSize: this.state.pageSize,
+            pageNumber: this.state.page.number,
+            schema: this.state.schema,
+            callback: response => {
+                this.setState({
+                    page: response.page,
+                    users: response.items,
+                    attributes: response.attributes,
+                    pageSize: this.state.pageSize,
+                    links: response.links
+                });
             }
-        }]).then(userCollection => {
-            this.links = userCollection.entity._links;
-            this.page = userCollection.entity.page;
-
-            return userCollection.entity._embedded.users.map(user => {
-                return client({
-                    method: 'GET',
-                    path: user._links.self.href
-                })
-            });
-        }).then(userPromises => {
-            return when.all(userPromises);
-        }).done(users => {
-            this.setState({
-                page: this.page,
-                users: users,
-                attributes: Object.keys(this.state.schema.properties),
-                pageSize: this.state.pageSize,
-                links: this.links
-            })
         });
     },
     // end::refresh-current-page[]
@@ -154,31 +108,29 @@ var Users = React.createClass({
         });
     },
     componentDidMount: function() {
-        this.loadFromServer(this.state.pageSize);
+        this.getUsers(this.props.pageSize || this.state.pageSize);
     },
     render: function() {
         return (
             <div id="content-container">
 
                 {/* Page Title */}
-                {/* =================================================== */}
                 <div id="page-title">
                     <h1 className="page-header text-overflow">Users</h1>
                 </div>
+                {/* End page Title */}
 
                 {/* Page content */}
-                {/* =================================================== */}
                 <div id="page-content">
                     <div className="panel">
                         <div className="panel-heading">
                             <h3 className="panel-title">Users Management</h3>
                         </div>
                         <div className="panel-body">
-                            <PagingWrapper pageSize={this.state.pageSize} 
-                                           page={this.state.page} 
-                                           links={this.state.links} 
-                                           updatePageSize={this.updatePageSize}
-                                           onNavigate={this.onNavigate}  >
+                            <Paging.Wrapper>
+
+                                <Paging.Toolbar pageSize={this.state.pageSize}
+                                                updatePageSize={this.updatePageSize} />
 
                                 {/*  User list  */}
                                 <div className="table-responsive">
@@ -188,7 +140,13 @@ var Users = React.createClass({
                                                refreshCurrentPage={this.refreshCurrentPage} />
                                 </div>
 
-                            </PagingWrapper>
+                                <hr/>
+
+                                <Paging.Pagination page={this.state.page}
+                                                   links={this.state.links}
+                                                   onNavigate={this.onNavigate} />
+
+                            </Paging.Wrapper>
                         </div>
                     </div>
                 </div>
@@ -199,6 +157,127 @@ var Users = React.createClass({
     }
 });
 // end::users[]
+
+// tag::user-create-modal[]
+var UserCreateModal = React.createClass({
+    handleClick: function(e) {
+        e.preventDefault();
+
+        this.open();
+    },
+    enableSubmit: function () {
+        this.setState({
+            canSubmit: true
+        });
+    },
+    disableSubmit: function () {
+        this.setState({
+            canSubmit: false
+        });
+    },
+    handleSubmit: function (data, restModel, updateInputsWithError) {
+        var { avatarUrl } = this.props.user.entity;
+        var updatedUser = { avatarUrl };
+        _.extend(updatedUser, data);
+        this.props.onUpdate(this.props.user, updatedUser, response => {
+            this.props.refreshCurrentPage();
+            this.close();
+        }, response => {
+            if (response.status.code === 400) {
+                this.setState({
+                    showAlert: true,
+                    alertTitle: 'REQUEST REJECTED!',
+                    alertDetails: ''
+                });
+                updateInputsWithError(response.entity.errors);
+            } else if (response.status.code === 403) {
+                this.setState({
+                    showAlert: true,
+                    alertTitle: 'ACCESS DENIED!',
+                    alertDetails: 'You are not authorized to update this user.'
+                });
+            } else if (response.status.code === 412) {
+                this.setState({
+                    showAlert: true,
+                    alertTitle: 'DENIED!',
+                    alertDetails: 'Unable to update. Your copy is stale.'
+                });
+            } else {
+                console.log(response);
+            }
+
+            return response;
+        });
+    },
+    clearAlert: function () {
+        this.setState({
+            showAlert: false,
+            alertTitle: '',
+            alertDetails: ''
+        });
+    },
+    close: function() {
+        this.clearAlert();
+        this.setState({ showModal: false });
+    },
+    open: function() {
+        this.setState({ showModal: true });
+    },
+    getInitialState: function() {
+        return ({
+            canSubmit: false,
+            showModal: false,
+            showAlert: false,
+            alertTitle: '',
+            alertDetails: ''
+        });
+    },
+    render: function() {
+        return (
+            <span>
+                <a className="btn btn-sm btn-default btn-icon btn-hover-success fa fa-pencil add-tooltip" href="#" data-original-title="Edit" data-container="body" onClick={this.handleClick}></a>
+
+                <Modal show={this.state.showModal} onHide={this.close}>
+                    <Formsy.Form className="form-horizontal" onValidSubmit={this.handleSubmit} onValid={this.enableSubmit} onInvalid={this.disableSubmit}>
+
+                        <Modal.Header closeButton>
+                            <Modal.Title>New User</Modal.Title>
+                        </Modal.Header>
+
+                        <Modal.Body>
+                            <PanelAlert bsStyle="danger" show={this.state.showAlert} title={this.state.alertTitle} errors={this.state.alertDetails} />
+                            <div className="media">
+                                <div className="media-left">
+                                    <img className="media-object img-lg img-circle" src={'img/' + avatarUrl} alt="Profile picture" />
+                                </div>
+                                <div className="media-body">
+                                    <div className="row">
+                                        <div className="col-md-12">
+                                            <FormInput name="name" title="Username" required />
+                                            <FormInput name="firstName" type="text" title="First name" required />
+                                            <FormInput name="lastName" type="text" title="Last name" required />
+                                            <FormInput name="email" type="email" title="Email" validations="isEmail" validationError="This is not a valid email" required/>
+                                            <FormInput name="joinDate" type="text" title="Join Date" mask="9999-99-99" validations="isDate" validationError="This is not a valid date" required/>
+                                            <FormCheckboxGroup name="roles" title="Roles" items={ROLES_OPTION} />
+                                            <FormStatic name="active" defaultValue={true} hidden />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </Modal.Body>
+
+                        <Modal.Footer>
+                            <button type="submit" className="btn btn-primary" disabled={!this.state.canSubmit}>Save</button>
+                        </Modal.Footer>
+
+                    </Formsy.Form>
+                </Modal>
+
+            </span>
+        )
+    }
+});
+// end::user-create-modal[]
 
 // tag::user-edit-modal[]
 var UserEditModal = React.createClass({

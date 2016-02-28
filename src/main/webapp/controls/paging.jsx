@@ -1,9 +1,24 @@
 import React from 'react';
 import { findDOMNode } from 'react-dom';
 
-// tag::paging-wrapper[]
-var PagingWrapper = React.createClass({
-    // tag::handle-page-size-update[]
+var Paging = {};
+
+// tag::wrapper[]
+Paging.Wrapper = React.createClass({
+    displayName: 'Paging',
+    render: function() {
+
+        return (
+            <div className="form-inline dt-bootstrap no-footer">
+                {this.props.children}
+            </div>
+        )
+    }
+});
+// end::wrapper[]
+
+// tag::toolbar[]
+Paging.Toolbar = React.createClass({
     handleChange: function(e) {
         e.preventDefault();
         var pageSize = findDOMNode(this.refs.pageSize).value;
@@ -11,40 +26,29 @@ var PagingWrapper = React.createClass({
             this.props.updatePageSize(pageSize);
         }
     },
-    // end::handle-page-size-update[]
     render: function() {
         var pageSizeOptions = this.props.pageSizeOptions || [1, 2, 5, 10, 25, 50, 100];
-        var selectOptionsEl = pageSizeOptions.map(size =>
+        var options = pageSizeOptions.map(size =>
             <option value={size}>{size}</option>
         );
         return (
-            <div className="form-inline dt-bootstrap no-footer">
-                <div className="dataTables_length">
-                    <label>
-                        Show&nbsp;
-                        <select ref="pageSize" className="form-control input-sm" onChange={this.handleChange} value={this.props.pageSize}>
-                            {selectOptionsEl}
-                        </select>
-                        &nbsp;entries
-                    </label>
-                </div>
-
-                {this.props.children}
-
-                <hr/>
-
-                {/* Pagination */}
-                <Pagination page={this.props.page} 
-                            links={this.props.links} 
-                            onNavigate={this.props.onNavigate} />
+            <div className="toolbar">
+                <label>
+                    Show&nbsp;
+                    <select ref="pageSize" className="form-control input-sm" onChange={this.handleChange} value={this.props.pageSize}>
+                        {options}
+                    </select>
+                    &nbsp;entries
+                </label>
             </div>
         )
     }
 });
-// tag::paging-wrapper[]
+// end::toolbar[]
+
 
 // tag::pagination[]
-var Pagination = React.createClass({
+Paging.Pagination = React.createClass({
     // tag::handle-nav[]
     handleNavFirst: function(e) {
         e.preventDefault();
@@ -142,8 +146,8 @@ var Pagination = React.createClass({
 });
 // end::pagination[]
 
-const PagingControls = {
-	PagingWrapper
-};
+if (!global.exports && !global.module && (!global.define || !global.define.amd)) {
+    global.Paging = Paging;
+}
 
-module.exports = PagingControls;
+module.exports = Paging;
