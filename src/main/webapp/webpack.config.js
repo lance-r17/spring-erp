@@ -23,6 +23,7 @@ var config = {
             'react', 
             'react-dom'
         ],
+        'app': './less/main.less',
         'bundle': './app.jsx'
     },
     output: {

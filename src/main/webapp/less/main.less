@@ -1,69 +1,143 @@
-input.field {
-  width: 90%;
+@import "../nifty/_variables.less";
+
+
+/* BOOTSTRAP'S COMPONENTS */
+
+.form-group {
+  &.required {
+    label:after {
+      content: ' *';
+      color: @state-danger;
+    }
+  }
 }
 
-table {
-  border-collapse: collapse;
-}
 
-td, th {
-  border: 1px solid #999;
-  padding: 0.5rem;
-  text-align: left;
-}
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Nov 28, 2013, 7:09:35 AM
+    Author     : bugraozden
+*/
 
-/*Classes for creating dialogs*/
+.icon-select{
+    width:0px;
+ }
 
-.modalDialog {
-  position: fixed;
-  font-family: Arial, Helvetica, sans-serif;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background: rgba(0,0,0,0.8);
-  z-index: 99999;
-  opacity:0;
-  -webkit-transition: opacity 400ms ease-in;
-  -moz-transition: opacity 400ms ease-in;
-  transition: opacity 400ms ease-in;
-  pointer-events: none;
-}
+ .icon-select .selected-box {
 
-.modalDialog:target {
-  opacity:1;
-  pointer-events: auto;
-}
+     position: relative;
+     margin: 0px;
+     padding: 0px;
+     width: 70px; /* sil */
+     height: 60px; /* sil */
+     border: 1px solid #999999;
 
-.modalDialog > div {
-  width: 400px;
-  position: relative;
-  margin: 10% auto;
-  padding: 5px 20px 13px 20px;
-  border-radius: 10px;
-  background: #fff;
-  background: -moz-linear-gradient(#fff, #999);
-  background: -webkit-linear-gradient(#fff, #999);
-  background: -o-linear-gradient(#fff, #999);
-}
+     -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+     border-radius: 3px;
 
-.close {
-  background: #606061;
-  color: #FFFFFF;
-  line-height: 25px;
-  position: absolute;
-  right: -12px;
-  text-align: center;
-  top: -10px;
-  width: 24px;
-  text-decoration: none;
-  font-weight: bold;
-  -webkit-border-radius: 12px;
-  -moz-border-radius: 12px;
-  border-radius: 12px;
-  -moz-box-shadow: 1px 1px 3px #000;
-  -webkit-box-shadow: 1px 1px 3px #000;
-  box-shadow: 1px 1px 3px #000;
-}
+ }
 
-.close:hover { background: #00d9ff; }
+ .icon-select .selected-box:hover {
+
+     position: relative;
+     margin: 0px;
+     padding: 0px;
+     width: 70px; /* sil */
+     height: 60px; /* sil */
+     border: 1px solid #000000;
+     background-color: #FFFFFF;
+
+     -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+     border-radius: 3px;
+
+ }
+
+ .icon-select .selected-icon {
+
+     position: absolute;
+     margin: 0px;
+     padding: 0px;
+     top:5px;
+     left:5px;
+     width: 48px; /* sil */
+     height: 48px; /* sil */
+
+     -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+     border-radius: 3px;
+
+ }
+
+ .icon-select .component-icon{
+     position: absolute;
+     bottom:5px;
+     right:4px;
+ }
+
+ .icon-select .box {
+
+     position: absolute;
+     top:0px;
+     left:71px;
+     margin: 0px;
+     padding: 0px;
+     width: 170px; /* sil */
+     height: 170px; /* sil */
+     border: 1px solid #EEEEEE;
+     background-color: #EEEEEE;
+
+     -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+     border-radius: 3px;
+     
+     
+     overflow:auto;
+     /*
+     -webkit-overflow-scrolling: touch;
+     */
+
+ }
+
+ .icon-select .icon {
+     position: relative;
+     margin: 5px 0px 0px 5px;
+     padding: 0px;
+     width: 48px; /* sil */
+     height: 48px; /* sil */
+     border: 1px solid #CCCCCC;
+     background-color: #FFFFFF;
+
+     -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+     border-radius: 3px;
+
+     overflow:hidden;
+     float: left;
+ }
+
+ .icon-select .icon:hover {
+     border: 1px solid #000000;
+ }
+
+ .icon-select .icon.selected {
+     position: relative;
+     margin: 5px 0px 0px 5px;
+     padding: 0px;
+     width: 48px; /* sil */
+     height: 48px; /* sil */
+     border: 1px solid #EEEEEE;
+     background-color: #EEEEEE;
+
+     -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+     border-radius: 3px;
+
+     overflow:hidden;
+     float: left;
+ }

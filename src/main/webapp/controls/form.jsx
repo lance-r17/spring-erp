@@ -56,7 +56,7 @@ var FormInput = React.createClass({
         }
     },
     render: function() {
-        var { name, className, type, title, mask } = this.props;
+        var { name, className, type, title, placeholder, mask } = this.props;
         className  =cx(className, ['form-control', 'input-md']);
         var props = {};
         _.extend(
@@ -67,35 +67,29 @@ var FormInput = React.createClass({
                 type
             }, 
             {
-                mask: mask || "",
+                mask: mask || '',
+                placeholder: placeholder || title,
                 value: this.getValue(),
                 onChange: this.changeValue
             }
         );
 
-        var formGroupClassName = 'form-group',
-            errorMessage = null,
+        var formGroupClassName = cx('form-group', this.showRequired() ? 'required' : this.showError() ? ['has-error', 'has-feedback'] : ''),
             errors = [];
         
-        if (this.showRequired()) {
-            errorMessage = `${title} is required`;
-        } else if (this.showError()) {
+        if (this.showError() && !this.showRequired()) {
             // An error message is returned ONLY if the component is invalid
             // or the server has returned an error message
-            errorMessage = this.getErrorMessage();
-        }
-
-        if (errorMessage) {
-            formGroupClassName = cx(formGroupClassName, ['has-error', 'has-feedback']);
+            var errorMessage = this.getErrorMessage();
             errors.push(<i className="form-control-feedback fa fa-times-circle fa-lg"></i>);
             errors.push(<small className="help-block">{errorMessage}</small>);
         }
 
         return (
             <div className={formGroupClassName}>
-                <label className="col-md-4 control-label" htmlFor={name}>{title}</label>
-                <div className="col-md-7">
-                    <InputElement {...props} placeholder={title} />
+                <label className="col-md-4 col-xs-6 control-label" htmlFor={name}>{title}</label>
+                <div className="col-md-7 col-xs-6">
+                    <InputElement {...props} />
                     {errors}
                 </div>
             </div>

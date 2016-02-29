@@ -6,6 +6,7 @@ import { MenuItemLink, SubMenu } from './menu.jsx';
 import { FormStatic, FormInput, FormCheckboxGroup } from './form.jsx';
 import { Modal, Alert, PanelAlert } from './bootstrap.jsx';
 import Paging from './paging.jsx';
+import NanoScroller from './scroll.jsx';
 
 // tag::controls[]
 var Controls = {
@@ -34,8 +35,11 @@ var Controls = {
 	PanelAlert,
 	// end::bootstrap[]
 	// tag::paging
-	Paging
+	Paging,
 	// end::paging
+	// tag::scroll
+	NanoScroller
+	// end::scroll
 }
 
 module.exports = Controls;

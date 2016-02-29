@@ -9,7 +9,7 @@ Paging.Wrapper = React.createClass({
     render: function() {
 
         return (
-            <div className="form-inline dt-bootstrap no-footer">
+            <div className="dt-bootstrap no-footer">
                 {this.props.children}
             </div>
         )
@@ -32,14 +32,21 @@ Paging.Toolbar = React.createClass({
             <option value={size}>{size}</option>
         );
         return (
-            <div className="toolbar">
-                <label>
-                    Show&nbsp;
-                    <select ref="pageSize" className="form-control input-sm" onChange={this.handleChange} value={this.props.pageSize}>
-                        {options}
-                    </select>
-                    &nbsp;entries
-                </label>
+            <div className="toolbar form-inline">
+                <div className="row">
+                    <div className="col-sm-6 table-toolbar-left">
+                        <label>
+                            Show&nbsp;
+                            <select ref="pageSize" className="form-control input-sm" onChange={this.handleChange} value={this.props.pageSize}>
+                                {options}
+                            </select>
+                            &nbsp;entries
+                        </label>
+                    </div>
+                    <div className="col-sm-6 table-toolbar-right">
+                        {this.props.children}
+                    </div>
+                </div>
             </div>
         )
     }
@@ -145,9 +152,5 @@ Paging.Pagination = React.createClass({
     }
 });
 // end::pagination[]
-
-if (!global.exports && !global.module && (!global.define || !global.define.amd)) {
-    global.Paging = Paging;
-}
 
 module.exports = Paging;

@@ -2,7 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import api from '../../../lib/apiHelper';
 
-import { Label, RoleLabel, RoleLabels, Formsy, FormStatic, FormInput, FormCheckboxGroup, Modal, PanelAlert, Paging } from '../../../controls';
+import { Label, RoleLabel, RoleLabels, Formsy, FormStatic, FormInput, FormCheckboxGroup, Modal, PanelAlert, Paging, NanoScroller } from '../../../controls';
 
 
 // tag::vars[]
@@ -47,6 +47,11 @@ var Users = React.createClass({
             }
         });
     },
+    // tag::create[]
+    onCreate: function(user, successCallback, errorCallback) {
+
+    },
+    // end::create[]
     // tag::update[]
     onUpdate: function(user, updatedUser, successCallback, errorCallback) {
         api.update({
@@ -130,7 +135,9 @@ var Users = React.createClass({
                             <Paging.Wrapper>
 
                                 <Paging.Toolbar pageSize={this.state.pageSize}
-                                                updatePageSize={this.updatePageSize} />
+                                                updatePageSize={this.updatePageSize}>
+                                    <UserCreateModal onCreate={this.onCreate} />
+                                </Paging.Toolbar>
 
                                 {/*  User list  */}
                                 <div className="table-responsive">
@@ -176,10 +183,9 @@ var UserCreateModal = React.createClass({
         });
     },
     handleSubmit: function (data, restModel, updateInputsWithError) {
-        var { avatarUrl } = this.props.user.entity;
-        var updatedUser = { avatarUrl };
-        _.extend(updatedUser, data);
-        this.props.onUpdate(this.props.user, updatedUser, response => {
+        var newUser = {};
+        _.extend(newUser, data);
+        this.props.onCreate(newUser, response => {
             this.props.refreshCurrentPage();
             this.close();
         }, response => {
@@ -195,12 +201,6 @@ var UserCreateModal = React.createClass({
                     showAlert: true,
                     alertTitle: 'ACCESS DENIED!',
                     alertDetails: 'You are not authorized to update this user.'
-                });
-            } else if (response.status.code === 412) {
-                this.setState({
-                    showAlert: true,
-                    alertTitle: 'DENIED!',
-                    alertDetails: 'Unable to update. Your copy is stale.'
                 });
             } else {
                 console.log(response);
@@ -235,7 +235,7 @@ var UserCreateModal = React.createClass({
     render: function() {
         return (
             <span>
-                <a className="btn btn-sm btn-default btn-icon btn-hover-success fa fa-pencil add-tooltip" href="#" data-original-title="Edit" data-container="body" onClick={this.handleClick}></a>
+                <button className="btn btn-info btn-labeled fa fa-plus" onClick={this.handleClick}>Add</button>
 
                 <Modal show={this.state.showModal} onHide={this.close}>
                     <Formsy.Form className="form-horizontal" onValidSubmit={this.handleSubmit} onValid={this.enableSubmit} onInvalid={this.disableSubmit}>
@@ -247,21 +247,58 @@ var UserCreateModal = React.createClass({
                         <Modal.Body>
                             <PanelAlert bsStyle="danger" show={this.state.showAlert} title={this.state.alertTitle} errors={this.state.alertDetails} />
                             <div className="media">
-                                <div className="media-left">
-                                    <img className="media-object img-lg img-circle" src={'img/' + avatarUrl} alt="Profile picture" />
-                                </div>
-                                <div className="media-body">
-                                    <div className="row">
-                                        <div className="col-md-12">
-                                            <FormInput name="name" title="Username" required />
-                                            <FormInput name="firstName" type="text" title="First name" required />
-                                            <FormInput name="lastName" type="text" title="Last name" required />
-                                            <FormInput name="email" type="email" title="Email" validations="isEmail" validationError="This is not a valid email" required/>
-                                            <FormInput name="joinDate" type="text" title="Join Date" mask="9999-99-99" validations="isDate" validationError="This is not a valid date" required/>
-                                            <FormCheckboxGroup name="roles" title="Roles" items={ROLES_OPTION} />
-                                            <FormStatic name="active" defaultValue={true} hidden />
+                                <div className="media-left navbar-top-links">
+                                    {/*<img className="media-object img-lg img-circle" src={'img/' + avatarUrl} alt="Profile picture" />*/}
+                                    <div className="dropdown open">
+                                        <a href="#" data-toggle="dropdown" className="dropdown-toggle" aria-expanded="true">
+                                            <img className="media-object img-lg img-circle mar-hor" src='img/av1.png' alt="Profile picture" />
+                                        </a>
+                                        <div className="dropdown-menu dropdown-menu-sm mar-top">
+                                            <NanoScroller>
+                                                <ul className="head-list">
+                                                    <li>
+                                                        <a href="#" className="media">
+                                                            <img src="img/av1.png" alt="Profile Picture" className="img-circle img-lg"/>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="#" className="media">
+                                                            <img src="img/av2.png" alt="Profile Picture" className="img-circle img-lg"/>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="#" className="media">
+                                                            <img src="img/av3.png" alt="Profile Picture" className="img-circle img-lg"/>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="#" className="media">
+                                                            <img src="img/av4.png" alt="Profile Picture" className="img-circle img-lg"/>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="#" className="media">
+                                                            <img src="img/av5.png" alt="Profile Picture" className="img-circle img-lg"/>
+                                                        </a>
+                                                    </li>
+                                                    <li>
+                                                        <a href="#" className="media">
+                                                            <img src="img/av6.png" alt="Profile Picture" className="img-circle img-lg"/>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </NanoScroller>
                                         </div>
                                     </div>
+                                </div>
+                                <div className="media-body">
+                                    <FormInput name="name" title="Username" required />
+                                    <FormInput name="firstName" type="text" title="First name" required />
+                                    <FormInput name="lastName" type="text" title="Last name" required />
+                                    <FormInput name="email" type="email" title="Email" validations="isEmail" validationError="This is not a valid email" required/>
+                                    <FormInput name="joinDate" type="text" title="Join Date" mask="9999-99-99" validations="isDate" validationError="This is not a valid date" required/>
+                                    <FormCheckboxGroup name="roles" title="Roles" items={ROLES_OPTION} />
+                                    <FormStatic name="active" defaultValue={true} hidden />
                                 </div>
                             </div>
                         </Modal.Body>
@@ -373,17 +410,13 @@ var UserEditModal = React.createClass({
                                     <img className="media-object img-lg img-circle" src={'img/' + avatarUrl} alt="Profile picture" />
                                 </div>
                                 <div className="media-body">
-                                    <div className="row">
-                                        <div className="col-md-12">
-                                            <FormStatic name="name" defaultValue={name} title="Username" />
-                                            <FormInput name="firstName" defaultValue={firstName} type="text" title="First name" required />
-                                            <FormInput name="lastName" defaultValue={lastName} type="text" title="Last name" required />
-                                            <FormInput name="email" defaultValue={email} type="email" title="Email" validations="isEmail" validationError="This is not a valid email" required/>
-                                            <FormInput name="joinDate" defaultValue={joinDate} type="text" title="Join Date" mask="9999-99-99" validations="isDate" validationError="This is not a valid date" required/>
-                                            <FormCheckboxGroup name="roles" value={roles} title="Roles" items={ROLES_OPTION} />
-                                            <FormStatic name="active" defaultValue={active} hidden />
-                                        </div>
-                                    </div>
+                                    <FormStatic name="name" defaultValue={name} title="Username" />
+                                    <FormInput name="firstName" defaultValue={firstName} type="text" title="First name" required />
+                                    <FormInput name="lastName" defaultValue={lastName} type="text" title="Last name" required />
+                                    <FormInput name="email" defaultValue={email} type="email" title="Email" validations="isEmail" validationError="This is not a valid email" required/>
+                                    <FormInput name="joinDate" defaultValue={joinDate} type="text" title="Join Date" mask="9999-99-99" validations="isDate" validationError="This is not a valid date" required/>
+                                    <FormCheckboxGroup name="roles" value={roles} title="Roles" items={ROLES_OPTION} />
+                                    <FormStatic name="active" defaultValue={active} hidden />
                                 </div>
                             </div>
                         </Modal.Body>
