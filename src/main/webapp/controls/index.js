@@ -3,7 +3,7 @@ import { Buttons, ScrollTopButton } from './button.jsx';
 import Badge from './badge.jsx';
 import { Label, RoleLabel, RoleLabels, RoleShortNameLabels } from './label.jsx';
 import { MenuItemLink, SubMenu } from './menu.jsx';
-import { FormStatic, FormInput, FormCheckboxGroup } from './form.jsx';
+import { FormStatic, FormInput, FormCheckboxGroup, ImageSelect } from './form.jsx';
 import { Modal, Alert, PanelAlert } from './bootstrap.jsx';
 import Paging from './paging.jsx';
 import NanoScroller from './scroll.jsx';
@@ -28,6 +28,7 @@ var Controls = {
 	FormStatic,
 	FormInput,
 	FormCheckboxGroup,
+	ImageSelect,
 	// end::formsy
 	// tag::bootstrap[]
 	Modal, 

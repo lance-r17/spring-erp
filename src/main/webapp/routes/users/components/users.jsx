@@ -2,7 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import api from '../../../lib/apiHelper';
 
-import { Label, RoleLabel, RoleLabels, Formsy, FormStatic, FormInput, FormCheckboxGroup, Modal, PanelAlert, Paging, NanoScroller } from '../../../controls';
+import { Label, RoleLabel, RoleLabels, Formsy, FormStatic, FormInput, FormCheckboxGroup, ImageSelect, Modal, PanelAlert, Paging, NanoScroller } from '../../../controls';
 
 
 // tag::vars[]
@@ -249,47 +249,7 @@ var UserCreateModal = React.createClass({
                             <div className="media">
                                 <div className="media-left navbar-top-links">
                                     {/*<img className="media-object img-lg img-circle" src={'img/' + avatarUrl} alt="Profile picture" />*/}
-                                    <div className="dropdown open">
-                                        <a href="#" data-toggle="dropdown" className="dropdown-toggle" aria-expanded="true">
-                                            <img className="media-object img-lg img-circle mar-hor" src='img/av1.png' alt="Profile picture" />
-                                        </a>
-                                        <div className="dropdown-menu dropdown-menu-sm mar-top">
-                                            <NanoScroller>
-                                                <ul className="head-list">
-                                                    <li>
-                                                        <a href="#" className="media">
-                                                            <img src="img/av1.png" alt="Profile Picture" className="img-circle img-lg"/>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" className="media">
-                                                            <img src="img/av2.png" alt="Profile Picture" className="img-circle img-lg"/>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" className="media">
-                                                            <img src="img/av3.png" alt="Profile Picture" className="img-circle img-lg"/>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" className="media">
-                                                            <img src="img/av4.png" alt="Profile Picture" className="img-circle img-lg"/>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" className="media">
-                                                            <img src="img/av5.png" alt="Profile Picture" className="img-circle img-lg"/>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" className="media">
-                                                            <img src="img/av6.png" alt="Profile Picture" className="img-circle img-lg"/>
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </NanoScroller>
-                                        </div>
-                                    </div>
+                                    <ImageSelect name="avatarUrl" className="img-lg img-circle" values={['av1.png', 'av2.png', 'av3.png', 'av4.png', 'av5.png', 'av6.png']} />
                                 </div>
                                 <div className="media-body">
                                     <FormInput name="name" title="Username" required />

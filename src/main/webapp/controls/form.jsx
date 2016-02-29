@@ -3,6 +3,7 @@ import Formsy from 'formsy-react';
 import InputElement from 'react-input-mask';
 import cx from 'classnames';
 import validator from 'validator';
+import NanoScroller from './scroll.jsx';
 
 // tag::validation-rules[]
 Formsy.addValidationRule('isDate', (values, value) => {
@@ -174,11 +175,86 @@ var FormCheckboxGroup = React.createClass({
 
 });
 
+var ImageSelect = React.createClass({
+    mixins: [Formsy.Mixin],
+    getInitialState: function () {
+        return ({
+            openDropdown: false
+        })
+    },
+    componentWillMount: function () {
+        const { defaultValue, values} = this.props;
+        this.setValue(defaultValue || values[0]);
+    },
+    componentWillReceiveProps: function (nextProps) {
+        const { defaultValue, values} = this.props;
+        const { nextDefaultValue, nextValues} = this.nextProps;
+
+        var value = defaultValue || values[0];
+        var nextValue = nextDefaultValue || nextValues[0];
+        // Only change to the new default value if it is currently showing the old one
+        if (this.getValue() === value && nextValue !== value) {
+            this.setValue(nextValue);
+        }
+    },
+    toggleDropdown: function(event) {
+        event.preventDefault();
+        var openDropdown = !this.state.openDropdown;
+        this.setState({
+            openDropdown
+        });
+    },
+    close: function() {
+        this.setState({
+            openDropdown: false
+        });
+    },
+    open: function() {
+        this.setState({
+            openDropdown: true
+        });
+    },
+    changeValue: function (value, event) {
+        event.preventDefault();
+
+        this.setValue(value);
+        this.close();
+    },
+    render: function() {
+        var { className, values } = this.props;
+        var images = values.map(value =>
+            <li>
+                <a href="#" className="media" onClick={this.changeValue.bind(this, value)}>
+                    <img src={'img/' + value} alt="Profile Picture" className={className} />
+                </a>
+            </li>
+        );
+        var dropdownMenu = (
+            <NanoScroller>
+                <ul className="head-list">
+                    {images}
+                </ul>
+            </NanoScroller>
+        );
+        return(
+            <div className={cx('dropdown', this.state.openDropdown ? 'open' : '')}>
+                <a href="#" data-toggle="dropdown" onClick={this.toggleDropdown}>
+                    <img className={cx(className, ['media-object', 'mar-hor'])} src={'img/' + this.getValue()} />
+                </a>
+                <div className="dropdown-menu dropdown-menu-img-lg">
+                    { this.state.openDropdown ? dropdownMenu : null }
+                </div>
+            </div>
+        )
+    }
+});
+
 const FormControls = {
 	Formsy,
 	FormStatic,
 	FormInput,
-	FormCheckboxGroup
+	FormCheckboxGroup,
+    ImageSelect
 }
 
 module.exports = FormControls;
