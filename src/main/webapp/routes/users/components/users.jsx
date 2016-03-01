@@ -528,7 +528,7 @@ var UserDeleteModal = React.createClass({
                                     <img src={'img/' + avatarUrl} alt="Profile Picture" className="img-lg img-circle" />
                                 </div>
                                 <div className="media-body">
-                                    <h4 className="text-thin">Are you sure to delete <strong>{ `${firstName} ${lastName}` }</strong>?</h4>
+                                    <h4 className="text-thin">Are you sure to delete user profile of <strong>{ `${firstName} ${lastName}` }</strong>?</h4>
                                 </div>
                             </div>
                         </Modal.Body>
@@ -546,6 +546,230 @@ var UserDeleteModal = React.createClass({
     }
 });
 // end::user-delete-modal[]
+
+// tag::user-disable-modal[]
+var UserDisableModal = React.createClass({
+    handleClick: function(e) {
+        e.preventDefault();
+
+        this.open();
+    },
+    handleSubmit: function (data, reset, invalidate) {
+        var updatedUser = {};
+        _.extend(updatedUser, data);
+        updatedUser.active = false;
+        this.props.onUpdate(this.props.user, updatedUser, response => {
+            this.props.refreshCurrentPage();
+            this.close();
+        }, response => {
+            if (response.errors) {
+                invalidate(response.errors);
+            } else if (response.status.code === 400) {
+                this.setState({
+                    showAlert: true,
+                    alertTitle: 'REQUEST REJECTED!',
+                    alertDetails: response.entity.errors
+                });
+            } else if (response.status.code === 403) {
+                this.setState({
+                    showAlert: true,
+                    alertTitle: 'ACCESS DENIED!',
+                    alertDetails: 'You are not authorized to update this user.'
+                });
+            } else if (response.status.code === 412) {
+                this.setState({
+                    showAlert: true,
+                    alertTitle: 'DENIED!',
+                    alertDetails: 'Unable to update. Your copy is stale.'
+                });
+            } else {
+                console.log(response);
+            }
+
+            return response;
+        });
+    },
+    clearAlert: function () {
+        this.setState({
+            showAlert: false,
+            alertTitle: '',
+            alertDetails: ''
+        });
+    },
+    close: function() {
+        this.clearAlert();
+        this.setState({ showModal: false });
+    },
+    open: function() {
+        this.setState({ showModal: true });
+    },
+    getInitialState: function() {
+        return ({
+            showModal: false,
+            showAlert: false,
+            alertTitle: '',
+            alertDetails: ''
+        });
+    },
+    render: function() {
+        var { name, avatarUrl, firstName, lastName, email, joinDate, active, roles } = this.props.user.entity;
+        return (
+            <span>
+                <a className="btn btn-sm btn-default btn-icon btn-hover-warning fa fa-lock add-tooltip" href="#" data-original-title="Ban user" data-container="body" onClick={this.handleClick}></a>
+
+                <Modal show={this.state.showModal} onHide={this.close}>
+                    <Formsy.Form className="form-horizontal" onValidSubmit={this.handleSubmit} onValid={this.enableSubmit} onInvalid={this.disableSubmit}>
+
+                        <Modal.Header closeButton>
+                            <Modal.Title>Disable User</Modal.Title>
+                        </Modal.Header>
+
+                        <Modal.Body>
+                            <PanelAlert bsStyle="danger" show={this.state.showAlert} title={this.state.alertTitle} errors={this.state.alertDetails} />
+                            <div className="media">
+                                <div className="media-left">
+                                    <img src={'img/' + avatarUrl} alt="Profile Picture" className="img-lg img-circle" />
+                                </div>
+                                <div className="media-body">
+                                    <h4 className="text-thin">Are you sure to disable user profile of <strong>{ `${firstName} ${lastName}` }</strong>?</h4>
+                                </div>
+
+                                <FormStatic name="name" defaultValue={name}  hidden />
+                                <FormStatic name="avatarUrl" defaultValue={avatarUrl}  hidden />
+                                <FormStatic name="firstName" defaultValue={firstName}  hidden />
+                                <FormStatic name="lastName" defaultValue={lastName}  hidden />
+                                <FormStatic name="email" defaultValue={email}  hidden />
+                                <FormStatic name="joinDate" defaultValue={joinDate}  hidden />
+                                <FormStatic name="roles" defaultValue={roles} hidden />
+                                <FormStatic name="active" defaultValue={active} hidden />
+                            </div>
+                        </Modal.Body>
+
+                        <Modal.Footer>
+                            <button data-bb-handler="cancel" type="button" className="btn btn-default" onClick={this.close}>Cancel</button>
+                            <button type="submit" className="btn btn-primary">Confirm</button>
+                        </Modal.Footer>
+
+                    </Formsy.Form>
+                </Modal>
+
+            </span>
+        )
+    }
+});
+// end::user-disable-modal[]
+
+// tag::user-enable-modal[]
+var UserEnableModal = React.createClass({
+    handleClick: function(e) {
+        e.preventDefault();
+
+        this.open();
+    },
+    handleSubmit: function (data, reset, invalidate) {
+        var updatedUser = {};
+        _.extend(updatedUser, data);
+        updatedUser.active = true;
+        this.props.onUpdate(this.props.user, updatedUser, response => {
+            this.props.refreshCurrentPage();
+            this.close();
+        }, response => {
+            if (response.errors) {
+                invalidate(response.errors);
+            } else if (response.status.code === 400) {
+                this.setState({
+                    showAlert: true,
+                    alertTitle: 'REQUEST REJECTED!',
+                    alertDetails: response.entity.errors
+                });
+            } else if (response.status.code === 403) {
+                this.setState({
+                    showAlert: true,
+                    alertTitle: 'ACCESS DENIED!',
+                    alertDetails: 'You are not authorized to update this user.'
+                });
+            } else if (response.status.code === 412) {
+                this.setState({
+                    showAlert: true,
+                    alertTitle: 'DENIED!',
+                    alertDetails: 'Unable to update. Your copy is stale.'
+                });
+            } else {
+                console.log(response);
+            }
+
+            return response;
+        });
+    },
+    clearAlert: function () {
+        this.setState({
+            showAlert: false,
+            alertTitle: '',
+            alertDetails: ''
+        });
+    },
+    close: function() {
+        this.clearAlert();
+        this.setState({ showModal: false });
+    },
+    open: function() {
+        this.setState({ showModal: true });
+    },
+    getInitialState: function() {
+        return ({
+            showModal: false,
+            showAlert: false,
+            alertTitle: '',
+            alertDetails: ''
+        });
+    },
+    render: function() {
+        var { name, avatarUrl, firstName, lastName, email, joinDate, active, roles } = this.props.user.entity;
+        return (
+            <span>
+                <a className="btn btn-sm btn-default btn-icon btn-hover-success fa fa-unlock add-tooltip" href="#" data-original-title="Enable user" data-container="body" onClick={this.handleClick}></a>
+
+                <Modal show={this.state.showModal} onHide={this.close}>
+                    <Formsy.Form className="form-horizontal" onValidSubmit={this.handleSubmit} onValid={this.enableSubmit} onInvalid={this.disableSubmit}>
+
+                        <Modal.Header closeButton>
+                            <Modal.Title>Enable User</Modal.Title>
+                        </Modal.Header>
+
+                        <Modal.Body>
+                            <PanelAlert bsStyle="danger" show={this.state.showAlert} title={this.state.alertTitle} errors={this.state.alertDetails} />
+                            <div className="media">
+                                <div className="media-left">
+                                    <img src={'img/' + avatarUrl} alt="Profile Picture" className="img-lg img-circle" />
+                                </div>
+                                <div className="media-body">
+                                    <h4 className="text-thin">Are you sure to enable user profile of <strong>{ `${firstName} ${lastName}` }</strong>?</h4>
+                                </div>
+
+                                <FormStatic name="name" defaultValue={name}  hidden />
+                                <FormStatic name="avatarUrl" defaultValue={avatarUrl}  hidden />
+                                <FormStatic name="firstName" defaultValue={firstName}  hidden />
+                                <FormStatic name="lastName" defaultValue={lastName}  hidden />
+                                <FormStatic name="email" defaultValue={email}  hidden />
+                                <FormStatic name="joinDate" defaultValue={joinDate}  hidden />
+                                <FormStatic name="roles" defaultValue={roles} hidden />
+                                <FormStatic name="active" defaultValue={active} hidden />
+                            </div>
+                        </Modal.Body>
+
+                        <Modal.Footer>
+                            <button data-bb-handler="cancel" type="button" className="btn btn-default" onClick={this.close}>Cancel</button>
+                            <button type="submit" className="btn btn-primary">Confirm</button>
+                        </Modal.Footer>
+
+                    </Formsy.Form>
+                </Modal>
+
+            </span>
+        )
+    }
+});
+// end::user-enable-modal[]
 
 // tag::user-table[]
 var UserTable = React.createClass({
@@ -598,17 +822,7 @@ var UserTableHeader = React.createClass({
 
 // tag::user-table-row[]
 var UserTableRow = React.createClass({
-    
-    closeModal: function() {
-        this.setState({
-            editModalOpen: false
-        });
-    },
-    getInitialState: function() {
-        return ({
-            editModalOpen: false
-        });
-    },
+
     render: function () {
         var { avatarUrl, firstName, lastName, email, joinDate, active, roles } = this.props.user.entity;
         var fullName = `${firstName}  ${lastName}`;
@@ -619,8 +833,32 @@ var UserTableRow = React.createClass({
         );
 
         _.extend(options, (active ? {content: 'active', color: 'success'} : {content: 'disabled', color: 'default'}));
-        var statusEl = <Label options={options} />
-        var modalEl = this.state.editModalOpen ? <Modal title={'Edit User'} open={this.state.editModalOpen} user={this.props.user} closeModal={this.closeModal} /> : null;
+        var status = <Label options={options} />
+
+        var actions = [];
+        if (active) {
+            actions.push(<UserEditModal user={this.props.user}
+                                        onUpdate={this.props.onUpdate}
+                                        refreshCurrentPage={this.props.refreshCurrentPage} />
+            );
+            actions.push(<UserDeleteModal user={this.props.user}
+                                          onDelete={this.props.onDelete}
+                                          refreshCurrentPage={this.props.refreshCurrentPage} />
+            );
+            actions.push(<UserDisableModal user={this.props.user}
+                                           onUpdate={this.props.onUpdate}
+                                           refreshCurrentPage={this.props.refreshCurrentPage} />
+            );
+        } else {
+            actions.push(<UserEnableModal user={this.props.user}
+                                          onUpdate={this.props.onUpdate}
+                                          refreshCurrentPage={this.props.refreshCurrentPage} />
+            );
+            actions.push(<UserDeleteModal user={this.props.user}
+                                          onDelete={this.props.onDelete}
+                                          refreshCurrentPage={this.props.refreshCurrentPage} />
+            );
+        }
         return (
             <tr>
                 <td className="min-w-td">{this.props.sequence}</td>
@@ -628,20 +866,13 @@ var UserTableRow = React.createClass({
                 <td><a className="btn-link" href="#">{fullName}</a></td>
                 <td>{email}</td>
                 <td><span className="text-muted"><i className="fa fa-clock-o"></i> {joinDate}</span></td>
-                <td>{statusEl}</td>
+                <td>{status}</td>
                 <td className="labels">
                     {roles}
                 </td>
                 <td className="min-w-td text-center">
                     <div className="btn-group">
-                        <UserEditModal user={this.props.user} 
-                                       onUpdate={this.props.onUpdate}
-                                       refreshCurrentPage={this.props.refreshCurrentPage} />
-                        <UserDeleteModal user={this.props.user} 
-                                         onDelete={this.props.onDelete}
-                                         refreshCurrentPage={this.props.refreshCurrentPage} />
-                        {/*<a className="btn btn-sm btn-default btn-icon btn-hover-danger fa fa-times add-tooltip" href="#" data-original-title="Delete" data-container="body"></a>*/}
-                        <a className="btn btn-sm btn-default btn-icon btn-hover-warning fa fa-lock add-tooltip" href="#" data-original-title="Ban user" data-container="body"></a>
+                        {actions}
                     </div>
                 </td>
                 
