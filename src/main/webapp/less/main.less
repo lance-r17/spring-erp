@@ -19,6 +19,7 @@
     // Sizes
     // ----------------------------------------------
     .dropdown-menu-img{
+        margin-top: 15px;
         &-sm{
             min-width: 78px;
         }
@@ -29,4 +30,26 @@
             min-width: 140px;
         }
     }
+
+    .dropdown {
+        .with-caret-bottom-right {
+            &:after {
+                float: right;
+                margin-top: -10px;
+                content: '';
+                display: block;
+                width: 0;
+                height: 0;
+                border-style: solid;
+                border-width: 0 0 10px 10px;
+                border-color: transparent transparent #ccc transparent;
+            }
+            &:hover {
+                &:after {
+                    border-color: transparent transparent #000 transparent;
+                }
+            }
+        }
+    }
 }
+

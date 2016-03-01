@@ -4,6 +4,7 @@ import InputElement from 'react-input-mask';
 import cx from 'classnames';
 import validator from 'validator';
 import NanoScroller from './scroll.jsx';
+import { Dropdown, MenuItem } from 'react-bootstrap';
 
 // tag::validation-rules[]
 Formsy.addValidationRule('isDate', (values, value) => {
@@ -188,10 +189,9 @@ var ImageSelect = React.createClass({
     },
     componentWillReceiveProps: function (nextProps) {
         const { defaultValue, values} = this.props;
-        const { nextDefaultValue, nextValues} = this.nextProps;
 
         var value = defaultValue || values[0];
-        var nextValue = nextDefaultValue || nextValues[0];
+        var nextValue = nextProps.defaultValue || nextProps.values[0];
         // Only change to the new default value if it is currently showing the old one
         if (this.getValue() === value && nextValue !== value) {
             this.setValue(nextValue);
@@ -214,6 +214,13 @@ var ImageSelect = React.createClass({
             openDropdown: true
         });
     },
+    handleToggle: function (open) {
+        if (open) {
+            this.open();
+        } else {
+            this.close();
+        }
+    },
     changeValue: function (value, event) {
         event.preventDefault();
 
@@ -223,11 +230,9 @@ var ImageSelect = React.createClass({
     render: function() {
         var { className, values } = this.props;
         var images = values.map(value =>
-            <li>
-                <a href="#" className="media" onClick={this.changeValue.bind(this, value)}>
-                    <img src={'img/' + value} alt="Profile Picture" className={className} />
-                </a>
-            </li>
+            <MenuItem key={value} onClick={this.changeValue.bind(this, value)}>
+                <img src={'img/' + value} alt="Profile Picture" className={className} />
+            </MenuItem>
         );
         var dropdownMenu = (
             <NanoScroller>
@@ -237,14 +242,15 @@ var ImageSelect = React.createClass({
             </NanoScroller>
         );
         return(
-            <div className={cx('dropdown', this.state.openDropdown ? 'open' : '')}>
-                <a href="#" data-toggle="dropdown" onClick={this.toggleDropdown}>
+            <Dropdown id={this.props.id} onToggle={this.handleToggle} open={this.state.openDropdown} >
+                <Dropdown.Toggle className="with-caret-bottom-right" useAnchor noCaret>
                     <img className={cx(className, ['media-object', 'mar-hor'])} src={'img/' + this.getValue()} />
-                </a>
-                <div className="dropdown-menu dropdown-menu-img-lg">
+                </Dropdown.Toggle>
+
+                <Dropdown.Menu className="dropdown-menu-img dropdown-menu-img-lg">
                     { this.state.openDropdown ? dropdownMenu : null }
-                </div>
-            </div>
+                </Dropdown.Menu>
+            </Dropdown>
         )
     }
 });

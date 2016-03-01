@@ -26,16 +26,20 @@ const ROLES_OPTION = [
         display: 'Administrator'
     }
 ];
+
+const AVATAR_IMAGES = [
+    'av1.png', 'av2.png', 'av3.png', 'av4.png', 'av5.png', 'av6.png'
+];
 // end::vars[]
 
 
 // tag::users[]
 var Users = React.createClass({
     getUsers: function(pageSize) {
-        api.loadPagingData({
+        api.getAllByPaging({
             rel: 'users', 
             pageSize: pageSize, 
-            callback: response => {
+            onSuccess: response => {
                 this.setState({
                     page: response.page,
                     users: response.items,
@@ -49,12 +53,39 @@ var Users = React.createClass({
     },
     // tag::create[]
     onCreate: function(user, successCallback, errorCallback) {
-
+        api.getSearchLinks({
+            rel: 'users',
+            onSuccess: links => {
+                if (links.existsByName) {
+                    api.get({
+                        path: links.existsByName.href,
+                        params: { name: user.name },
+                        onSuccess: response => {
+                            if (!response.entity) {
+                                api.post({
+                                    rel: 'users',
+                                    item: user,
+                                    onSuccess: successCallback,
+                                    onError: errorCallback
+                                })
+                            } else {
+                                errorCallback({
+                                    errors: {
+                                        name: "Username already exists"
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+        })
+        
     },
     // end::create[]
     // tag::update[]
     onUpdate: function(user, updatedUser, successCallback, errorCallback) {
-        api.update({
+        api.put({
             item: user,
             updatedItem: updatedUser,
             onSuccess: successCallback,
@@ -62,6 +93,15 @@ var Users = React.createClass({
         });
     },
     // end::update[]
+    // tag::delete[]
+    onDelete: function(user, successCallback, errorCallback) {
+        api.delete({
+            item: user,
+            onSuccess: successCallback,
+            onError: errorCallback
+        });
+    },
+    // end::delete[]
     // tag::update-page-size[]
     updatePageSize: function(pageSize) {
         if (this.state.pageSize !== pageSize) {
@@ -73,7 +113,7 @@ var Users = React.createClass({
         api.navigateTo({
             navUri: navUri,
             resource: 'users',
-            callback: response => {
+            onSuccess: response => {
                 this.setState({
                     page: response.page,
                     users: response.items,
@@ -83,14 +123,25 @@ var Users = React.createClass({
         });
     },
     // end::navigate[]
+    // tag::refresh-and-go-to-last-page[]
+    refreshAndGoToLastPage: function() {
+        api.getLinksByPage({
+            rel: 'users',
+            pageSize: this.state.pageSize,
+            onSuccess: links => {
+                this.onNavigate(links.last.href);
+            }
+        });
+    },
+    // end::refresh-and-go-to-last-page[]
     // tag::refresh-current-page[]
     refreshCurrentPage: function() {
-        api.loadPagingData({
+        api.getAllByPaging({
             rel: 'users',
             pageSize: this.state.pageSize,
             pageNumber: this.state.page.number,
             schema: this.state.schema,
-            callback: response => {
+            onSuccess: response => {
                 this.setState({
                     page: response.page,
                     users: response.items,
@@ -135,8 +186,9 @@ var Users = React.createClass({
                             <Paging.Wrapper>
 
                                 <Paging.Toolbar pageSize={this.state.pageSize}
-                                                updatePageSize={this.updatePageSize}>
-                                    <UserCreateModal onCreate={this.onCreate} />
+                                                updatePageSize={this.updatePageSize} >
+                                    <UserCreateModal onCreate={this.onCreate}
+                                                     refreshAndGoToLastPage={this.refreshAndGoToLastPage} />
                                 </Paging.Toolbar>
 
                                 {/*  User list  */}
@@ -144,6 +196,7 @@ var Users = React.createClass({
                                     <UserTable users={this.state.users} 
                                                page={this.state.page} 
                                                onUpdate={this.onUpdate}
+                                               onDelete={this.onDelete}
                                                refreshCurrentPage={this.refreshCurrentPage} />
                                 </div>
 
@@ -182,20 +235,21 @@ var UserCreateModal = React.createClass({
             canSubmit: false
         });
     },
-    handleSubmit: function (data, restModel, updateInputsWithError) {
+    handleSubmit: function (data, reset, invalidate) {
         var newUser = {};
         _.extend(newUser, data);
         this.props.onCreate(newUser, response => {
-            this.props.refreshCurrentPage();
+            this.props.refreshAndGoToLastPage();
             this.close();
         }, response => {
-            if (response.status.code === 400) {
+            if (response.errors) {
+                invalidate(response.errors);
+            } else if (response.status.code === 400) {
                 this.setState({
                     showAlert: true,
                     alertTitle: 'REQUEST REJECTED!',
-                    alertDetails: ''
+                    alertDetails: response.entity.errors
                 });
-                updateInputsWithError(response.entity.errors);
             } else if (response.status.code === 403) {
                 this.setState({
                     showAlert: true,
@@ -248,8 +302,7 @@ var UserCreateModal = React.createClass({
                             <PanelAlert bsStyle="danger" show={this.state.showAlert} title={this.state.alertTitle} errors={this.state.alertDetails} />
                             <div className="media">
                                 <div className="media-left navbar-top-links">
-                                    {/*<img className="media-object img-lg img-circle" src={'img/' + avatarUrl} alt="Profile picture" />*/}
-                                    <ImageSelect name="avatarUrl" className="img-lg img-circle" values={['av1.png', 'av2.png', 'av3.png', 'av4.png', 'av5.png', 'av6.png']} />
+                                    <ImageSelect id="user-create-img-sel" name="avatarUrl" className="img-lg img-circle" values={AVATAR_IMAGES} />
                                 </div>
                                 <div className="media-body">
                                     <FormInput name="name" title="Username" required />
@@ -293,21 +346,21 @@ var UserEditModal = React.createClass({
             canSubmit: false
         });
     },
-    handleSubmit: function (data, restModel, updateInputsWithError) {
-        var { avatarUrl } = this.props.user.entity;
-        var updatedUser = { avatarUrl };
+    handleSubmit: function (data, reset, invalidate) {
+        var updatedUser = {};
         _.extend(updatedUser, data);
         this.props.onUpdate(this.props.user, updatedUser, response => {
             this.props.refreshCurrentPage();
             this.close();
         }, response => {
-            if (response.status.code === 400) {
+            if (response.errors) {
+                invalidate(response.errors);
+            } else if (response.status.code === 400) {
                 this.setState({
                     showAlert: true,
                     alertTitle: 'REQUEST REJECTED!',
-                    alertDetails: ''
+                    alertDetails: response.entity.errors
                 });
-                updateInputsWithError(response.entity.errors);
             } else if (response.status.code === 403) {
                 this.setState({
                     showAlert: true,
@@ -366,8 +419,8 @@ var UserEditModal = React.createClass({
                         <Modal.Body>
                             <PanelAlert bsStyle="danger" show={this.state.showAlert} title={this.state.alertTitle} errors={this.state.alertDetails} />
                             <div className="media">
-                                <div className="media-left">
-                                    <img className="media-object img-lg img-circle" src={'img/' + avatarUrl} alt="Profile picture" />
+                                <div className="media-left navbar-top-links">
+                                    <ImageSelect id="user-create-img-sel" name="avatarUrl" defaultValue={avatarUrl} className="img-lg img-circle" values={AVATAR_IMAGES} />
                                 </div>
                                 <div className="media-body">
                                     <FormStatic name="name" defaultValue={name} title="Username" />
@@ -394,10 +447,105 @@ var UserEditModal = React.createClass({
 });
 // end::user-edit-modal[]
 
-// tag::controls[]
+// tag::user-delete-modal[]
+var UserDeleteModal = React.createClass({
+    handleClick: function(e) {
+        e.preventDefault();
 
+       this.open();
+    },
+    handleSubmit: function (data, reset, invalidate) {
+        this.props.onDelete(this.props.user, response => {
+            this.props.refreshCurrentPage();
+            this.close();
+        }, response => {
+            if (response.errors) {
+                invalidate(response.errors);
+            } else if (response.status.code === 400) {
+                this.setState({
+                    showAlert: true,
+                    alertTitle: 'REQUEST REJECTED!',
+                    alertDetails: response.entity.errors
+                });
+            } else if (response.status.code === 403) {
+                this.setState({
+                    showAlert: true,
+                    alertTitle: 'ACCESS DENIED!',
+                    alertDetails: 'You are not authorized to update this user.'
+                });
+            } else if (response.status.code === 412) {
+                this.setState({
+                    showAlert: true,
+                    alertTitle: 'DENIED!',
+                    alertDetails: 'Unable to update. Your copy is stale.'
+                });
+            } else {
+                console.log(response);
+            }
 
-// end::controls[]
+            return response;
+        });
+    },
+    clearAlert: function () {
+        this.setState({
+            showAlert: false,
+            alertTitle: '',
+            alertDetails: ''
+        });
+    },
+    close: function() {
+        this.clearAlert();
+        this.setState({ showModal: false });
+    },
+    open: function() {
+        this.setState({ showModal: true });
+    },
+    getInitialState: function() {
+        return ({
+            showModal: false,
+            showAlert: false,
+            alertTitle: '',
+            alertDetails: ''
+        });
+    },
+    render: function() {
+        var { avatarUrl, firstName, lastName } = this.props.user.entity;
+        return (
+            <span>
+                <a className="btn btn-sm btn-default btn-icon btn-hover-danger fa fa-times add-tooltip" href="#" data-original-title="Delete" data-container="body" onClick={this.handleClick}></a>
+
+                <Modal show={this.state.showModal} onHide={this.close}>
+                    <Formsy.Form className="form-horizontal" onValidSubmit={this.handleSubmit} onValid={this.enableSubmit} onInvalid={this.disableSubmit}>
+
+                        <Modal.Header closeButton>
+                            <Modal.Title>Delete User</Modal.Title>
+                        </Modal.Header>
+                        
+                        <Modal.Body>
+                            <PanelAlert bsStyle="danger" show={this.state.showAlert} title={this.state.alertTitle} errors={this.state.alertDetails} />
+                            <div className="media">
+                                <div className="media-left">
+                                    <img src={'img/' + avatarUrl} alt="Profile Picture" className="img-lg img-circle" />
+                                </div>
+                                <div className="media-body">
+                                    <h4 className="text-thin">Are you sure to delete <strong>{ `${firstName} ${lastName}` }</strong>?</h4>
+                                </div>
+                            </div>
+                        </Modal.Body>
+
+                        <Modal.Footer>
+                            <button data-bb-handler="cancel" type="button" className="btn btn-default" onClick={this.close}>Cancel</button>
+                            <button type="submit" className="btn btn-primary">Confirm</button>
+                        </Modal.Footer>
+
+                    </Formsy.Form>
+                </Modal>
+                
+            </span>
+        )
+    }
+});
+// end::user-delete-modal[]
 
 // tag::user-table[]
 var UserTable = React.createClass({
@@ -412,6 +560,7 @@ var UserTable = React.createClass({
                           user={user} 
                           sequence={sequence++} 
                           onUpdate={this.props.onUpdate}
+                          onDelete={this.props.onDelete}
                           refreshCurrentPage={this.props.refreshCurrentPage} />
         );
         return (
@@ -488,7 +637,10 @@ var UserTableRow = React.createClass({
                         <UserEditModal user={this.props.user} 
                                        onUpdate={this.props.onUpdate}
                                        refreshCurrentPage={this.props.refreshCurrentPage} />
-                        <a className="btn btn-sm btn-default btn-icon btn-hover-danger fa fa-times add-tooltip" href="#" data-original-title="Delete" data-container="body"></a>
+                        <UserDeleteModal user={this.props.user} 
+                                         onDelete={this.props.onDelete}
+                                         refreshCurrentPage={this.props.refreshCurrentPage} />
+                        {/*<a className="btn btn-sm btn-default btn-icon btn-hover-danger fa fa-times add-tooltip" href="#" data-original-title="Delete" data-container="body"></a>*/}
                         <a className="btn btn-sm btn-default btn-icon btn-hover-warning fa fa-lock add-tooltip" href="#" data-original-title="Ban user" data-container="body"></a>
                     </div>
                 </td>

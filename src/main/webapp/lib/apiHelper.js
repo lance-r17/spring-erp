@@ -8,8 +8,8 @@ define(function(require) {
     var root = 'api';
 
     var helper = {
-        loadPagingData: function(options) {
-            var { rel, resource, pageSize, pageNumber, schema, callback } = options,
+        getAllByPaging: function(options) {
+            var { rel, resource, pageSize, pageNumber, schema, onSuccess } = options,
                 page = {},
                 links = [];
 
@@ -58,7 +58,7 @@ define(function(require) {
             }).done(items => {
                 var attributes = Object.keys(schema.properties);
 
-                callback({
+                onSuccess({
                     page,
                     items,
                     schema,
@@ -68,8 +68,37 @@ define(function(require) {
             });
         },
 
+        getLinksByPage: function(options) {
+            const { rel, pageSize, onSuccess } = options;
+
+            follow(client, root, [{
+                rel: rel,
+                params: {size: pageSize}
+            }]).done(response => {
+                onSuccess(response.entity._links);
+            });
+        },
+
+        getSearchLinks: function(options) {
+            const { rel, onSuccess } = options;
+
+            follow(client, root, [rel]
+            ).then(response => {
+                return client({
+                    method: 'GET',
+                    path: response.entity._links.search.href
+                }).then(response => {
+                    return response.entity._links;
+                })
+            }).done(links => {
+                if (onSuccess) {
+                    onSuccess(links);
+                }
+            });
+        },
+
         navigateTo: function(options) {
-            const { navUri, resource, callback } = options;
+            const { navUri, resource, onSuccess } = options;
             var page = {},
                 links = [];
 
@@ -89,7 +118,7 @@ define(function(require) {
             }).then(itemPromises => {
                     return when.all(itemPromises);
             }).done(items => {
-                callback({
+                onSuccess({
                     page,
                     items,
                     links
@@ -97,7 +126,49 @@ define(function(require) {
             })
         },
 
-        update: function(options) {
+        get: function(options) {
+            const { path, params, onSuccess, onError } = options;
+
+            client({
+                method: 'GET',
+                path: path,
+                params: params
+            }).done(response => {
+                if (onSuccess) {
+                    onSuccess(response);
+                }
+            }, error => {
+                if (onError) {
+                    onError(error);
+                }
+            });
+        },
+
+        post: function(options) {
+            const { rel, item, onSuccess, onError } = options;
+
+            follow(client, root, [rel]
+            ).done(response => {
+                return client({
+                    method: 'POST',
+                    path: response.entity._links.self.href,
+                    entity: item,
+                    headers: {'Content-Type': 'application/json'}
+                }).done(
+                    response => {
+                        if (onSuccess) {
+                            onSuccess(response);
+                        }
+                    }, error => {
+                        if (onError) {
+                            onError(response);
+                        }
+                    }
+                )
+            })
+        },
+
+        put: function(options) {
 
             const { item, updatedItem, onSuccess, onError } = options;
 
@@ -120,6 +191,23 @@ define(function(require) {
                     }
                 }
             );
+        },
+
+        delete: function(options) {
+            const { item, onSuccess, onError } = options;
+
+            client({
+                method: 'DELETE',
+                path: item.entity._links.self.href
+            }).done(response => {
+                if (onSuccess) {
+                    onSuccess(response);
+                }
+            }, error => {
+                if (onError) {
+                    onError(error);
+                }
+            });
         }
     };
 
