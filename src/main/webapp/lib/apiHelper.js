@@ -193,6 +193,31 @@ define(function(require) {
             );
         },
 
+        patch: function(options) {
+
+            const { item, updatedItem, onSuccess, onError } = options;
+
+            client({
+                method: 'PATCH',
+                path: item.entity._links.self.href,
+                entity: updatedItem,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'If-Match': item.headers.Etag
+                }
+            }).done(
+                response => {
+                    if (onSuccess) {
+                        onSuccess(response);
+                    }
+                }, error => {
+                    if (onError) {
+                        onError(error);
+                    }
+                }
+            );
+        },
+
         delete: function(options) {
             const { item, onSuccess, onError } = options;
 

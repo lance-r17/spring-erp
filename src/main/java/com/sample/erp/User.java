@@ -1,6 +1,7 @@
 package com.sample.erp;
 
 import java.sql.Date;
+import java.util.Arrays;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -67,6 +68,12 @@ public class User {
 
 	public void setPassword(String password) {
 		this.password = User.PASSWORD_ENCODER.encode(password);
+	}
+
+	public void addRole(String role) {
+		if (!Arrays.asList(this.roles).contains(role)) {
+			this.roles[this.roles.length] = role;
+		}
 	}
 }
 // end::code[]

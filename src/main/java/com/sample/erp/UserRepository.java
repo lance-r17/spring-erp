@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
@@ -34,6 +35,7 @@ public interface UserRepository extends PagingAndSortingRepository<User, Long> {
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	Page<User> findAll(Pageable pageable);
 
+	@RestResource(exported = false)
 	User findByName(String name);
 
 	@Query("SELECT CASE WHEN COUNT(u) > 0 THEN 'true' ELSE 'false' END FROM User u WHERE u.name = ?1")

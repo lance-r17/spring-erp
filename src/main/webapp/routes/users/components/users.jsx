@@ -93,6 +93,26 @@ var Users = React.createClass({
         });
     },
     // end::update[]
+    // tag::disable[]
+    onDisable: function(user, successCallback, errorCallback) {
+        api.patch({
+            item: user,
+            updatedItem: { active : false },
+            onSuccess: successCallback,
+            onError: errorCallback
+        });
+    },
+    // end::disable[]
+    // tag::enable[]
+    onEnable: function(user, successCallback, errorCallback) {
+        api.patch({
+            item: user,
+            updatedItem: { active : true },
+            onSuccess: successCallback,
+            onError: errorCallback
+        });
+    },
+    // end::enable[]
     // tag::delete[]
     onDelete: function(user, successCallback, errorCallback) {
         api.delete({
@@ -196,6 +216,8 @@ var Users = React.createClass({
                                     <UserTable users={this.state.users} 
                                                page={this.state.page} 
                                                onUpdate={this.onUpdate}
+                                               onDisable={this.onDisable}
+                                               onEnable={this.onEnable}
                                                onDelete={this.onDelete}
                                                refreshCurrentPage={this.refreshCurrentPage} />
                                 </div>
@@ -473,7 +495,13 @@ var UserDeleteModal = React.createClass({
                     alertTitle: 'ACCESS DENIED!',
                     alertDetails: 'You are not authorized to update this user.'
                 });
-            } else if (response.status.code === 412) {
+            } else if (response.status.code === 404) {
+                this.setState({
+                    showAlert: true,
+                    alertTitle: 'DENIED!',
+                    alertDetails: 'User is not found.'
+                });
+            }else if (response.status.code === 412) {
                 this.setState({
                     showAlert: true,
                     alertTitle: 'DENIED!',
@@ -555,10 +583,7 @@ var UserDisableModal = React.createClass({
         this.open();
     },
     handleSubmit: function (data, reset, invalidate) {
-        var updatedUser = {};
-        _.extend(updatedUser, data);
-        updatedUser.active = false;
-        this.props.onUpdate(this.props.user, updatedUser, response => {
+        this.props.onDisable(this.props.user, response => {
             this.props.refreshCurrentPage();
             this.close();
         }, response => {
@@ -612,7 +637,7 @@ var UserDisableModal = React.createClass({
         });
     },
     render: function() {
-        var { name, avatarUrl, firstName, lastName, email, joinDate, active, roles } = this.props.user.entity;
+        var { avatarUrl, firstName, lastName } = this.props.user.entity;
         return (
             <span>
                 <a className="btn btn-sm btn-default btn-icon btn-hover-warning fa fa-lock add-tooltip" href="#" data-original-title="Ban user" data-container="body" onClick={this.handleClick}></a>
@@ -633,15 +658,6 @@ var UserDisableModal = React.createClass({
                                 <div className="media-body">
                                     <h4 className="text-thin">Are you sure to disable user profile of <strong>{ `${firstName} ${lastName}` }</strong>?</h4>
                                 </div>
-
-                                <FormStatic name="name" defaultValue={name}  hidden />
-                                <FormStatic name="avatarUrl" defaultValue={avatarUrl}  hidden />
-                                <FormStatic name="firstName" defaultValue={firstName}  hidden />
-                                <FormStatic name="lastName" defaultValue={lastName}  hidden />
-                                <FormStatic name="email" defaultValue={email}  hidden />
-                                <FormStatic name="joinDate" defaultValue={joinDate}  hidden />
-                                <FormStatic name="roles" defaultValue={roles} hidden />
-                                <FormStatic name="active" defaultValue={active} hidden />
                             </div>
                         </Modal.Body>
 
@@ -667,10 +683,7 @@ var UserEnableModal = React.createClass({
         this.open();
     },
     handleSubmit: function (data, reset, invalidate) {
-        var updatedUser = {};
-        _.extend(updatedUser, data);
-        updatedUser.active = true;
-        this.props.onUpdate(this.props.user, updatedUser, response => {
+        this.props.onEnable(this.props.user, response => {
             this.props.refreshCurrentPage();
             this.close();
         }, response => {
@@ -724,7 +737,7 @@ var UserEnableModal = React.createClass({
         });
     },
     render: function() {
-        var { name, avatarUrl, firstName, lastName, email, joinDate, active, roles } = this.props.user.entity;
+        var { avatarUrl, firstName, lastName } = this.props.user.entity;
         return (
             <span>
                 <a className="btn btn-sm btn-default btn-icon btn-hover-success fa fa-unlock add-tooltip" href="#" data-original-title="Enable user" data-container="body" onClick={this.handleClick}></a>
@@ -745,15 +758,6 @@ var UserEnableModal = React.createClass({
                                 <div className="media-body">
                                     <h4 className="text-thin">Are you sure to enable user profile of <strong>{ `${firstName} ${lastName}` }</strong>?</h4>
                                 </div>
-
-                                <FormStatic name="name" defaultValue={name}  hidden />
-                                <FormStatic name="avatarUrl" defaultValue={avatarUrl}  hidden />
-                                <FormStatic name="firstName" defaultValue={firstName}  hidden />
-                                <FormStatic name="lastName" defaultValue={lastName}  hidden />
-                                <FormStatic name="email" defaultValue={email}  hidden />
-                                <FormStatic name="joinDate" defaultValue={joinDate}  hidden />
-                                <FormStatic name="roles" defaultValue={roles} hidden />
-                                <FormStatic name="active" defaultValue={active} hidden />
                             </div>
                         </Modal.Body>
 
@@ -784,6 +788,8 @@ var UserTable = React.createClass({
                           user={user} 
                           sequence={sequence++} 
                           onUpdate={this.props.onUpdate}
+                          onDisable={this.props.onDisable}
+                          onEnable={this.props.onEnable}
                           onDelete={this.props.onDelete}
                           refreshCurrentPage={this.props.refreshCurrentPage} />
         );
@@ -846,12 +852,12 @@ var UserTableRow = React.createClass({
                                           refreshCurrentPage={this.props.refreshCurrentPage} />
             );
             actions.push(<UserDisableModal user={this.props.user}
-                                           onUpdate={this.props.onUpdate}
+                                           onDisable={this.props.onDisable}
                                            refreshCurrentPage={this.props.refreshCurrentPage} />
             );
         } else {
             actions.push(<UserEnableModal user={this.props.user}
-                                          onUpdate={this.props.onUpdate}
+                                          onEnable={this.props.onEnable}
                                           refreshCurrentPage={this.props.refreshCurrentPage} />
             );
             actions.push(<UserDeleteModal user={this.props.user}
