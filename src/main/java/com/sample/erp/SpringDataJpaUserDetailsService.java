@@ -13,7 +13,6 @@ public class SpringDataJpaUserDetailsService implements UserDetailsService {
 	private final UserRepository repository;
 
 	@Autowired
-	// public SpringDataJpaUserDetailsService(ManagerRepository repository) {
 	public SpringDataJpaUserDetailsService(UserRepository repository) {
 		this.repository = repository;
 	}
