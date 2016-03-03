@@ -85,7 +85,7 @@ var Users = React.createClass({
     // end::create[]
     // tag::update[]
     onUpdate: function(user, updatedUser, successCallback, errorCallback) {
-        api.put({
+        api.patch({
             item: user,
             updatedItem: updatedUser,
             onSuccess: successCallback,
@@ -240,24 +240,175 @@ var Users = React.createClass({
 });
 // end::users[]
 
-// tag::user-create-modal[]
-var UserCreateModal = React.createClass({
-    handleClick: function(e) {
+// tag::decorators[]
+class ModalForm extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            canSubmit: false,
+            showModal: false,
+            showAlert: false,
+            alertTitle: '',
+            alertDetails: ''
+        }
+    }
+
+    clearAlert = () => {
+        this.setState({
+            showAlert: false,
+            alertTitle: '',
+            alertDetails: ''
+        });
+    }
+
+    close = () => {
+        this.clearAlert();
+        this.setState({ showModal: false });
+    }
+    
+    open = () => {
+        this.setState({ showModal: true });
+    }
+
+    handleClick = (e) => {
         e.preventDefault();
 
         this.open();
-    },
-    enableSubmit: function () {
+    }
+
+    enableSubmit = () => {
         this.setState({
             canSubmit: true
         });
-    },
-    disableSubmit: function () {
+    }
+
+    disableSubmit = () => {
         this.setState({
             canSubmit: false
         });
-    },
-    handleSubmit: function (data, reset, invalidate) {
+    }
+
+}
+// end::decorators[]
+
+// tag::user-create-modal[]
+// var UserCreateModal = React.createClass({
+//     handleClick: function(e) {
+//         e.preventDefault();
+
+//         this.open();
+//     },
+//     enableSubmit: function () {
+//         this.setState({
+//             canSubmit: true
+//         });
+//     },
+//     disableSubmit: function () {
+//         this.setState({
+//             canSubmit: false
+//         });
+//     },
+//     handleSubmit: function (data, reset, invalidate) {
+//         var newUser = {};
+//         _.extend(newUser, data);
+//         this.props.onCreate(newUser, response => {
+//             this.props.refreshAndGoToLastPage();
+//             this.close();
+//         }, response => {
+//             if (response.errors) {
+//                 invalidate(response.errors);
+//             } else if (response.status.code === 400) {
+//                 this.setState({
+//                     showAlert: true,
+//                     alertTitle: 'REQUEST REJECTED!',
+//                     alertDetails: response.entity.errors
+//                 });
+//             } else if (response.status.code === 403) {
+//                 this.setState({
+//                     showAlert: true,
+//                     alertTitle: 'ACCESS DENIED!',
+//                     alertDetails: 'You are not authorized to update this user.'
+//                 });
+//             } else {
+//                 console.log(response);
+//             }
+
+//             return response;
+//         });
+//     },
+//     clearAlert: function () {
+//         this.setState({
+//             showAlert: false,
+//             alertTitle: '',
+//             alertDetails: ''
+//         });
+//     },
+//     close: function() {
+//         this.clearAlert();
+//         this.setState({ showModal: false });
+//     },
+//     open: function() {
+//         this.setState({ showModal: true });
+//     },
+//     getInitialState: function() {
+//         return ({
+//             canSubmit: false,
+//             showModal: false,
+//             showAlert: false,
+//             alertTitle: '',
+//             alertDetails: ''
+//         });
+//     },
+//     render: function() {
+//         return (
+//             <span>
+//                 <button className="btn btn-info btn-labeled fa fa-plus" onClick={this.handleClick}>Add</button>
+
+//                 <Modal show={this.state.showModal} onHide={this.close}>
+//                     <Formsy.Form className="form-horizontal" onValidSubmit={this.handleSubmit} onValid={this.enableSubmit} onInvalid={this.disableSubmit}>
+
+//                         <Modal.Header closeButton>
+//                             <Modal.Title>New User</Modal.Title>
+//                         </Modal.Header>
+
+//                         <Modal.Body>
+//                             <PanelAlert bsStyle="danger" show={this.state.showAlert} title={this.state.alertTitle} errors={this.state.alertDetails} />
+//                             <div className="media">
+//                                 <div className="media-left navbar-top-links">
+//                                     <ImageSelect id="user-create-img-sel" name="avatarUrl" className="img-lg img-circle" values={AVATAR_IMAGES} />
+//                                 </div>
+//                                 <div className="media-body">
+//                                     <FormInput name="name" title="Username" required />
+//                                     <FormInput name="firstName" type="text" title="First name" required />
+//                                     <FormInput name="lastName" type="text" title="Last name" required />
+//                                     <FormInput name="email" type="email" title="Email" validations="isEmail" validationError="This is not a valid email" required/>
+//                                     <FormInput name="joinDate" type="text" title="Join Date" mask="9999-99-99" validations="isDate" validationError="This is not a valid date" required/>
+//                                     <FormCheckboxGroup name="roles" title="Roles" items={ROLES_OPTION} />
+//                                     <FormStatic name="active" defaultValue={true} hidden />
+//                                 </div>
+//                             </div>
+//                         </Modal.Body>
+
+//                         <Modal.Footer>
+//                             <button type="submit" className="btn btn-primary" disabled={!this.state.canSubmit}>Save</button>
+//                         </Modal.Footer>
+
+//                     </Formsy.Form>
+//                 </Modal>
+
+//             </span>
+//         )
+//     }
+// });
+
+class UserCreateModal extends ModalForm {
+    constructor(props) {
+        super(props);
+    }
+
+    handleSubmit = (data, reset, invalidate) => {
         var newUser = {};
         _.extend(newUser, data);
         this.props.onCreate(newUser, response => {
@@ -284,31 +435,9 @@ var UserCreateModal = React.createClass({
 
             return response;
         });
-    },
-    clearAlert: function () {
-        this.setState({
-            showAlert: false,
-            alertTitle: '',
-            alertDetails: ''
-        });
-    },
-    close: function() {
-        this.clearAlert();
-        this.setState({ showModal: false });
-    },
-    open: function() {
-        this.setState({ showModal: true });
-    },
-    getInitialState: function() {
-        return ({
-            canSubmit: false,
-            showModal: false,
-            showAlert: false,
-            alertTitle: '',
-            alertDetails: ''
-        });
-    },
-    render: function() {
+    }
+
+    render() {
         return (
             <span>
                 <button className="btn btn-info btn-labeled fa fa-plus" onClick={this.handleClick}>Add</button>
@@ -348,7 +477,7 @@ var UserCreateModal = React.createClass({
             </span>
         )
     }
-});
+}
 // end::user-create-modal[]
 
 // tag::user-edit-modal[]
@@ -388,6 +517,12 @@ var UserEditModal = React.createClass({
                     showAlert: true,
                     alertTitle: 'ACCESS DENIED!',
                     alertDetails: 'You are not authorized to update this user.'
+                });
+            } else if (response.status.code === 404) {
+                this.setState({
+                    showAlert: true,
+                    alertTitle: 'DENIED!',
+                    alertDetails: 'User is not found.'
                 });
             } else if (response.status.code === 412) {
                 this.setState({
@@ -451,7 +586,6 @@ var UserEditModal = React.createClass({
                                     <FormInput name="email" defaultValue={email} type="email" title="Email" validations="isEmail" validationError="This is not a valid email" required/>
                                     <FormInput name="joinDate" defaultValue={joinDate} type="text" title="Join Date" mask="9999-99-99" validations="isDate" validationError="This is not a valid date" required/>
                                     <FormCheckboxGroup name="roles" value={roles} title="Roles" items={ROLES_OPTION} />
-                                    <FormStatic name="active" defaultValue={active} hidden />
                                 </div>
                             </div>
                         </Modal.Body>
@@ -501,7 +635,7 @@ var UserDeleteModal = React.createClass({
                     alertTitle: 'DENIED!',
                     alertDetails: 'User is not found.'
                 });
-            }else if (response.status.code === 412) {
+            } else if (response.status.code === 412) {
                 this.setState({
                     showAlert: true,
                     alertTitle: 'DENIED!',
@@ -600,6 +734,12 @@ var UserDisableModal = React.createClass({
                     showAlert: true,
                     alertTitle: 'ACCESS DENIED!',
                     alertDetails: 'You are not authorized to update this user.'
+                });
+            } else if (response.status.code === 404) {
+                this.setState({
+                    showAlert: true,
+                    alertTitle: 'DENIED!',
+                    alertDetails: 'User is not found.'
                 });
             } else if (response.status.code === 412) {
                 this.setState({
@@ -700,6 +840,12 @@ var UserEnableModal = React.createClass({
                     showAlert: true,
                     alertTitle: 'ACCESS DENIED!',
                     alertDetails: 'You are not authorized to update this user.'
+                });
+            } else if (response.status.code === 404) {
+                this.setState({
+                    showAlert: true,
+                    alertTitle: 'DENIED!',
+                    alertDetails: 'User is not found.'
                 });
             } else if (response.status.code === 412) {
                 this.setState({
@@ -834,7 +980,7 @@ var UserTableRow = React.createClass({
         var fullName = `${firstName}  ${lastName}`;
 
         var options = {styleName: 'label-table'};
-        var roles = roles.map(role =>
+        var roles = roles.map(role => 
             <RoleLabel key={role} role={role} options={options} />
         );
 

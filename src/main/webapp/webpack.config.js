@@ -46,6 +46,7 @@ var config = {
                 loader: 'babel-loader',
                 exclude: [node_modules_dir],
                 query: {
+                    plugins: ['transform-decorators-legacy'],
                     presets: ['es2015', 'stage-0', 'react']
                 },
             },
