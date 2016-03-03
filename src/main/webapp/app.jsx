@@ -1,5 +1,5 @@
 import React from 'react';
-import { findDOMNode, render } from 'react-dom';
+import { render } from 'react-dom';
 import { Router, Route, Link, hashHistory, browserHistory } from 'react-router';
 
 import { App } from './components';

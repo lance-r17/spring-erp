@@ -1,12 +1,10 @@
 import React from 'react';
-import cx from 'classnames';
 import api from '../../../lib/apiHelper';
 
 import { Label, RoleLabel, RoleLabels, Formsy, FormStatic, FormInput, FormCheckboxGroup, ImageSelect, Modal, PanelAlert, Paging, NanoScroller } from '../../../controls';
 
 
 // tag::vars[]
-const root = '/api';
 
 const ROLES_OPTION = [
     {
@@ -34,8 +32,21 @@ const AVATAR_IMAGES = [
 
 
 // tag::users[]
-var Users = React.createClass({
-    getUsers: function(pageSize) {
+export default class Users extends React.Component {
+    constructor(props) {
+
+        super(props);
+
+        this.state = {
+            users: [],
+            attributes: [],
+            pageSize: 1,
+            links: {},
+            createModalOpen: false
+        };
+    }
+
+    getUsers = (pageSize) => {
         api.getAllByPaging({
             rel: 'users', 
             pageSize: pageSize, 
@@ -50,9 +61,10 @@ var Users = React.createClass({
                 });
             }
         });
-    },
+    }
+
     // tag::create[]
-    onCreate: function(user, successCallback, errorCallback) {
+    onCreate = (user, successCallback, errorCallback) => {
         api.getSearchLinks({
             rel: 'users',
             onSuccess: links => {
@@ -81,55 +93,62 @@ var Users = React.createClass({
             }
         })
         
-    },
+    }
     // end::create[]
+
     // tag::update[]
-    onUpdate: function(user, updatedUser, successCallback, errorCallback) {
+    onUpdate = (user, updatedUser, successCallback, errorCallback) => {
         api.patch({
             item: user,
             updatedItem: updatedUser,
             onSuccess: successCallback,
             onError: errorCallback
         });
-    },
+    }
     // end::update[]
+
     // tag::disable[]
-    onDisable: function(user, successCallback, errorCallback) {
+    onDisable = (user, successCallback, errorCallback) => {
         api.patch({
             item: user,
             updatedItem: { active : false },
             onSuccess: successCallback,
             onError: errorCallback
         });
-    },
+    }
     // end::disable[]
+
     // tag::enable[]
-    onEnable: function(user, successCallback, errorCallback) {
+    onEnable = (user, successCallback, errorCallback) => {
         api.patch({
             item: user,
             updatedItem: { active : true },
             onSuccess: successCallback,
             onError: errorCallback
         });
-    },
+    }
     // end::enable[]
+
     // tag::delete[]
-    onDelete: function(user, successCallback, errorCallback) {
+    onDelete = (user, successCallback, errorCallback) => {
         api.delete({
             item: user,
             onSuccess: successCallback,
             onError: errorCallback
         });
-    },
+    }
     // end::delete[]
+
     // tag::update-page-size[]
-    updatePageSize: function(pageSize) {
+    updatePageSize = (pageSize) => {
         if (this.state.pageSize !== pageSize) {
             this.getUsers(pageSize);
         }
-    },
+    }
+    // end::update-page-size[]
+
     // tag::navigate[]
-    onNavigate: function(navUri) {
+    onNavigate = (navUri) => {
         api.navigateTo({
             navUri: navUri,
             resource: 'users',
@@ -141,10 +160,11 @@ var Users = React.createClass({
                 });
             }
         });
-    },
+    }
     // end::navigate[]
+
     // tag::refresh-and-go-to-last-page[]
-    refreshAndGoToLastPage: function() {
+    refreshAndGoToLastPage = () => {
         api.getLinksByPage({
             rel: 'users',
             pageSize: this.state.pageSize,
@@ -152,10 +172,11 @@ var Users = React.createClass({
                 this.onNavigate(links.last.href);
             }
         });
-    },
+    }
     // end::refresh-and-go-to-last-page[]
+
     // tag::refresh-current-page[]
-    refreshCurrentPage: function() {
+    refreshCurrentPage = () => {
         api.getAllByPaging({
             rel: 'users',
             pageSize: this.state.pageSize,
@@ -171,22 +192,15 @@ var Users = React.createClass({
                 });
             }
         });
-    },
+    }
     // end::refresh-current-page[]
-    // end::update-page-size[]
-    getInitialState: function() {
-        return ({
-            users: [],
-            attributes: [],
-            pageSize: 1,
-            links: {},
-            createModalOpen: false
-        });
-    },
-    componentDidMount: function() {
+
+
+    componentDidMount() {
         this.getUsers(this.props.pageSize || this.state.pageSize);
-    },
-    render: function() {
+    }
+
+    render() {
         return (
             <div id="content-container">
 
@@ -237,10 +251,10 @@ var Users = React.createClass({
             </div>
         )
     }
-});
+}
 // end::users[]
 
-// tag::decorators[]
+// tag::modal-form[]
 class ModalForm extends React.Component {
 
     constructor(props) {
@@ -291,118 +305,9 @@ class ModalForm extends React.Component {
     }
 
 }
-// end::decorators[]
+// end::modal-form[]
 
 // tag::user-create-modal[]
-// var UserCreateModal = React.createClass({
-//     handleClick: function(e) {
-//         e.preventDefault();
-
-//         this.open();
-//     },
-//     enableSubmit: function () {
-//         this.setState({
-//             canSubmit: true
-//         });
-//     },
-//     disableSubmit: function () {
-//         this.setState({
-//             canSubmit: false
-//         });
-//     },
-//     handleSubmit: function (data, reset, invalidate) {
-//         var newUser = {};
-//         _.extend(newUser, data);
-//         this.props.onCreate(newUser, response => {
-//             this.props.refreshAndGoToLastPage();
-//             this.close();
-//         }, response => {
-//             if (response.errors) {
-//                 invalidate(response.errors);
-//             } else if (response.status.code === 400) {
-//                 this.setState({
-//                     showAlert: true,
-//                     alertTitle: 'REQUEST REJECTED!',
-//                     alertDetails: response.entity.errors
-//                 });
-//             } else if (response.status.code === 403) {
-//                 this.setState({
-//                     showAlert: true,
-//                     alertTitle: 'ACCESS DENIED!',
-//                     alertDetails: 'You are not authorized to update this user.'
-//                 });
-//             } else {
-//                 console.log(response);
-//             }
-
-//             return response;
-//         });
-//     },
-//     clearAlert: function () {
-//         this.setState({
-//             showAlert: false,
-//             alertTitle: '',
-//             alertDetails: ''
-//         });
-//     },
-//     close: function() {
-//         this.clearAlert();
-//         this.setState({ showModal: false });
-//     },
-//     open: function() {
-//         this.setState({ showModal: true });
-//     },
-//     getInitialState: function() {
-//         return ({
-//             canSubmit: false,
-//             showModal: false,
-//             showAlert: false,
-//             alertTitle: '',
-//             alertDetails: ''
-//         });
-//     },
-//     render: function() {
-//         return (
-//             <span>
-//                 <button className="btn btn-info btn-labeled fa fa-plus" onClick={this.handleClick}>Add</button>
-
-//                 <Modal show={this.state.showModal} onHide={this.close}>
-//                     <Formsy.Form className="form-horizontal" onValidSubmit={this.handleSubmit} onValid={this.enableSubmit} onInvalid={this.disableSubmit}>
-
-//                         <Modal.Header closeButton>
-//                             <Modal.Title>New User</Modal.Title>
-//                         </Modal.Header>
-
-//                         <Modal.Body>
-//                             <PanelAlert bsStyle="danger" show={this.state.showAlert} title={this.state.alertTitle} errors={this.state.alertDetails} />
-//                             <div className="media">
-//                                 <div className="media-left navbar-top-links">
-//                                     <ImageSelect id="user-create-img-sel" name="avatarUrl" className="img-lg img-circle" values={AVATAR_IMAGES} />
-//                                 </div>
-//                                 <div className="media-body">
-//                                     <FormInput name="name" title="Username" required />
-//                                     <FormInput name="firstName" type="text" title="First name" required />
-//                                     <FormInput name="lastName" type="text" title="Last name" required />
-//                                     <FormInput name="email" type="email" title="Email" validations="isEmail" validationError="This is not a valid email" required/>
-//                                     <FormInput name="joinDate" type="text" title="Join Date" mask="9999-99-99" validations="isDate" validationError="This is not a valid date" required/>
-//                                     <FormCheckboxGroup name="roles" title="Roles" items={ROLES_OPTION} />
-//                                     <FormStatic name="active" defaultValue={true} hidden />
-//                                 </div>
-//                             </div>
-//                         </Modal.Body>
-
-//                         <Modal.Footer>
-//                             <button type="submit" className="btn btn-primary" disabled={!this.state.canSubmit}>Save</button>
-//                         </Modal.Footer>
-
-//                     </Formsy.Form>
-//                 </Modal>
-
-//             </span>
-//         )
-//     }
-// });
-
 class UserCreateModal extends ModalForm {
     constructor(props) {
         super(props);
@@ -481,23 +386,13 @@ class UserCreateModal extends ModalForm {
 // end::user-create-modal[]
 
 // tag::user-edit-modal[]
-var UserEditModal = React.createClass({
-    handleClick: function(e) {
-        e.preventDefault();
+class UserEditModal extends ModalForm {
 
-       this.open();
-    },
-    enableSubmit: function () {
-        this.setState({
-            canSubmit: true
-        });
-    },
-    disableSubmit: function () {
-        this.setState({
-            canSubmit: false
-        });
-    },
-    handleSubmit: function (data, reset, invalidate) {
+    constructor(props) {
+        super(props);
+    }
+
+    handleSubmit = (data, reset, invalidate) => {
         var updatedUser = {};
         _.extend(updatedUser, data);
         this.props.onUpdate(this.props.user, updatedUser, response => {
@@ -536,32 +431,10 @@ var UserEditModal = React.createClass({
 
             return response;
         });
-    },
-    clearAlert: function () {
-        this.setState({
-            showAlert: false,
-            alertTitle: '',
-            alertDetails: ''
-        });
-    },
-    close: function() {
-        this.clearAlert();
-        this.setState({ showModal: false });
-    },
-    open: function() {
-        this.setState({ showModal: true });
-    },
-    getInitialState: function() {
-        return ({
-            canSubmit: false,
-            showModal: false,
-            showAlert: false,
-            alertTitle: '',
-            alertDetails: ''
-        });
-    },
-    render: function() {
-        var { name, avatarUrl, firstName, lastName, email, joinDate, active, roles } = this.props.user.entity;
+    }
+
+    render() {
+        var { name, avatarUrl, firstName, lastName, email, joinDate, roles } = this.props.user.entity;
         return (
             <span>
                 <a className="btn btn-sm btn-default btn-icon btn-hover-success fa fa-pencil add-tooltip" href="#" data-original-title="Edit" data-container="body" onClick={this.handleClick}></a>
@@ -600,17 +473,17 @@ var UserEditModal = React.createClass({
             </span>
         )
     }
-});
+}
 // end::user-edit-modal[]
 
 // tag::user-delete-modal[]
-var UserDeleteModal = React.createClass({
-    handleClick: function(e) {
-        e.preventDefault();
+class UserDeleteModal extends ModalForm {
 
-       this.open();
-    },
-    handleSubmit: function (data, reset, invalidate) {
+    constructor(props) {
+        super(props);
+    }
+
+    handleSubmit = (data, reset, invalidate) => {
         this.props.onDelete(this.props.user, response => {
             this.props.refreshCurrentPage();
             this.close();
@@ -647,30 +520,9 @@ var UserDeleteModal = React.createClass({
 
             return response;
         });
-    },
-    clearAlert: function () {
-        this.setState({
-            showAlert: false,
-            alertTitle: '',
-            alertDetails: ''
-        });
-    },
-    close: function() {
-        this.clearAlert();
-        this.setState({ showModal: false });
-    },
-    open: function() {
-        this.setState({ showModal: true });
-    },
-    getInitialState: function() {
-        return ({
-            showModal: false,
-            showAlert: false,
-            alertTitle: '',
-            alertDetails: ''
-        });
-    },
-    render: function() {
+    }
+
+    render() {
         var { avatarUrl, firstName, lastName } = this.props.user.entity;
         return (
             <span>
@@ -706,17 +558,17 @@ var UserDeleteModal = React.createClass({
             </span>
         )
     }
-});
+}
 // end::user-delete-modal[]
 
 // tag::user-disable-modal[]
-var UserDisableModal = React.createClass({
-    handleClick: function(e) {
-        e.preventDefault();
+class UserDisableModal extends ModalForm {
 
-        this.open();
-    },
-    handleSubmit: function (data, reset, invalidate) {
+    constructor(props) {
+        super(props);
+    }
+
+    handleSubmit = (data, reset, invalidate) => {
         this.props.onDisable(this.props.user, response => {
             this.props.refreshCurrentPage();
             this.close();
@@ -753,30 +605,9 @@ var UserDisableModal = React.createClass({
 
             return response;
         });
-    },
-    clearAlert: function () {
-        this.setState({
-            showAlert: false,
-            alertTitle: '',
-            alertDetails: ''
-        });
-    },
-    close: function() {
-        this.clearAlert();
-        this.setState({ showModal: false });
-    },
-    open: function() {
-        this.setState({ showModal: true });
-    },
-    getInitialState: function() {
-        return ({
-            showModal: false,
-            showAlert: false,
-            alertTitle: '',
-            alertDetails: ''
-        });
-    },
-    render: function() {
+    }
+
+    render() {
         var { avatarUrl, firstName, lastName } = this.props.user.entity;
         return (
             <span>
@@ -812,17 +643,17 @@ var UserDisableModal = React.createClass({
             </span>
         )
     }
-});
+}
 // end::user-disable-modal[]
 
 // tag::user-enable-modal[]
-var UserEnableModal = React.createClass({
-    handleClick: function(e) {
-        e.preventDefault();
+class UserEnableModal extends ModalForm {
 
-        this.open();
-    },
-    handleSubmit: function (data, reset, invalidate) {
+    constructor(props) {
+        super(props);
+    }
+
+    handleSubmit = (data, reset, invalidate) => {
         this.props.onEnable(this.props.user, response => {
             this.props.refreshCurrentPage();
             this.close();
@@ -859,30 +690,9 @@ var UserEnableModal = React.createClass({
 
             return response;
         });
-    },
-    clearAlert: function () {
-        this.setState({
-            showAlert: false,
-            alertTitle: '',
-            alertDetails: ''
-        });
-    },
-    close: function() {
-        this.clearAlert();
-        this.setState({ showModal: false });
-    },
-    open: function() {
-        this.setState({ showModal: true });
-    },
-    getInitialState: function() {
-        return ({
-            showModal: false,
-            showAlert: false,
-            alertTitle: '',
-            alertDetails: ''
-        });
-    },
-    render: function() {
+    }
+
+    render() {
         var { avatarUrl, firstName, lastName } = this.props.user.entity;
         return (
             <span>
@@ -918,12 +728,12 @@ var UserEnableModal = React.createClass({
             </span>
         )
     }
-});
+}
 // end::user-enable-modal[]
 
 // tag::user-table[]
-var UserTable = React.createClass({
-    render: function() {
+class UserTable extends React.Component {
+    render() {
         var sequence = 1;
         if (this.props.page) {
             var { number, size } = this.props.page;
@@ -948,12 +758,12 @@ var UserTable = React.createClass({
             </table>
         )
     }
-});
+}
 // end::user-table[]
 
 // tag::user-table-header[]
-var UserTableHeader = React.createClass({
-    render: function () {
+class UserTableHeader extends React.Component {
+    render () {
         return (
             <thead>
                 <tr>
@@ -969,13 +779,13 @@ var UserTableHeader = React.createClass({
             </thead>
         )
     }
-});
+}
 // end::user-table-header[]
 
 // tag::user-table-row[]
-var UserTableRow = React.createClass({
+class UserTableRow extends React.Component {
 
-    render: function () {
+    render() {
         var { avatarUrl, firstName, lastName, email, joinDate, active, roles } = this.props.user.entity;
         var fullName = `${firstName}  ${lastName}`;
 
@@ -1031,7 +841,7 @@ var UserTableRow = React.createClass({
             </tr>
         )
     }
-});
+}
 // end::user-table-row[]
 
 module.exports = Users;

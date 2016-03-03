@@ -1,5 +1,6 @@
 import React from 'react';
 import Formsy from 'formsy-react';
+import { Decorator as FormsyElement } from 'formsy-react';
 import InputElement from 'react-input-mask';
 import cx from 'classnames';
 import validator from 'validator';
@@ -23,41 +24,47 @@ function contains(container, item, cmp) {
 }
 // end::helpers[]
 
-var FormStatic = React.createClass({
-    mixins: [Formsy.Mixin],
-    componentWillMount: function () {
-        this.setValue(this.props.defaultValue);
-    },
-    render: function () {
+@FormsyElement()
+class FormStatic extends React.Component {
+
+    componentWillMount() {
+        this.props.setValue(this.props.defaultValue);
+    }
+
+    render() {
         const { name, title, hidden} = this.props;
         return (
             <div className={cx('form-group', hidden ? 'hide' : '')}>
                 <label className="col-md-4 control-label" htmlFor={name}>{title}</label>
                 <div className="col-md-4">
-                    <p name={name} className="form-control-static">{hidden ? '' : this.getValue()}</p>
+                    <p name={name} className="form-control-static">{hidden ? '' : this.props.getValue()}</p>
                 </div>
             </div>
         )
     }
-});
+}
 
-var FormInput = React.createClass({
-    mixins: [Formsy.Mixin],
+@FormsyElement()
+class FormInput extends React.Component {
+
     // setValue() will set the value of the component, which in
     // turn will validate it and the rest of the form
-    changeValue: function (event) {
-        this.setValue(event.currentTarget.value);
-    },
-    componentWillMount: function () {
-        this.setValue(this.props.defaultValue);
-    },
-    componentWillReceiveProps: function (nextProps) {
+    changeValue = (event) => {
+        this.props.setValue(event.currentTarget.value);
+    }
+
+    componentWillMount() {
+        this.props.setValue(this.props.defaultValue);
+    }
+
+    componentWillReceiveProps(nextProps) {
         // Only change to the new default value if it is currently showing the old one
-        if (this.getValue() === this.props.defaultValue && nextProps.defaultValue !== this.props.defaultValue) {
-            this.setValue(nextProps.defaultValue);
+        if (this.props.getValue() === this.props.defaultValue && nextProps.defaultValue !== this.props.defaultValue) {
+            this.props.setValue(nextProps.defaultValue);
         }
-    },
-    render: function() {
+    }
+
+    render() {
         var { name, className, type, title, placeholder, mask } = this.props;
         className  =cx(className, ['form-control', 'input-md']);
         var props = {};
@@ -71,18 +78,18 @@ var FormInput = React.createClass({
             {
                 mask: mask || '',
                 placeholder: placeholder || title,
-                value: this.getValue(),
+                value: this.props.getValue(),
                 onChange: this.changeValue
             }
         );
 
-        var formGroupClassName = cx('form-group', this.showRequired() ? 'required' : this.showError() ? ['has-error', 'has-feedback'] : ''),
+        var formGroupClassName = cx('form-group', this.props.showRequired() ? 'required' : this.props.showError() ? ['has-error', 'has-feedback'] : ''),
             errors = [];
         
-        if (this.showError() && !this.showRequired()) {
+        if (this.props.showError() && !this.props.showRequired()) {
             // An error message is returned ONLY if the component is invalid
             // or the server has returned an error message
-            var errorMessage = this.getErrorMessage();
+            var errorMessage = this.props.getErrorMessage();
             errors.push(<i className="form-control-feedback fa fa-times-circle fa-lg"></i>);
             errors.push(<small className="help-block">{errorMessage}</small>);
         }
@@ -97,25 +104,29 @@ var FormInput = React.createClass({
             </div>
         )
     }
-});
+}
 
-var FormCheckboxGroup = React.createClass({
-    mixins: [Formsy.Mixin],
-    getInitialState: function() {
-        return { 
-            value: [], 
+@FormsyElement()
+class FormCheckboxGroup extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            value: [],
             cmp: (a, b) => a === b 
         };
-    },
-    componentDidMount: function () {
+    }
+
+    componentDidMount() {
         const value = this.props.value || [];
-        this.setValue(value);
+        this.props.setValue(value);
         this.setState({ 
             value: value, 
             cmp: this.props.cmp || this.state.cmp 
         });
-    },
-    changeValue: function (value, event) {
+    }
+
+    changeValue = (value, event) => {
         const checked = event.currentTarget.checked;
 
         let newValue = [];
@@ -125,10 +136,11 @@ var FormCheckboxGroup = React.createClass({
             newValue = this.state.value.filter(it => !this.state.cmp(it, value));
         }
 
-        this.setValue(newValue);
+        this.props.setValue(newValue);
         this.setState({ value: newValue });
-    },
-    render: function () {
+    }
+
+    render() {
 
         const { name, title, items } = this.props;
         const labelClassName  = cx('form-checkbox', 'form-icon', 'form-text');
@@ -147,12 +159,12 @@ var FormCheckboxGroup = React.createClass({
             errorMessage = null,
             errors = [];
         
-        if (this.showRequired()) {
+        if (this.props.showRequired()) {
             errorMessage = `${title} is required`;
-        } else if (this.showError()) {
+        } else if (this.props.showError()) {
             // An error message is returned ONLY if the component is invalid
             // or the server has returned an error message
-            errorMessage = this.getErrorMessage();
+            errorMessage = this.props.getErrorMessage();
         }
 
         if (errorMessage) {
@@ -174,60 +186,63 @@ var FormCheckboxGroup = React.createClass({
         );
     }
 
-});
+}
 
-var ImageSelect = React.createClass({
-    mixins: [Formsy.Mixin],
-    getInitialState: function () {
-        return ({
+@FormsyElement()
+class ImageSelect extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
             openDropdown: false
-        })
-    },
-    componentWillMount: function () {
+        };
+    }
+
+    componentWillMount() {
         const { defaultValue, values} = this.props;
-        this.setValue(defaultValue || values[0]);
-    },
-    componentWillReceiveProps: function (nextProps) {
+        this.props.setValue(defaultValue || values[0]);
+    }
+
+    componentWillReceiveProps(nextProps) {
         const { defaultValue, values} = this.props;
 
         var value = defaultValue || values[0];
         var nextValue = nextProps.defaultValue || nextProps.values[0];
         // Only change to the new default value if it is currently showing the old one
-        if (this.getValue() === value && nextValue !== value) {
-            this.setValue(nextValue);
+        if (this.props.getValue() === value && nextValue !== value) {
+            this.props.setValue(nextValue);
         }
-    },
-    toggleDropdown: function(event) {
-        event.preventDefault();
-        var openDropdown = !this.state.openDropdown;
-        this.setState({
-            openDropdown
-        });
-    },
-    close: function() {
+    }
+
+    close = () => {
         this.setState({
             openDropdown: false
         });
-    },
-    open: function() {
+    }
+
+    open = () => {
         this.setState({
             openDropdown: true
         });
-    },
-    handleToggle: function (open) {
+    }
+
+    handleToggle = (open) => {
         if (open) {
             this.open();
         } else {
             this.close();
         }
-    },
-    changeValue: function (value, event) {
+    }
+
+    changeValue = (value, event) => {
         event.preventDefault();
 
-        this.setValue(value);
+        this.props.setValue(value);
         this.close();
-    },
-    render: function() {
+    }
+
+    render() {
         var { className, values } = this.props;
         var images = values.map(value =>
             <MenuItem key={value} onClick={this.changeValue.bind(this, value)}>
@@ -244,7 +259,7 @@ var ImageSelect = React.createClass({
         return(
             <Dropdown id={this.props.id} onToggle={this.handleToggle} open={this.state.openDropdown} >
                 <Dropdown.Toggle className="with-caret-bottom-right" useAnchor noCaret>
-                    <img className={cx(className, ['media-object', 'mar-hor'])} src={'img/' + this.getValue()} />
+                    <img className={cx(className, ['media-object', 'mar-hor'])} src={'img/' + this.props.getValue()} />
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu className="dropdown-menu-img dropdown-menu-img-lg">
@@ -253,7 +268,7 @@ var ImageSelect = React.createClass({
             </Dropdown>
         )
     }
-});
+}
 
 const FormControls = {
 	Formsy,
