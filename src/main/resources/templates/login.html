@@ -52,7 +52,7 @@
 				<div class="cls-content-sm panel">
 					<div class="panel-body">
 						<p class="pad-btm">Sign In to your account</p>
-						<div th:if="${param.error}" th:with="errorMsg=${session['SPRING_SECURITY_LAST_EXCEPTION'].message}" th:text="${errorMsg}">
+						<div th:if="${param.error != null and session['SPRING_SECURITY_LAST_EXCEPTION'] != null}" th:with="errorMsg=${session['SPRING_SECURITY_LAST_EXCEPTION'].message}" th:text="${errorMsg}">
 				            Invalid username and password.
 				        </div>
 				        <div th:if="${param.logout}">

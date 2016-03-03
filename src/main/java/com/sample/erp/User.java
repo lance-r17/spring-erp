@@ -72,7 +72,11 @@ public class User {
 
 	public void addRole(String role) {
 		if (!Arrays.asList(this.roles).contains(role)) {
-			this.roles[this.roles.length] = role;
+			String[] newRoles = new String[this.roles.length + 1];
+			System.arraycopy(this.roles, 0, newRoles, 0, this.roles.length);
+			newRoles[this.roles.length] = role;
+
+			this.roles = newRoles;
 		}
 	}
 }

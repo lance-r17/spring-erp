@@ -19,9 +19,9 @@ public class UserEventHandler {
 	private final EntityLinks entityLinks;
 
 	@HandleBeforeCreate
-	public void applyUserInformationUsingSecurityContext(User user) {
+	public void addDefaultRole(User user) {
 		// add user role as default while creating user
-		user.addRole("ROLE_USER");
+		// user.addRole("ROLE_USER");
 	}
 
 	@Autowired
