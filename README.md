@@ -32,7 +32,7 @@ For Mac, please use below command instead:
 $ ./gradlew boot-run
 ```
 
-Once the server is successfully started, goto url [http:://localhost:8080](http:://localhost:8080) in your browser (chrome is recommended) to try.
+Once the server is successfully started, goto url [http://localhost:8080](http://localhost:8080) in your browser (chrome is recommended) to try.
 
 This repository is kept updating, you could use below git commands to pull the latest update to your local repository then rerun above gradle commands to try the updates.
 ```shell
