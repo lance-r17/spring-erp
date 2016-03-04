@@ -24,12 +24,12 @@ following command to start the server.
 
 For windows, please use below command:
 ```shell
-$ gradlew boot-run
+$ gradlew bootRun
 ```
 
 For Mac, please use below command instead:
 ```shell
-$ ./gradlew boot-run
+$ ./gradlew bootRun
 ```
 
 Once the server is successfully started, goto url [http://localhost:8080](http://localhost:8080) in your browser (chrome is recommended) to try.
