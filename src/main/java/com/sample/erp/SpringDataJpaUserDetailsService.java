@@ -1,12 +1,15 @@
 package com.sample.erp;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
+/**
+ * @author Lance Chen
+ */
+// tag::code[]
 @Component
 public class SpringDataJpaUserDetailsService implements UserDetailsService {
 
@@ -21,10 +24,10 @@ public class SpringDataJpaUserDetailsService implements UserDetailsService {
 	public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
 		User user = this.repository.findByName(name);
 		if (user == null) {
-			throw new UsernameNotFoundException("");
+			throw new UsernameNotFoundException(String.format("User with name=%s was not found", name));
 		}
-		return new org.springframework.security.core.userdetails.User(user.getName(),
-				user.getPassword(), user.isActive(), true, true, true,
-				AuthorityUtils.createAuthorityList(user.getRoles()));
+
+		return new CurrentUser(user);
 	}
 }
+// end::code[]

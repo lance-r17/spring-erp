@@ -1,7 +1,10 @@
 package com.sample.erp;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.data.repository.query.spi.EvaluationContextExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -11,11 +14,17 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 
 @Configuration
 @EnableWebSecurity
+@EnableJpaRepositories
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private SpringDataJpaUserDetailsService userDetailsService;
+
+	@Bean
+    EvaluationContextExtension securityExtension() {
+		return new SecurityEvaluationContextExtension();
+	}
 
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth.userDetailsService(this.userDetailsService).passwordEncoder(

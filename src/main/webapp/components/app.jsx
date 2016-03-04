@@ -26,14 +26,21 @@ export default class App extends React.Component {
 	}
 
 	getLoginUser = () => {
-		api.get({
-			path: '/user',
-			onSuccess: (user) => {
-				this.setState({
-					user: user.entity
-				});
-			}
-		})
+		api.getSearchLinks({
+			rel: 'users',
+            onSuccess: (links) => {
+                if (links.myself) {
+                    api.get({
+                        path: links.myself.href,
+                        onSuccess: (response) => {
+                            this.setState({
+                                user: response.entity
+                            })
+                        }
+                    })
+                }
+            }
+		});
 	}
 
 	componentDidMount() {

@@ -38,8 +38,11 @@ public interface UserRepository extends PagingAndSortingRepository<User, Long> {
 	@RestResource(exported = false)
 	User findByName(String name);
 
+	@Query("SELECT u FROM User u WHERE u.id = ?#{principal?.id}")
+	User myself();
+
 	@Query("SELECT CASE WHEN COUNT(u) > 0 THEN 'true' ELSE 'false' END FROM User u WHERE u.name = ?1")
-	public Boolean existsByName(@Param("name") String name);
+	Boolean existsByName(@Param("name") String name);
 }
 // end::code[]
 
