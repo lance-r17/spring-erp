@@ -4,7 +4,7 @@ import Badge from './badge.jsx';
 import { Label, RoleLabel, RoleLabels, RoleShortNameLabels } from './label.jsx';
 import { MenuItemLink, SubMenu } from './menu.jsx';
 import { FormStatic, FormInput, FormCheckboxGroup, ImageSelect } from './form.jsx';
-import { Modal, Alert, PanelAlert } from './bootstrap.jsx';
+import { Button, Modal, Alert, PanelAlert } from './bootstrap.jsx';
 import Paging from './paging.jsx';
 import NanoScroller from './scroll.jsx';
 
@@ -31,6 +31,7 @@ var Controls = {
 	ImageSelect,
 	// end::formsy
 	// tag::bootstrap[]
+	Button,
 	Modal, 
 	Alert,
 	PanelAlert,

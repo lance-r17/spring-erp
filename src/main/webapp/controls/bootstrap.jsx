@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Alert } from 'react-bootstrap';
+import { Button, Modal, Alert } from 'react-bootstrap';
 import cx from 'classnames';
 
 
@@ -34,6 +34,7 @@ var PanelAlert = React.createClass({
 // end::panel-alert[]
 
 var BootStrapControls = {
+    Button,
 	Modal, 
 	Alert,
 	// tag::custom-controls[]

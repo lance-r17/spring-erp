@@ -4,9 +4,10 @@ import { findDOMNode } from 'react-dom';
 var Paging = {};
 
 // tag::wrapper[]
-Paging.Wrapper = React.createClass({
-    displayName: 'Paging',
-    render: function() {
+Paging.Wrapper = class extends React.Component {
+    static displayName = 'Paging';
+
+    render() {
 
         return (
             <div className="dt-bootstrap no-footer">
@@ -14,22 +15,24 @@ Paging.Wrapper = React.createClass({
             </div>
         )
     }
-});
+}
 // end::wrapper[]
 
 // tag::toolbar[]
-Paging.Toolbar = React.createClass({
-    handleChange: function(e) {
-        e.preventDefault();
+Paging.Toolbar = class extends React.Component {
+    handleChange = (event) => {
+        event.preventDefault();
+
         var pageSize = findDOMNode(this.refs.pageSize).value;
         if (/^[0-9]+$/.test(pageSize)) {
             this.props.updatePageSize(pageSize);
         }
-    },
-    render: function() {
+    }
+
+    render() {
         var pageSizeOptions = this.props.pageSizeOptions || [1, 2, 5, 10, 25, 50, 100];
         var options = pageSizeOptions.map(size =>
-            <option value={size}>{size}</option>
+            <option key={`page-size-${size}`} value={size}>{size}</option>
         );
         return (
             <div className="toolbar form-inline">
@@ -50,34 +53,43 @@ Paging.Toolbar = React.createClass({
             </div>
         )
     }
-});
+}
 // end::toolbar[]
 
 
 // tag::pagination[]
-Paging.Pagination = React.createClass({
+Paging.Pagination = class extends React.Component {
     // tag::handle-nav[]
-    handleNavFirst: function(e) {
-        e.preventDefault();
+    handleNavFirst = (event) => {
+        event.preventDefault();
+
         this.props.onNavigate(this.props.links.first.href);
-    },
-    handleNavPrev: function(e) {
-        e.preventDefault();
+    }
+
+    handleNavPrev = (event) => {
+        event.preventDefault();
+        
         this.props.onNavigate(this.props.links.prev.href);
-    },
-    handleNavNext: function(e) {
-        e.preventDefault();
+    }
+
+    handleNavNext = (event) => {
+        event.preventDefault();
+        
         this.props.onNavigate(this.props.links.next.href);
-    },
-    handleNavLast: function(e) {
-        e.preventDefault();
+    }
+
+    handleNavLast = (event) => {
+        event.preventDefault();
+        
         this.props.onNavigate(this.props.links.last.href);
-    },
-    handleDisableClick: function (e) {
-        e.preventDefault();
-    },
+    }
+
+    handleDisableClick = (event) => {
+        event.preventDefault();
+    }
     // end::handle-nav[]
-    render: function() {
+
+    render() {
         var records = null;
         var navLinks = [];
 
@@ -101,7 +113,7 @@ Paging.Pagination = React.createClass({
             }
 
             if (number > 3 || (number === 3 & number < totalPages - 1)) {
-                navLinks.push(<li><span>...</span></li>);
+                navLinks.push(<li key="others-before"><span>...</span></li>);
             }
 
             if (number > 1 && number + 3 != totalPages && "prev" in this.props.links) {
@@ -117,7 +129,7 @@ Paging.Pagination = React.createClass({
             }
 
             if (number < totalPages - 3) {
-                navLinks.push(<li><span>...</span></li>);
+                navLinks.push(<li key="others-after"><span>...</span></li>);
             }
 
             if ("last" in this.props.links && totalPages > number + 1) {
@@ -150,7 +162,7 @@ Paging.Pagination = React.createClass({
             </div>
         )
     }
-});
+}
 // end::pagination[]
 
-module.exports = Paging;
+export default Paging

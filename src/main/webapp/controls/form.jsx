@@ -36,7 +36,7 @@ class FormStatic extends React.Component {
         return (
             <div className={cx('form-group', hidden ? 'hide' : '')}>
                 <label className="col-md-4 control-label" htmlFor={name}>{title}</label>
-                <div className="col-md-4">
+                <div key={`static-${name}`} className="col-md-4">
                     <p name={name} className="form-control-static">{hidden ? '' : this.props.getValue()}</p>
                 </div>
             </div>
@@ -90,12 +90,12 @@ class FormInput extends React.Component {
             // An error message is returned ONLY if the component is invalid
             // or the server has returned an error message
             var errorMessage = this.props.getErrorMessage();
-            errors.push(<i className="form-control-feedback fa fa-times-circle fa-lg"></i>);
-            errors.push(<small className="help-block">{errorMessage}</small>);
+            errors.push(<i key="error-icon" className="form-control-feedback fa fa-times-circle fa-lg"></i>);
+            errors.push(<small key="error-msg" className="help-block">{errorMessage}</small>);
         }
 
         return (
-            <div className={formGroupClassName}>
+            <div key={`input-${name}`} className={formGroupClassName}>
                 <label className="col-md-4 col-xs-6 control-label" htmlFor={name}>{title}</label>
                 <div className="col-md-7 col-xs-6">
                     <InputElement {...props} />
@@ -145,7 +145,7 @@ class FormCheckboxGroup extends React.Component {
         const { name, title, items } = this.props;
         const labelClassName  = cx('form-checkbox', 'form-icon', 'form-text');
         var checkboxes = items.map((item, i) => (
-             <label key={i} className={cx(labelClassName, contains(this.state.value, item.value, this.state.cmp) ? 'active' : '')}>
+             <label key={`form-checkbox-${name}-option-${i}`} className={cx(labelClassName, contains(this.state.value, item.value, this.state.cmp) ? 'active' : '')}>
                 <input
                   type="checkbox"
                   name={name}
@@ -155,22 +155,15 @@ class FormCheckboxGroup extends React.Component {
             </label>
         ));
 
-        var formGroupClassName = 'form-group',
-            errorMessage = null,
+        var formGroupClassName = cx('form-group', this.props.showRequired() ? 'required' : this.props.showError() ? ['has-error', 'has-feedback'] : ''),
             errors = [];
         
-        if (this.props.showRequired()) {
-            errorMessage = `${title} is required`;
-        } else if (this.props.showError()) {
+        if (this.props.showError() && !this.props.showRequired()) {
             // An error message is returned ONLY if the component is invalid
             // or the server has returned an error message
-            errorMessage = this.props.getErrorMessage();
-        }
-
-        if (errorMessage) {
-            formGroupClassName = cx(formGroupClassName, ['has-error', 'has-feedback']);
-            errors.push(<i className="form-control-feedback fa fa-times-circle fa-lg"></i>);
-            errors.push(<small className="help-block">{errorMessage}</small>);
+            var errorMessage = this.props.getErrorMessage();
+            errors.push(<i key="error-icon" className="form-control-feedback fa fa-times-circle fa-lg"></i>);
+            errors.push(<small key="error-msg" className="help-block">{errorMessage}</small>);
         }
 
         return (
@@ -244,8 +237,8 @@ class ImageSelect extends React.Component {
 
     render() {
         var { className, values } = this.props;
-        var images = values.map(value =>
-            <MenuItem key={value} onClick={this.changeValue.bind(this, value)}>
+        var images = values.map( (value, i) =>
+            <MenuItem key={`image-${name}-option-${i}`} onClick={this.changeValue.bind(this, value)}>
                 <img src={'img/' + value} alt="Profile Picture" className={className} />
             </MenuItem>
         );
@@ -270,12 +263,10 @@ class ImageSelect extends React.Component {
     }
 }
 
-const FormControls = {
+export {
 	Formsy,
 	FormStatic,
 	FormInput,
 	FormCheckboxGroup,
     ImageSelect
 }
-
-module.exports = FormControls;

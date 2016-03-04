@@ -1,7 +1,7 @@
 import React from 'react';
 import api from '../../../lib/apiHelper';
 
-import { Label, RoleLabel, RoleLabels, Formsy, FormStatic, FormInput, FormCheckboxGroup, ImageSelect, Modal, PanelAlert, Paging, NanoScroller } from '../../../controls';
+import { Label, RoleLabel, RoleLabels, Formsy, FormStatic, FormInput, FormCheckboxGroup, ImageSelect, Button, Modal, PanelAlert, Paging, NanoScroller } from '../../../controls';
 
 
 // tag::vars[]
@@ -169,7 +169,7 @@ export default class Users extends React.Component {
             rel: 'users',
             pageSize: this.state.pageSize,
             onSuccess: links => {
-                this.onNavigate(links.last.href);
+                this.onNavigate((links.last || links.self).href);
             }
         });
     }
@@ -221,7 +221,8 @@ export default class Users extends React.Component {
 
                                 <Paging.Toolbar pageSize={this.state.pageSize}
                                                 updatePageSize={this.updatePageSize} >
-                                    <UserCreateModal onCreate={this.onCreate}
+                                    <UserCreateModal toggle={{value: 'Add', className: 'btn btn-info btn-labeled fa fa-plus'}}
+                                                     onCreate={this.onCreate}
                                                      refreshAndGoToLastPage={this.refreshAndGoToLastPage} />
                                 </Paging.Toolbar>
 
@@ -255,60 +256,93 @@ export default class Users extends React.Component {
 // end::users[]
 
 // tag::modal-form[]
-class ModalForm extends React.Component {
+const formModal = (DecoratedComponent) => {
 
-    constructor(props) {
-        super(props);
+    return class extends React.Component {
 
-        this.state = {
-            canSubmit: false,
-            showModal: false,
-            showAlert: false,
-            alertTitle: '',
-            alertDetails: ''
+        constructor(props) {
+            super(props);
+
+            this.state = {
+                canSubmit: false,
+                showModal: false,
+                hasAlert: false,
+                alertTitle: '',
+                alertDetails: ''
+            }
+        }
+
+        clearAlert = () => {
+            this.setState({
+                hasAlert: false,
+                alertTitle: '',
+                alertDetails: ''
+            });
+        }
+
+        popAlert = (title, details) => {
+            this.setState({
+                hasAlert: true,
+                alertTitle: title,
+                alertDetails: details
+            })
+        }
+
+        closeModal = () => {
+            this.clearAlert();
+            this.setState({ showModal: false });
+        }
+        
+        openModal = () => {
+            this.setState({ showModal: true });
+        }
+
+        onToggle = (e) => {
+            e.preventDefault();
+
+            this.openModal();
+        }
+
+        enableSubmit = () => {
+            this.setState({
+                canSubmit: true
+            });
+        }
+
+        disableSubmit = () => {
+            this.setState({
+                canSubmit: false
+            });
+        }
+
+        render() {
+            const { toggle, ...propsForDecoration } = this.props;
+            const methods = {
+                enableSubmit: this.enableSubmit,
+                disableSubmit: this.disableSubmit,
+                popAlert: this.popAlert,
+                closeModal: this.closeModal
+            };
+            const alerts = <PanelAlert bsStyle="danger" show={this.state.hasAlert} title={this.state.alertTitle} errors={this.state.alertDetails} />
+
+            var props = {};
+            _.extend(props, {...propsForDecoration}, {...this.state}, { alerts }, {...methods});
+            return (
+                <span>
+                    <Button {...toggle} onClick={this.onToggle}>{toggle.value}</Button>
+                    <Modal show={this.state.showModal} onHide={this.closeModal}>
+                        <DecoratedComponent {...props} />
+                    </Modal>
+                </span>
+            )
         }
     }
-
-    clearAlert = () => {
-        this.setState({
-            showAlert: false,
-            alertTitle: '',
-            alertDetails: ''
-        });
-    }
-
-    close = () => {
-        this.clearAlert();
-        this.setState({ showModal: false });
-    }
-    
-    open = () => {
-        this.setState({ showModal: true });
-    }
-
-    handleClick = (e) => {
-        e.preventDefault();
-
-        this.open();
-    }
-
-    enableSubmit = () => {
-        this.setState({
-            canSubmit: true
-        });
-    }
-
-    disableSubmit = () => {
-        this.setState({
-            canSubmit: false
-        });
-    }
-
 }
 // end::modal-form[]
 
 // tag::user-create-modal[]
-class UserCreateModal extends ModalForm {
+@formModal
+class UserCreateModal extends React.Component {
     constructor(props) {
         super(props);
     }
@@ -318,22 +352,14 @@ class UserCreateModal extends ModalForm {
         _.extend(newUser, data);
         this.props.onCreate(newUser, response => {
             this.props.refreshAndGoToLastPage();
-            this.close();
+            this.props.closeModal();
         }, response => {
             if (response.errors) {
                 invalidate(response.errors);
             } else if (response.status.code === 400) {
-                this.setState({
-                    showAlert: true,
-                    alertTitle: 'REQUEST REJECTED!',
-                    alertDetails: response.entity.errors
-                });
+                this.props.popAlert('REQUEST REJECTED!', response.entity.errors);
             } else if (response.status.code === 403) {
-                this.setState({
-                    showAlert: true,
-                    alertTitle: 'ACCESS DENIED!',
-                    alertDetails: 'You are not authorized to update this user.'
-                });
+                this.props.popAlert('ACCESS DENIED!', 'You are not authorized to update this user.');
             } else {
                 console.log(response);
             }
@@ -344,49 +370,44 @@ class UserCreateModal extends ModalForm {
 
     render() {
         return (
-            <span>
-                <button className="btn btn-info btn-labeled fa fa-plus" onClick={this.handleClick}>Add</button>
+            <Formsy.Form className="form-horizontal" onValidSubmit={this.handleSubmit} onValid={this.props.enableSubmit} onInvalid={this.props.disableSubmit}>
 
-                <Modal show={this.state.showModal} onHide={this.close}>
-                    <Formsy.Form className="form-horizontal" onValidSubmit={this.handleSubmit} onValid={this.enableSubmit} onInvalid={this.disableSubmit}>
+                <Modal.Header closeButton>
+                    <Modal.Title>New User</Modal.Title>
+                </Modal.Header>
 
-                        <Modal.Header closeButton>
-                            <Modal.Title>New User</Modal.Title>
-                        </Modal.Header>
+                <Modal.Body>
+                    <div className="media">
+                        {this.props.alerts}
 
-                        <Modal.Body>
-                            <PanelAlert bsStyle="danger" show={this.state.showAlert} title={this.state.alertTitle} errors={this.state.alertDetails} />
-                            <div className="media">
-                                <div className="media-left navbar-top-links">
-                                    <ImageSelect id="user-create-img-sel" name="avatarUrl" className="img-lg img-circle" values={AVATAR_IMAGES} />
-                                </div>
-                                <div className="media-body">
-                                    <FormInput name="name" title="Username" required />
-                                    <FormInput name="firstName" type="text" title="First name" required />
-                                    <FormInput name="lastName" type="text" title="Last name" required />
-                                    <FormInput name="email" type="email" title="Email" validations="isEmail" validationError="This is not a valid email" required/>
-                                    <FormInput name="joinDate" type="text" title="Join Date" mask="9999-99-99" validations="isDate" validationError="This is not a valid date" required/>
-                                    <FormCheckboxGroup name="roles" title="Roles" items={ROLES_OPTION} />
-                                    <FormStatic name="active" defaultValue={true} hidden />
-                                </div>
-                            </div>
-                        </Modal.Body>
+                        <div className="media-left navbar-top-links">
+                            <ImageSelect id="user-create-img-sel" name="avatarUrl" className="img-lg img-circle" values={AVATAR_IMAGES} />
+                        </div>
+                        <div className="media-body">
+                            <FormInput name="name" title="Username" required />
+                            <FormInput name="firstName" type="text" title="First name" required />
+                            <FormInput name="lastName" type="text" title="Last name" required />
+                            <FormInput name="email" type="email" title="Email" validations="isEmail" validationError="This is not a valid email" required/>
+                            <FormInput name="joinDate" type="text" title="Join Date" mask="9999-99-99" validations="isDate" validationError="This is not a valid date" required/>
+                            <FormCheckboxGroup name="roles" title="Roles" items={ROLES_OPTION} />
+                            <FormStatic name="active" defaultValue={true} hidden />
+                        </div>
+                    </div>
+                </Modal.Body>
 
-                        <Modal.Footer>
-                            <button type="submit" className="btn btn-primary" disabled={!this.state.canSubmit}>Save</button>
-                        </Modal.Footer>
+                <Modal.Footer>
+                    <button type="submit" className="btn btn-primary" disabled={!this.props.canSubmit}>Save</button>
+                </Modal.Footer>
 
-                    </Formsy.Form>
-                </Modal>
-
-            </span>
+            </Formsy.Form>
         )
     }
 }
 // end::user-create-modal[]
 
 // tag::user-edit-modal[]
-class UserEditModal extends ModalForm {
+@formModal
+class UserEditModal extends React.Component {
 
     constructor(props) {
         super(props);
@@ -397,34 +418,18 @@ class UserEditModal extends ModalForm {
         _.extend(updatedUser, data);
         this.props.onUpdate(this.props.user, updatedUser, response => {
             this.props.refreshCurrentPage();
-            this.close();
+            this.props.closeModal();
         }, response => {
             if (response.errors) {
                 invalidate(response.errors);
             } else if (response.status.code === 400) {
-                this.setState({
-                    showAlert: true,
-                    alertTitle: 'REQUEST REJECTED!',
-                    alertDetails: response.entity.errors
-                });
+                this.props.popAlert('REQUEST REJECTED!', response.entity.errors);
             } else if (response.status.code === 403) {
-                this.setState({
-                    showAlert: true,
-                    alertTitle: 'ACCESS DENIED!',
-                    alertDetails: 'You are not authorized to update this user.'
-                });
+                this.props.popAlert('ACCESS DENIED!', 'You are not authorized to update this user.');
             } else if (response.status.code === 404) {
-                this.setState({
-                    showAlert: true,
-                    alertTitle: 'DENIED!',
-                    alertDetails: 'User is not found.'
-                });
+                this.props.popAlert('DENIED!', 'User is not found.');
             } else if (response.status.code === 412) {
-                this.setState({
-                    showAlert: true,
-                    alertTitle: 'DENIED!',
-                    alertDetails: 'Unable to update. Your copy is stale.'
-                });
+                this.props.popAlert('DENIED!', 'Unable to update. Your copy is stale.');
             } else {
                 console.log(response);
             }
@@ -436,48 +441,43 @@ class UserEditModal extends ModalForm {
     render() {
         var { name, avatarUrl, firstName, lastName, email, joinDate, roles } = this.props.user.entity;
         return (
-            <span>
-                <a className="btn btn-sm btn-default btn-icon btn-hover-success fa fa-pencil add-tooltip" href="#" data-original-title="Edit" data-container="body" onClick={this.handleClick}></a>
+            <Formsy.Form className="form-horizontal" onValidSubmit={this.handleSubmit} onValid={this.props.enableSubmit} onInvalid={this.props.disableSubmit}>
+
+                <Modal.Header closeButton>
+                    <Modal.Title>User Edit</Modal.Title>
+                </Modal.Header>
                 
-                <Modal show={this.state.showModal} onHide={this.close}>
-                    <Formsy.Form className="form-horizontal" onValidSubmit={this.handleSubmit} onValid={this.enableSubmit} onInvalid={this.disableSubmit}>
+                <Modal.Body>
+                    {this.props.alerts}
 
-                        <Modal.Header closeButton>
-                            <Modal.Title>User Edit</Modal.Title>
-                        </Modal.Header>
-                        
-                        <Modal.Body>
-                            <PanelAlert bsStyle="danger" show={this.state.showAlert} title={this.state.alertTitle} errors={this.state.alertDetails} />
-                            <div className="media">
-                                <div className="media-left navbar-top-links">
-                                    <ImageSelect id="user-create-img-sel" name="avatarUrl" defaultValue={avatarUrl} className="img-lg img-circle" values={AVATAR_IMAGES} />
-                                </div>
-                                <div className="media-body">
-                                    <FormStatic name="name" defaultValue={name} title="Username" />
-                                    <FormInput name="firstName" defaultValue={firstName} type="text" title="First name" required />
-                                    <FormInput name="lastName" defaultValue={lastName} type="text" title="Last name" required />
-                                    <FormInput name="email" defaultValue={email} type="email" title="Email" validations="isEmail" validationError="This is not a valid email" required/>
-                                    <FormInput name="joinDate" defaultValue={joinDate} type="text" title="Join Date" mask="9999-99-99" validations="isDate" validationError="This is not a valid date" required/>
-                                    <FormCheckboxGroup name="roles" value={roles} title="Roles" items={ROLES_OPTION} />
-                                </div>
-                            </div>
-                        </Modal.Body>
+                    <div className="media">
+                        <div className="media-left navbar-top-links">
+                            <ImageSelect id="user-create-img-sel" name="avatarUrl" defaultValue={avatarUrl} className="img-lg img-circle" values={AVATAR_IMAGES} />
+                        </div>
+                        <div className="media-body">
+                            <FormStatic name="name" defaultValue={name} title="Username" />
+                            <FormInput name="firstName" defaultValue={firstName} type="text" title="First name" required />
+                            <FormInput name="lastName" defaultValue={lastName} type="text" title="Last name" required />
+                            <FormInput name="email" defaultValue={email} type="email" title="Email" validations="isEmail" validationError="This is not a valid email" required/>
+                            <FormInput name="joinDate" defaultValue={joinDate} type="text" title="Join Date" mask="9999-99-99" validations="isDate" validationError="This is not a valid date" required/>
+                            <FormCheckboxGroup name="roles" value={roles} title="Roles" items={ROLES_OPTION} />
+                        </div>
+                    </div>
+                </Modal.Body>
 
-                        <Modal.Footer>
-                            <button type="submit" className="btn btn-primary" disabled={!this.state.canSubmit}>Save</button>
-                        </Modal.Footer>
+                <Modal.Footer>
+                    <button type="submit" className="btn btn-primary" disabled={!this.props.canSubmit}>Save</button>
+                </Modal.Footer>
 
-                    </Formsy.Form>
-                </Modal>
-                
-            </span>
+            </Formsy.Form>
         )
     }
 }
 // end::user-edit-modal[]
 
 // tag::user-delete-modal[]
-class UserDeleteModal extends ModalForm {
+@formModal
+class UserDeleteModal extends React.Component {
 
     constructor(props) {
         super(props);
@@ -486,34 +486,18 @@ class UserDeleteModal extends ModalForm {
     handleSubmit = (data, reset, invalidate) => {
         this.props.onDelete(this.props.user, response => {
             this.props.refreshCurrentPage();
-            this.close();
+            this.props.closeModal();
         }, response => {
             if (response.errors) {
                 invalidate(response.errors);
             } else if (response.status.code === 400) {
-                this.setState({
-                    showAlert: true,
-                    alertTitle: 'REQUEST REJECTED!',
-                    alertDetails: response.entity.errors
-                });
+                this.props.popAlert('REQUEST REJECTED!', response.entity.errors);
             } else if (response.status.code === 403) {
-                this.setState({
-                    showAlert: true,
-                    alertTitle: 'ACCESS DENIED!',
-                    alertDetails: 'You are not authorized to update this user.'
-                });
+                this.props.popAlert('ACCESS DENIED!', 'You are not authorized to update this user.');
             } else if (response.status.code === 404) {
-                this.setState({
-                    showAlert: true,
-                    alertTitle: 'DENIED!',
-                    alertDetails: 'User is not found.'
-                });
+                this.props.popAlert('DENIED!', 'User is not found.');
             } else if (response.status.code === 412) {
-                this.setState({
-                    showAlert: true,
-                    alertTitle: 'DENIED!',
-                    alertDetails: 'Unable to update. Your copy is stale.'
-                });
+                this.props.popAlert('DENIED!', 'Unable to update. Your copy is stale.');
             } else {
                 console.log(response);
             }
@@ -525,44 +509,39 @@ class UserDeleteModal extends ModalForm {
     render() {
         var { avatarUrl, firstName, lastName } = this.props.user.entity;
         return (
-            <span>
-                <a className="btn btn-sm btn-default btn-icon btn-hover-danger fa fa-times add-tooltip" href="#" data-original-title="Delete" data-container="body" onClick={this.handleClick}></a>
+            <Formsy.Form className="form-horizontal" onValidSubmit={this.handleSubmit} onValid={this.props.enableSubmit} onInvalid={this.props.disableSubmit}>
 
-                <Modal show={this.state.showModal} onHide={this.close}>
-                    <Formsy.Form className="form-horizontal" onValidSubmit={this.handleSubmit} onValid={this.enableSubmit} onInvalid={this.disableSubmit}>
-
-                        <Modal.Header closeButton>
-                            <Modal.Title>Delete User</Modal.Title>
-                        </Modal.Header>
-                        
-                        <Modal.Body>
-                            <PanelAlert bsStyle="danger" show={this.state.showAlert} title={this.state.alertTitle} errors={this.state.alertDetails} />
-                            <div className="media">
-                                <div className="media-left">
-                                    <img src={'img/' + avatarUrl} alt="Profile Picture" className="img-lg img-circle" />
-                                </div>
-                                <div className="media-body">
-                                    <h4 className="text-thin">Are you sure to delete user profile of <strong>{ `${firstName} ${lastName}` }</strong>?</h4>
-                                </div>
-                            </div>
-                        </Modal.Body>
-
-                        <Modal.Footer>
-                            <button data-bb-handler="cancel" type="button" className="btn btn-default" onClick={this.close}>Cancel</button>
-                            <button type="submit" className="btn btn-primary">Confirm</button>
-                        </Modal.Footer>
-
-                    </Formsy.Form>
-                </Modal>
+                <Modal.Header closeButton>
+                    <Modal.Title>Delete User</Modal.Title>
+                </Modal.Header>
                 
-            </span>
+                <Modal.Body>
+                    {this.props.alerts}
+
+                    <div className="media">
+                        <div className="media-left">
+                            <img src={'img/' + avatarUrl} alt="Profile Picture" className="img-lg img-circle" />
+                        </div>
+                        <div className="media-body">
+                            <h4 className="text-thin">Are you sure to delete user profile of <strong>{ `${firstName} ${lastName}` }</strong>?</h4>
+                        </div>
+                    </div>
+                </Modal.Body>
+
+                <Modal.Footer>
+                    <button data-bb-handler="cancel" type="button" className="btn btn-default" onClick={this.props.closeModal}>Cancel</button>
+                    <button type="submit" className="btn btn-primary">Confirm</button>
+                </Modal.Footer>
+
+            </Formsy.Form>
         )
     }
 }
 // end::user-delete-modal[]
 
 // tag::user-disable-modal[]
-class UserDisableModal extends ModalForm {
+@formModal
+class UserDisableModal extends React.Component {
 
     constructor(props) {
         super(props);
@@ -571,34 +550,18 @@ class UserDisableModal extends ModalForm {
     handleSubmit = (data, reset, invalidate) => {
         this.props.onDisable(this.props.user, response => {
             this.props.refreshCurrentPage();
-            this.close();
+            this.props.closeModal();
         }, response => {
             if (response.errors) {
                 invalidate(response.errors);
             } else if (response.status.code === 400) {
-                this.setState({
-                    showAlert: true,
-                    alertTitle: 'REQUEST REJECTED!',
-                    alertDetails: response.entity.errors
-                });
+                this.props.popAlert('REQUEST REJECTED!', response.entity.errors);
             } else if (response.status.code === 403) {
-                this.setState({
-                    showAlert: true,
-                    alertTitle: 'ACCESS DENIED!',
-                    alertDetails: 'You are not authorized to update this user.'
-                });
+                this.props.popAlert('ACCESS DENIED!', 'You are not authorized to update this user.');
             } else if (response.status.code === 404) {
-                this.setState({
-                    showAlert: true,
-                    alertTitle: 'DENIED!',
-                    alertDetails: 'User is not found.'
-                });
+                this.props.popAlert('DENIED!', 'User is not found.');
             } else if (response.status.code === 412) {
-                this.setState({
-                    showAlert: true,
-                    alertTitle: 'DENIED!',
-                    alertDetails: 'Unable to update. Your copy is stale.'
-                });
+               this.props.popAlert('DENIED!', 'Unable to update. Your copy is stale.');
             } else {
                 console.log(response);
             }
@@ -610,44 +573,40 @@ class UserDisableModal extends ModalForm {
     render() {
         var { avatarUrl, firstName, lastName } = this.props.user.entity;
         return (
-            <span>
-                <a className="btn btn-sm btn-default btn-icon btn-hover-warning fa fa-lock add-tooltip" href="#" data-original-title="Ban user" data-container="body" onClick={this.handleClick}></a>
+            <Formsy.Form className="form-horizontal" onValidSubmit={this.handleSubmit} onValid={this.props.enableSubmit} onInvalid={this.props.disableSubmit}>
 
-                <Modal show={this.state.showModal} onHide={this.close}>
-                    <Formsy.Form className="form-horizontal" onValidSubmit={this.handleSubmit} onValid={this.enableSubmit} onInvalid={this.disableSubmit}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Disable User</Modal.Title>
+                </Modal.Header>
 
-                        <Modal.Header closeButton>
-                            <Modal.Title>Disable User</Modal.Title>
-                        </Modal.Header>
+                <Modal.Body>
+                    {this.props.alerts}
 
-                        <Modal.Body>
-                            <PanelAlert bsStyle="danger" show={this.state.showAlert} title={this.state.alertTitle} errors={this.state.alertDetails} />
-                            <div className="media">
-                                <div className="media-left">
-                                    <img src={'img/' + avatarUrl} alt="Profile Picture" className="img-lg img-circle" />
-                                </div>
-                                <div className="media-body">
-                                    <h4 className="text-thin">Are you sure to disable user profile of <strong>{ `${firstName} ${lastName}` }</strong>?</h4>
-                                </div>
-                            </div>
-                        </Modal.Body>
+                    <div className="media">
+                        <div className="media-left">
+                            <img src={'img/' + avatarUrl} alt="Profile Picture" className="img-lg img-circle" />
+                        </div>
+                        <div className="media-body">
+                            <h4 className="text-thin">Are you sure to disable user profile of <strong>{ `${firstName} ${lastName}` }</strong>?</h4>
+                        </div>
+                    </div>
+                </Modal.Body>
 
-                        <Modal.Footer>
-                            <button data-bb-handler="cancel" type="button" className="btn btn-default" onClick={this.close}>Cancel</button>
-                            <button type="submit" className="btn btn-primary">Confirm</button>
-                        </Modal.Footer>
+                <Modal.Footer>
+                    <button data-bb-handler="cancel" type="button" className="btn btn-default" onClick={this.props.closeModal}>Cancel</button>
+                    <button type="submit" className="btn btn-primary">Confirm</button>
+                </Modal.Footer>
 
-                    </Formsy.Form>
-                </Modal>
-
-            </span>
+            </Formsy.Form>
         )
     }
+    
 }
 // end::user-disable-modal[]
 
 // tag::user-enable-modal[]
-class UserEnableModal extends ModalForm {
+@formModal
+class UserEnableModal extends React.Component {
 
     constructor(props) {
         super(props);
@@ -656,34 +615,18 @@ class UserEnableModal extends ModalForm {
     handleSubmit = (data, reset, invalidate) => {
         this.props.onEnable(this.props.user, response => {
             this.props.refreshCurrentPage();
-            this.close();
+            this.props.closeModal();
         }, response => {
             if (response.errors) {
                 invalidate(response.errors);
             } else if (response.status.code === 400) {
-                this.setState({
-                    showAlert: true,
-                    alertTitle: 'REQUEST REJECTED!',
-                    alertDetails: response.entity.errors
-                });
+                this.props.popAlert('REQUEST REJECTED!', response.entity.errors);
             } else if (response.status.code === 403) {
-                this.setState({
-                    showAlert: true,
-                    alertTitle: 'ACCESS DENIED!',
-                    alertDetails: 'You are not authorized to update this user.'
-                });
+                this.props.popAlert('ACCESS DENIED!', 'You are not authorized to update this user.');
             } else if (response.status.code === 404) {
-                this.setState({
-                    showAlert: true,
-                    alertTitle: 'DENIED!',
-                    alertDetails: 'User is not found.'
-                });
+                this.props.popAlert('DENIED!', 'User is not found.');
             } else if (response.status.code === 412) {
-                this.setState({
-                    showAlert: true,
-                    alertTitle: 'DENIED!',
-                    alertDetails: 'Unable to update. Your copy is stale.'
-                });
+                this.props.popAlert('DENIED!', 'Unable to update. Your copy is stale.');
             } else {
                 console.log(response);
             }
@@ -695,37 +638,31 @@ class UserEnableModal extends ModalForm {
     render() {
         var { avatarUrl, firstName, lastName } = this.props.user.entity;
         return (
-            <span>
-                <a className="btn btn-sm btn-default btn-icon btn-hover-success fa fa-unlock add-tooltip" href="#" data-original-title="Enable user" data-container="body" onClick={this.handleClick}></a>
+            <Formsy.Form className="form-horizontal" onValidSubmit={this.handleSubmit} onValid={this.props.enableSubmit} onInvalid={this.props.disableSubmit}>
 
-                <Modal show={this.state.showModal} onHide={this.close}>
-                    <Formsy.Form className="form-horizontal" onValidSubmit={this.handleSubmit} onValid={this.enableSubmit} onInvalid={this.disableSubmit}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Enable User</Modal.Title>
+                </Modal.Header>
 
-                        <Modal.Header closeButton>
-                            <Modal.Title>Enable User</Modal.Title>
-                        </Modal.Header>
+                <Modal.Body>
+                    {this.props.alerts}
 
-                        <Modal.Body>
-                            <PanelAlert bsStyle="danger" show={this.state.showAlert} title={this.state.alertTitle} errors={this.state.alertDetails} />
-                            <div className="media">
-                                <div className="media-left">
-                                    <img src={'img/' + avatarUrl} alt="Profile Picture" className="img-lg img-circle" />
-                                </div>
-                                <div className="media-body">
-                                    <h4 className="text-thin">Are you sure to enable user profile of <strong>{ `${firstName} ${lastName}` }</strong>?</h4>
-                                </div>
-                            </div>
-                        </Modal.Body>
+                    <div className="media">
+                        <div className="media-left">
+                            <img src={'img/' + avatarUrl} alt="Profile Picture" className="img-lg img-circle" />
+                        </div>
+                        <div className="media-body">
+                            <h4 className="text-thin">Are you sure to enable user profile of <strong>{ `${firstName} ${lastName}` }</strong>?</h4>
+                        </div>
+                    </div>
+                </Modal.Body>
 
-                        <Modal.Footer>
-                            <button data-bb-handler="cancel" type="button" className="btn btn-default" onClick={this.close}>Cancel</button>
-                            <button type="submit" className="btn btn-primary">Confirm</button>
-                        </Modal.Footer>
+                <Modal.Footer>
+                    <button data-bb-handler="cancel" type="button" className="btn btn-default" onClick={this.props.closeModal}>Cancel</button>
+                    <button type="submit" className="btn btn-primary">Confirm</button>
+                </Modal.Footer>
 
-                    </Formsy.Form>
-                </Modal>
-
-            </span>
+            </Formsy.Form>
         )
     }
 }
@@ -786,7 +723,7 @@ class UserTableHeader extends React.Component {
 class UserTableRow extends React.Component {
 
     render() {
-        var { avatarUrl, firstName, lastName, email, joinDate, active, roles } = this.props.user.entity;
+        var { avatarUrl, firstName, lastName, email, joinDate, active, roles, _links } = this.props.user.entity;
         var fullName = `${firstName}  ${lastName}`;
 
         var options = {styleName: 'label-table'};
@@ -799,24 +736,34 @@ class UserTableRow extends React.Component {
 
         var actions = [];
         if (active) {
-            actions.push(<UserEditModal user={this.props.user}
+            actions.push(<UserEditModal key="action-edit"
+                                        user={this.props.user}
+                                        toggle={{href: '#', className: 'btn btn-sm btn-default btn-icon btn-hover-success fa fa-pencil add-tooltip'}}
                                         onUpdate={this.props.onUpdate}
                                         refreshCurrentPage={this.props.refreshCurrentPage} />
             );
-            actions.push(<UserDeleteModal user={this.props.user}
+            actions.push(<UserDeleteModal key="action-delete"
+                                          user={this.props.user}
+                                          toggle={{href: '#', className: 'btn btn-sm btn-default btn-icon btn-hover-danger fa fa-times add-tooltip'}}
                                           onDelete={this.props.onDelete}
                                           refreshCurrentPage={this.props.refreshCurrentPage} />
             );
-            actions.push(<UserDisableModal user={this.props.user}
+            actions.push(<UserDisableModal key="action-disable"
+                                           user={this.props.user}
+                                           toggle={{href: '#', className: 'btn btn-sm btn-default btn-icon btn-hover-warning fa fa-lock add-tooltip'}}
                                            onDisable={this.props.onDisable}
                                            refreshCurrentPage={this.props.refreshCurrentPage} />
             );
         } else {
-            actions.push(<UserEnableModal user={this.props.user}
+            actions.push(<UserEnableModal key="action-enable"
+                                          user={this.props.user}
+                                          toggle={{href: '#', className: 'btn btn-sm btn-default btn-icon btn-hover-success fa fa-unlock add-tooltip'}}
                                           onEnable={this.props.onEnable}
                                           refreshCurrentPage={this.props.refreshCurrentPage} />
             );
-            actions.push(<UserDeleteModal user={this.props.user}
+            actions.push(<UserDeleteModal key="action-delete"
+                                          user={this.props.user}
+                                          toggle={{href: '#', className: 'btn btn-sm btn-default btn-icon btn-hover-danger fa fa-times add-tooltip'}}
                                           onDelete={this.props.onDelete}
                                           refreshCurrentPage={this.props.refreshCurrentPage} />
             );
@@ -843,5 +790,3 @@ class UserTableRow extends React.Component {
     }
 }
 // end::user-table-row[]
-
-module.exports = Users;

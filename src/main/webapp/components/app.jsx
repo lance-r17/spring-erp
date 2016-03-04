@@ -1,7 +1,8 @@
 import React from 'react';
 import cx from 'classnames';
 import { ScrollTopButton } from '../controls';
-import client from '../lib/client';
+// import client from '../lib/client';
+import api from '../lib/apiHelper';
 
 import NavBar from './header.jsx';
 import MainNav from './navigation.jsx';
@@ -11,32 +12,37 @@ import { FullMenu, SimpleMenu } from '../stubs/menus';
 
 import { Dashboard } from '../routes/dashboard/components';
 
-var	root = '/api';
-
 // tag::app[]
-var App = React.createClass({
-	loadFromServer: function() {
-		client({
-			method: 'GET',
-			path: '/user'
-		}).then(user => {
-			this.setState({user: user.entity});
-		})
-	},
-	getInitialState: function() {
-		return ({
+export default class App extends React.Component {
+
+	constructor(props) {
+		super(props);
+
+		this.state = {
 			headerFixed: true,
 			navigationFixed: true,
 			user: {}
-		});
-	},
-	componentDidMount: function() {
-		this.loadFromServer();
-	},
-	render: function () {
-		var containerClass = cx(
-			'effect',
-			'mainnav-lg',
+		}
+	}
+
+	getLoginUser = () => {
+		api.get({
+			path: '/user',
+			onSuccess: (user) => {
+				this.setState({
+					user: user.entity
+				});
+			}
+		})
+	}
+
+	componentDidMount() {
+		this.getLoginUser();
+	}
+
+	render() {
+		const containerClass = cx(
+			['effect', 'mainnav-lg'],
 			this.state.headerFixed ? 'navbar-fixed' : '',
 			this.state.navigationFixed ? 'mainnav-fixed' : ''
 		);
@@ -62,7 +68,5 @@ var App = React.createClass({
 			</div>
 		)
 	}
-});
+}
 // end::app[]
-
-module.exports = App;

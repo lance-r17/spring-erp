@@ -1,5 +1,5 @@
 import React from 'react';
-import classNames from 'classnames';
+import cx from 'classnames';
 import _ from 'lodash';
 import { WrapIcons, Badge, Label, RoleLabels, RoleShortNameLabels } from '../controls';
 
@@ -299,8 +299,8 @@ const languages = [
 ];
 
 // tag::nav-bar[]
-var NavBar = React.createClass({
-	render: function () {
+export default class NavBar extends React.Component {
+	render() {
 		return (
 			<header id="navbar">
 				<div id="navbar-container" className="boxed">
@@ -313,12 +313,12 @@ var NavBar = React.createClass({
 			</header>
 		)
 	}
-});
+}
 // end::nav-bar[]
 
 // tag::nav-bar-brand[]
-var NavBarBrand = React.createClass({
-	render: function() {
+class NavBarBrand  extends React.Component {
+	render() {
 		return (
 			<div className="navbar-header">
 				<a href="/" className="navbar-brand">
@@ -330,12 +330,12 @@ var NavBarBrand = React.createClass({
 			</div>
 		)
 	}
-});
+}
 // end::nav-bar-brand[]
 
 // tag::nav-bar-content[]
-var NavBarContent = React.createClass({
-	render: function() {
+class NavBarContent extends React.Component {
+	render() {
 		return (
 			<div className="navbar-content clearfix">
 				<NavBarDropdownMain notifications={this.props.notifications} mega={this.props.mega} />
@@ -344,12 +344,12 @@ var NavBarContent = React.createClass({
 			</div>
 		)
 	}
-});
+}
 // end::nav-bar-content[]
 
 // tag::nav-bar-dropdown-main[]
-var NavBarDropdownMain = React.createClass({
-	render: function() {
+class NavBarDropdownMain extends React.Component {
+	render() {
 		return (
 			<ul className="nav navbar-top-links pull-left">
 				{/* Navigation toogle button */}
@@ -368,12 +368,12 @@ var NavBarDropdownMain = React.createClass({
 			</ul>
 		)
 	}
-});
+}
 // end::nav-bar-dropdown-main[]
 
 // tag::nav-bar-dropdown-slave[]
-var NavBarDropdownSlave = React.createClass({
-	render: function() {
+class NavBarDropdownSlave  extends React.Component {
+	render() {
 		return (
 			<ul className="nav navbar-top-links pull-right">
 
@@ -387,17 +387,16 @@ var NavBarDropdownSlave = React.createClass({
 			</ul>
 		)
 	}
-});
+}
 // end::nav-bar-dropdown-slave[]
 
 
 // tag::notification-dropdown[]
-var NotificationDropdown = React.createClass({
-	render: function() {
+class NotificationDropdown  extends React.Component {
+	render() {
 		var length = this.props.notifications.length;
 		var options = { color: 'danger', content: length, header: true };
 		var badgeEl = length > 0 ? <Badge options={options} /> : null;
-
 
 		return (
 			<li className="dropdown">
@@ -411,13 +410,13 @@ var NotificationDropdown = React.createClass({
 			</li>
 		)
 	}
-});
+}
 // end::notification-dropdown[]
 
 
 // tag::notification-dropdown-menu[]
-var NotificationDropdownMenu = React.createClass({
-	render: function() {
+class NotificationDropdownMenu extends React.Component {
+	render() {
 
 		return (
 			<div className="dropdown-menu dropdown-menu-md">
@@ -439,139 +438,137 @@ var NotificationDropdownMenu = React.createClass({
 			</div>
 		)
 	}
-});
+}
 // end::notification-dropdown-menu[]
 
 
 // tag::notification-dropdown-list[]
-var NotificationDropdownList = React.createClass({
-	render: function () {
-		var notificationListEl = [];
-		this.props.notifications.forEach(notification => {
-			notificationListEl.push(<NotificationDropdownItem key={"notification-" + notification.id} notification={notification} />)
-		});
+class NotificationDropdownList extends React.Component {
+	render() {
+		var notifications = this.props.notifications.map(notification => 
+			<NotificationDropdownItem key={"notification-" + notification.id} notification={notification} />
+		);
 		return (
 			<ul className="head-list">
 				{/*  notification list */}
-				{notificationListEl}
+				{notifications}
 			</ul>
 		)
 	}
-});
+}
 // end::notification-dropdown-list[]
 
 // tag::notification-dropdown-item[]
-var NotificationDropdownItem = React.createClass({
-	render: function () {
-		var type = this.props.notification.type;
-		var notificatonEL = "";
-		if (this.props.notification.progress) {
-			notificatonEL = <ProgressNotification progress={this.props.notification.progress} />
-		} else if (this.props.notification.message) {
-			notificatonEL = <MessageNotification message={this.props.notification.message} />
+class NotificationDropdownItem extends React.Component {
+	render() {
+		const { type, progress, message } = this.props.notification;
+		var notificaton = null;
+		if (progress) {
+			notificaton = <ProgressNotification progress={progress} />
+		} else if (message) {
+			notificaton = <MessageNotification message={message} />
 		}
 		return (
 			<li>
-				{notificatonEL}
+				{notificaton}
 			</li>
 		)
 	}
-});
+}
 // end::notification-dropdown-item[]
 
 // tag::progress-notification[]
-var ProgressNotification = React.createClass({
-	render: function () {
-		var progress = this.props.progress;
-		var progressClassName = classNames('progress-bar', progress.status ? 'progress-bar-' + progress.status : '');
+class ProgressNotification extends React.Component {
+	render() {
+		var { status, subject, percentage } = this.props.progress;
 		return (
 			<a href="#">
 				<div className="clearfix">
-					<p className="pull-left">{progress.subject}</p>
-					<p className="pull-right">{progress.percentage}</p>
+					<p className="pull-left">{subject}</p>
+					<p className="pull-right">{percentage}</p>
 				</div>
 				<div className="progress progress-sm">
-					<div style={{width: progress.percentage}} className={progressClassName}>
-						<span className="sr-only">{progress.percentage} Complete</span>
+					<div style={{width: percentage}} className={cx('progress-bar', status ? 'progress-bar-' + status : '')}>
+						<span className="sr-only">{percentage} Complete</span>
 					</div>
 				</div>
 			</a>
 		)
 	}
-});
+}
 // end::progress-notification[]
 
 // tag::message-notification[]
-var MessageNotification = React.createClass({
-	render: function () {
-		var message = this.props.message;
+class MessageNotification extends React.Component {
+	render() {
+		var { badge, label, icon, from, subject, since} = this.props.message;
 
-		var highlightEl = null;
+		var highlight = null;
 		var options = {};
-		if (message.badge) {
-			_.extend(options, message.badge, {right: true});
-			highlightEl = <Badge options={options} />
-		} else if (message.label) {
-			_.extend(options, message.label, {right: true});
-			highlightEl = <Label options={options} />
+		if (badge) {
+			_.extend(options, badge, {right: true});
+			highlight = <Badge options={options} />
+		} else if (label) {
+			_.extend(options, label, {right: true});
+			highlight = <Label options={options} />
 		}
 
-		var imgEl = null;
-		if (message.icon) {
-			imgEl = WrapIcons[message.icon];
-		} else if (message.from) {
-			imgEl = <img src={message.from.avatarUrl} alt="Profile Picture" className="img-circle img-sm" />
+		var image = null;
+		if (icon) {
+			image = WrapIcons[icon];
+		} else if (from) {
+			image = <img src={from.avatarUrl} alt="Profile Picture" className="img-circle img-sm" />
 		}
 
 		return (
 			<a href="#" className="media">
-				{highlightEl}
+				{highlight}
 				<div className="media-left">
-					{imgEl}
+					{image}
 				</div>
 				<div className="media-body">
-					<div className="text-nowrap">{message.subject}</div>
-					<small className="text-muted">{message.since}</small>
+					<div className="text-nowrap">{subject}</div>
+					<small className="text-muted">{since}</small>
 				</div>
 			</a>
 		)
 	}
-});
+}
 // end::message-notification[]
 
 // tag::mega-menu-dropdown[]
-var MegaMenuDropdown = React.createClass({
-	getInitialState: function() {
-		return (
-			{
-				maxCols: 3
-			}
-		);
-	},
-	render: function() {
-		var colEls = [];
-		var i = 0;
-		if (this.props.mega.news) {
-			var colEl = (
-				<div className="col-sm-12 col-md-3" key={'mega-col-' + i}>
-					<MegaMenuNewsWidget news={this.props.mega.news} />
-				</div>
-			)
-			colEls.push(colEl);
-		}
-		if (this.props.mega.cols) {
+class MegaMenuDropdown extends React.Component {
+	constructor(props) {
+		super(props);
 
-			this.props.mega.cols.forEach(col => {
-				if (++i > this.state.maxCols) {
-					return;
+		this.state = {
+			maxCols: 3
+		};
+	}
+
+	render() {
+		const { news, cols } = this.props.mega;
+		var columns = [];
+		var i = 0;
+		if (news) {
+			columns.push(
+				<div className="col-sm-12 col-md-3" key={'mega-col-' + i++}>
+					<MegaMenuNewsWidget news={news} />
+				</div>
+			);
+		}
+		if (cols) {
+
+			this.props.mega.cols.forEach((col) => {
+				if (i <= this.state.maxCols) {
+					columns.push(
+						<div className='col-sm-4 col-md-3' key={'mega-col-' + i}>
+							<MegaMenuColList rows={col.rows} />
+						</div>
+					);
+					i++;
 				}
-				var colEl = (
-					<div className='col-sm-4 col-md-3' key={'mega-col-' + i}>
-						<MegaMenuColList rows={col.rows} />
-					</div>
-				)
-				colEls.push(colEl);
-			})
+			});
 		}
 		return (
 			<li className="mega-dropdown">
@@ -580,44 +577,47 @@ var MegaMenuDropdown = React.createClass({
 				</a>
 				<div className="dropdown-menu mega-dropdown-menu">
 					<div className="clearfix">
-						{colEls}
+						{columns}
 					</div>
 				</div>
 			</li>
 		)
 	}
-});
+}
 // end::mega-menu-dropdown[]
 
 // tag::mega-menu-news-widget[]
-var MegaMenuNewsWidget = React.createClass({
-	render: function() {
+class MegaMenuNewsWidget extends React.Component {
+	render() {
+		const { subject, content} = this.props.news;
+
 		return (
 			<div className="text-center bg-purple pad-all">
-				<h3 className="text-thin mar-no">{this.props.news.subject}</h3>
+				<h3 className="text-thin mar-no">{subject}</h3>
 				<div className="pad-ver box-inline">
 					<span className="icon-wrap icon-wrap-lg icon-circle bg-trans-light">
 						<i className="fa fa-shopping-cart fa-4x"></i>
 					</span>
 				</div>
 				<p className="pad-btm">
-					{this.props.news.content}
+					{content}
 				</p>
 				<a href="#" className="btn btn-purple">Learn More...</a>
 			</div>
 		)
 	}
-});
+}
 // end::mega-menu-news-widget[]
 
 // tag::mega-menu-col-list[]
-var MegaMenuColList = React.createClass({
-	createHeader: function(name, key) {
+class MegaMenuColList extends React.Component {
+	createHeader = (name, key) => {
 		return (
 			<li key={key} className="dropdown-header">{name}</li>
 		)
-	},
-	createLink: function(link, key) {
+	}
+
+	createLink = (link, key) => {
 		var className = link.disabled ? 'disabled' : '';
 		var highlightEl = null;
 		var options = {}
@@ -637,11 +637,13 @@ var MegaMenuColList = React.createClass({
 				</a>
 			</li>
 		)
-	},
-	createDivider: function(key) {
+	}
+
+	createDivider = (key) => {
 		return <li key={key} className="divider"></li>;
-	},
-	render: function() {
+	}
+
+	render() {
 		var rowEls = [];
 		var i = 0;
 		if (this.props.rows) {
@@ -668,14 +670,14 @@ var MegaMenuColList = React.createClass({
 			</ul>
 		)
 	}
-});
+}
 // end::mega-menu-col-list[]
 
 // tag::language[]
 
 // tag::language-dropdown[]
-var LanguageDropdown = React.createClass({
-	render: function() {
+class LanguageDropdown extends React.Component {
+	render() {
 		var langSelected = _.find(this.props.languages, {active: true});
 		return (
 			<li className="dropdown">
@@ -692,44 +694,40 @@ var LanguageDropdown = React.createClass({
 			</li>
 		)
 	}
-});
+}
 // end::language-dropdown[]
 
 // tag::language-option-list[]
-var LanguageOptionList = React.createClass({
-	render: function() {
-		var langEls = [];
-		this.props.languages.forEach(language => {
-			var langEl = (
-				<li key={'lan-' + language.id}>
-					<LanguageOptionItem language={language} />
-				</li>
-			)
-			langEls.push(langEl);
-		});
+class LanguageOptionList extends React.Component {
+	render() {
+		const languages = this.props.languages.map(language => 
+			<li key={'lan-' + language.id}>
+				<LanguageOptionItem language={language} />
+			</li>
+		)
 		return (
 			<ul className="head-list dropdown-menu">
-				{langEls}
+				{languages}
 			</ul>
 		)
 	}
-});
+}
 // end::language-option-list[]
 
 // tag::language-option-item[]
-var LanguageOptionItem = React.createClass({
-	render: function() {
-		var language = this.props.language;
-		var className = language.active ? 'active' : '';
+class LanguageOptionItem extends React.Component {
+	render() {
+		const { id, name, active, flagUrl} = this.props.language;
+
 		return (
-			<a href="#" className={className}>
-				<img className="lang-flag" src={language.flagUrl} alt={language.name} />
-				<span className="lang-id">{language.id}</span>
-				<span className="lang-name">{language.name}</span>
+			<a href="#" className={active ? 'active' : ''}>
+				<img className="lang-flag" src={flagUrl} alt={name} />
+				<span className="lang-id">{id}</span>
+				<span className="lang-name">{name}</span>
 			</a>
 		)
 	}
-});
+}
 // end::language-option-item[]
 
 // end::language[]
@@ -737,8 +735,8 @@ var LanguageOptionItem = React.createClass({
 // tag::user[]
 
 // tag::user-dropdown[]
-var UserDropdown = React.createClass({
-	render: function () {
+class UserDropdown extends React.Component {
+	render() {
 		var user = this.props.user;
 		return (
 			<li id="dropdown-user" className="dropdown">
@@ -754,13 +752,13 @@ var UserDropdown = React.createClass({
 			</li>
 		)
 	}
-});
+}
 // end::user-dropdown[]
 
 
 // tag::user-menu[]
-var UserMenu = React.createClass({
-	render: function () {
+class UserMenu extends React.Component {
+	render() {
 		var user = this.props.user;
         var roles = [];
         _.each(user.roles, role => {
@@ -804,12 +802,12 @@ var UserMenu = React.createClass({
 			</div>
 		)
 	}
-});
+}
 // end::user-menu[]
 
 // tag::user-profile[]
-var UserProfile = React.createClass({
-	render: function () {
+class UserProfile extends React.Component {
+	render() {
 		var profile = this.props.profile;
 		var highlightEl = null;
 		if (profile) {
@@ -829,12 +827,12 @@ var UserProfile = React.createClass({
 			</a>
 		)
 	}
-});
+}
 // end::user-profile[]
 
 // tag::user-setting[]
-var UserSetting = React.createClass({
-	render: function () {
+class UserSetting extends React.Component {
+	render() {
 		var setting = this.props.setting;
 		var highlightEl = null;
 		if (setting) {
@@ -854,12 +852,12 @@ var UserSetting = React.createClass({
 			</a>
 		)
 	}
-});
+}
 // end::user-setting[]
 
 // tag::user-help[]
-var UserHelp = React.createClass({
-	render: function () {
+class UserHelp extends React.Component {
+	render() {
 		var help = this.props.help;
 		var highlightEl = null;
 		if (help) {
@@ -879,21 +877,19 @@ var UserHelp = React.createClass({
 			</a>
 		)
 	}
-});
+}
 // end::user-help[]
 
 // tag::user-lock[]
-var UserLock = React.createClass({
-	render: function () {
+class UserLock extends React.Component {
+	render() {
 		return (
 			<a href="#">
 				<i className="fa fa-lock fa-fw fa-lg"></i> Lock screen
 			</a>
 		)
 	}
-});
+}
 // end::user-lock[]
 
 // end::user[]
-
-module.exports = NavBar;
