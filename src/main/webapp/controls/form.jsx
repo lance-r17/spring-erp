@@ -263,10 +263,16 @@ class ImageSelect extends React.Component {
     }
 }
 
-export {
-	Formsy,
-	FormStatic,
-	FormInput,
-	FormCheckboxGroup,
-    ImageSelect
-}
+var controls = {};
+_.extend(
+    controls, 
+    {
+        Formsy,
+        FormStatic,
+        FormInput,
+        FormCheckboxGroup,
+        ImageSelect
+    }
+);
+
+export default controls;

@@ -1,5 +1,10 @@
 @import "../nifty/_variables.less";
 
+/* Variables */
+
+@caret-color                 : lighten(@link-color, 40%);
+@caret-hover-color           : darken(@link-color, 15%);
+
 
 /* BOOTSTRAP'S COMPONENTS */
 
@@ -42,11 +47,11 @@
                 height: 0;
                 border-style: solid;
                 border-width: 0 0 10px 10px;
-                border-color: transparent transparent #ccc transparent;
+                border-color: transparent transparent @caret-color transparent;
             }
             &:hover {
                 &:after {
-                    border-color: transparent transparent #000 transparent;
+                    border-color: transparent transparent @caret-hover-color transparent;
                 }
             }
         }

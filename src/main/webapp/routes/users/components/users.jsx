@@ -1,7 +1,7 @@
 import React from 'react';
 import api from '../../../lib/apiHelper';
 
-import { Label, RoleLabel, RoleLabels, Formsy, FormStatic, FormInput, FormCheckboxGroup, ImageSelect, Button, Modal, PanelAlert, Paging, NanoScroller } from '../../../controls';
+import { RoleLabel, RoleLabels, Formsy, FormStatic, FormInput, FormCheckboxGroup, ImageSelect, Button, Label, Modal, PanelAlert, Paging, NanoScroller } from '../../../controls';
 
 
 // tag::vars[]
@@ -730,9 +730,7 @@ class UserTableRow extends React.Component {
         var roles = roles.map(role => 
             <RoleLabel key={role} role={role} options={options} />
         );
-
-        _.extend(options, (active ? {content: 'active', color: 'success'} : {content: 'disabled', color: 'default'}));
-        var status = <Label options={options} />
+        var status = <Label bsStyle={active ? 'success' : 'default'} className="label-table">{active ? 'active' : 'disabled'}</Label>
 
         var actions = [];
         if (active) {

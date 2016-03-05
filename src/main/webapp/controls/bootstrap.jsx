@@ -1,12 +1,12 @@
 import React from 'react';
-import { Button, Modal, Alert } from 'react-bootstrap';
+import { Accordion, Alert, Badge, Breadcrumb, BreadcrumbItem, Button, ButtonGroup, ButtonInput, ButtonToolbar, Carousel, CarouselItem, Col, CollapsibleNav, Dropdown, DropdownButton, Glyphicon, Grid, Image, Input, Interpolate, Jumbotron, Label, ListGroup, ListGroupItem, MenuItem, Modal, ModalBody, ModalFooter, ModalHeader, ModalTitle, Nav, Navbar, NavBrand, NavbarBrand, NavDropdown, NavItem, Overlay, OverlayTrigger, PageHeader, PageItem, Pager, Pagination, Panel, PanelGroup, Popover, ProgressBar, ResponsiveEmbed, Row, SafeAnchor, SplitButton, Tab, Table, Tabs, Thumbnail, Tooltip, Well, Collapse, Fade, FormControls, utils } from 'react-bootstrap';
 import cx from 'classnames';
 
 
 // tag::panel-alert[]
-var PanelAlert = React.createClass({
-   render: function() {
-        var className = cx('alert-wrap', this.props.show ? 'in' : '');
+class PanelAlert extends React.Component {
+   render() {
+        const className = cx('alert-wrap', this.props.show ? 'in' : '');
         var messages = null;
         if (this.props.errors) {
             if ( Object.prototype.toString.call( this.props.errors ) === '[object Array]') {
@@ -30,16 +30,36 @@ var PanelAlert = React.createClass({
             </div>
         )
    }
-});
-// end::panel-alert[]
-
-var BootStrapControls = {
-    Button,
-	Modal, 
-	Alert,
-	// tag::custom-controls[]
-	PanelAlert
-	// end::custom-controls[]
 }
 
-module.exports = BootStrapControls;
+class FaIcon extends React.Component {
+    static propTypes = {
+        bsClass: React.PropTypes.string,
+        large: React.PropTypes.bool,
+        wide: React.PropTypes.bool,
+        fa: React.PropTypes.string.isRequired
+    };
+
+    static defaultProps = {
+        bsClass: 'fa',
+        large: false,
+        wide: false
+    };
+
+    render() {
+        return (
+            <i className={cx(this.props.className, this.props.bsClass, `fa-${this.props.fa}`, {'fa-lg': this.props.large}, {'fa-fw': this.props.wide})}></i>
+        )
+    }
+}
+// end::panel-alert[]
+
+var controls = {};
+_.extend(
+    controls, 
+    { Accordion, Alert, Badge, Breadcrumb, BreadcrumbItem, Button, ButtonGroup, ButtonInput, ButtonToolbar, Carousel, CarouselItem, Col, CollapsibleNav, Dropdown, DropdownButton, Glyphicon, Grid, Image, Input, Interpolate, Jumbotron, Label, ListGroup, ListGroupItem, MenuItem, Modal, ModalBody, ModalFooter, ModalHeader, ModalTitle, Nav, Navbar, NavBrand, NavbarBrand, NavDropdown, NavItem, Overlay, OverlayTrigger, PageHeader, PageItem, Pager, Pagination, Panel, PanelGroup, Popover, ProgressBar, ResponsiveEmbed, Row, SafeAnchor, SplitButton, Tab, Table, Tabs, Thumbnail, Tooltip, Well, Collapse, Fade, FormControls, utils }, 
+    // custom controls
+    { PanelAlert, FaIcon }
+);
+
+export default controls;

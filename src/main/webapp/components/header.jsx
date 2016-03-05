@@ -1,7 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { WrapIcons, Badge, Label, RoleLabels, RoleShortNameLabels } from '../controls';
+import { WrapIcons, RoleLabels, RoleShortNameLabels, Badge, Button, Dropdown, DropdownMenu, Label, MenuItem, NavDropdown, FaIcon } from '../controls';
 
 const notifications = [
 	{
@@ -395,14 +395,13 @@ class NavBarDropdownSlave  extends React.Component {
 class NotificationDropdown  extends React.Component {
 	render() {
 		var length = this.props.notifications.length;
-		var options = { color: 'danger', content: length, header: true };
-		var badgeEl = length > 0 ? <Badge options={options} /> : null;
+		var badge = length > 0 ? <Badge className={cx(['badge-header', 'badge-danger'])}>{length}</Badge> : null;
 
 		return (
 			<li className="dropdown">
 				<a href="#" data-toggle="dropdown" className="dropdown-toggle">
-					<i className="fa fa-bell fa-lg"></i>
-					{badgeEl}
+					<FaIcon fa="bell" large={true} />
+					{badge}
 				</a>
 
 				{/* Notification dropdown menu */}
@@ -504,13 +503,10 @@ class MessageNotification extends React.Component {
 		var { badge, label, icon, from, subject, since} = this.props.message;
 
 		var highlight = null;
-		var options = {};
 		if (badge) {
-			_.extend(options, badge, {right: true});
-			highlight = <Badge options={options} />
+			highlight = <Badge pullRight={true} className={cx(`badge-${badge.color}`)}>{badge.content}</Badge>
 		} else if (label) {
-			_.extend(options, label, {right: true});
-			highlight = <Label options={options} />
+			highlight = <Label bsStyle={label.color} className="pull-right">{label.content}</Label>
 		}
 
 		var image = null;
@@ -618,22 +614,20 @@ class MegaMenuColList extends React.Component {
 	}
 
 	createLink = (link, key) => {
-		var className = link.disabled ? 'disabled' : '';
-		var highlightEl = null;
-		var options = {}
-		if (link.badge) {
-			_.extend(options, link.badge, {right: true});
-			highlightEl = <Badge options={options} />
-		} else if (link.label) {
-			_.extend(options, link.label, {right: true});
-			highlightEl = <Label options={options} />
+		const { disabled, badge, label, href, name } = link;
+		var className = disabled ? 'disabled' : '';
+		var highlight = null;
+		if (badge) {
+			highlight = <Badge pullRight={true} className={cx(`badge-${badge.color}`)}>{badge.content}</Badge>
+		} else if (label) {
+			highlight = <Label bsStyle={label.color} className="pull-right">{label.content}</Label>
 		}
 
 		return (
 			<li key={key}>
-				<a href={link.href} className={className}>
-					{highlightEl}
-					{link.name}
+				<a href={href} className={className}>
+					{highlight}
+					{name}
 				</a>
 			</li>
 		)
@@ -679,56 +673,32 @@ class MegaMenuColList extends React.Component {
 class LanguageDropdown extends React.Component {
 	render() {
 		var langSelected = _.find(this.props.languages, {active: true});
+		const languages = this.props.languages.map(language => 
+			<MenuItem key={'lan-' + language.id} className={cx({'active': language.active})}>
+				<img className="lang-flag" src={language.flagUrl} alt={language.name} />
+				<span className="lang-id">{language.id}</span>
+				<span className="lang-name">{language.name}</span>
+			</MenuItem>
+		)
 		return (
-			<li className="dropdown">
-				<a id="demo-lang-switch" className="lang-selector dropdown-toggle" href="#" data-toggle="dropdown">
+			<Dropdown id="dropdown-language" eventKey={4} componentClass="li">
+				<Dropdown.Toggle className="lang-selector" useAnchor noCaret>
 					<span className="lang-selected">
 						<img className="lang-flag" src={langSelected.flagUrl} alt={langSelected.name} />
 						<span className="lang-id">{langSelected.id}</span>
 						<span className="lang-name">{langSelected.name}</span>
 					</span>
-				</a>
+				</Dropdown.Toggle>
 
 				{/* Language selector menu */}
-				<LanguageOptionList languages={this.props.languages} />
-			</li>
+				<Dropdown.Menu className="head-list" >
+					{languages}
+				</Dropdown.Menu>
+			</Dropdown>
 		)
 	}
 }
 // end::language-dropdown[]
-
-// tag::language-option-list[]
-class LanguageOptionList extends React.Component {
-	render() {
-		const languages = this.props.languages.map(language => 
-			<li key={'lan-' + language.id}>
-				<LanguageOptionItem language={language} />
-			</li>
-		)
-		return (
-			<ul className="head-list dropdown-menu">
-				{languages}
-			</ul>
-		)
-	}
-}
-// end::language-option-list[]
-
-// tag::language-option-item[]
-class LanguageOptionItem extends React.Component {
-	render() {
-		const { id, name, active, flagUrl} = this.props.language;
-
-		return (
-			<a href="#" className={active ? 'active' : ''}>
-				<img className="lang-flag" src={flagUrl} alt={name} />
-				<span className="lang-id">{id}</span>
-				<span className="lang-name">{name}</span>
-			</a>
-		)
-	}
-}
-// end::language-option-item[]
 
 // end::language[]
 
@@ -738,158 +708,47 @@ class LanguageOptionItem extends React.Component {
 class UserDropdown extends React.Component {
 	render() {
 		var user = this.props.user;
-		return (
-			<li id="dropdown-user" className="dropdown">
-				<a href="#" data-toggle="dropdown" className="dropdown-toggle text-right">
-					<span className="pull-right">
-						<img className="img-circle img-user media-object" src={"img/" + user.avatarUrl} alt="Profile Picture" />
-					</span>
-					<div className="username hidden-xs">{user.firstName + " " + user.lastName}</div>
-				</a>
-
-				<UserMenu user={user} />
-
-			</li>
-		)
-	}
-}
-// end::user-dropdown[]
-
-
-// tag::user-menu[]
-class UserMenu extends React.Component {
-	render() {
-		var user = this.props.user;
         var roles = [];
         _.each(user.roles, role => {
             roles.push(RoleLabels[role]);
 		});
 		return (
-			<div className="dropdown-menu dropdown-menu-md dropdown-menu-right panel-default">
+			<Dropdown id="dropdown-user" eventKey={5} componentClass="li" pullRight={true}>
+				<Dropdown.Toggle useAnchor noCaret href="#">
+					<span className="pull-right">
+						<img className="img-circle img-user media-object" src={"img/" + user.avatarUrl} alt="Profile Picture" />
+					</span>
+					<div className="username hidden-xs">{`${user.firstName} ${user.lastName}`}</div>
+				</Dropdown.Toggle>
+				<Dropdown.Menu className="dropdown-menu-md panel-default head-list" >
+					<div className="pad-all bord-btm">
+						<p className="text-lg text-muted text-semibold mar-no">
+							{roles}
+						</p>
+					</div>
 
-				{/* Dropdown heading */}
-				<div className="pad-all bord-btm">
-					<p className="text-lg text-muted text-semibold mar-no">
-						{roles}
-					</p>
-				</div>
-
-				{/*  User dropdown menu  */}
-				<ul className="head-list">
-					<li>
-						<UserProfile profile={user.profile} />
-					</li>
-
-					<li>
-						<UserSetting setting={user.setting} />
-					</li>
-
-					<li>
-						<UserHelp help={user.help} />
-					</li>
-
-					<li>
-						<UserLock />
-					</li>
-				</ul>
-
-				{/*  Dropdown footer  */}
-				<div className="pad-all text-right">
-					<a href="/logout" className="btn btn-primary">
-						<i className="fa fa-sign-out fa-fw"></i> Logout
-					</a>
-				</div>
-			</div>
+					<MenuItem>
+						<FaIcon fa="user" large={true} wide={true} /> Profile
+					</MenuItem>
+					<MenuItem>
+						<FaIcon fa="gear" large={true} wide={true} /> Setting
+					</MenuItem>
+					<MenuItem>
+						<FaIcon fa="question-circle" large={true} wide={true} /> Help
+					</MenuItem>
+					<MenuItem>
+						<FaIcon fa="lock" large={true} wide={true} /> Lock Screen
+					</MenuItem>
+					<div className="pad-all text-right">
+						<Button href="/logout" className="btn btn-primary">
+							<FaIcon fa="sign-out" large={true} wide={true} /> Logout
+						</Button>
+					</div>
+				</Dropdown.Menu>
+			</Dropdown>
 		)
 	}
 }
-// end::user-menu[]
-
-// tag::user-profile[]
-class UserProfile extends React.Component {
-	render() {
-		var profile = this.props.profile;
-		var highlightEl = null;
-		if (profile) {
-			var options = {}
-			 if (profile.badge) {
-				_.extend(options, profile.badge, {right: true});
-				highlightEl = <Badge options={options} />
-			} else if (profile.label) {
-				 _.extend(options, profile.label, {right: true});
-				 highlightEl = <Label options={options} />
-			 }
-		}
-		return (
-			<a href="#">
-				{highlightEl}
-				<i className="fa fa-user fa-fw fa-lg"></i> Profile
-			</a>
-		)
-	}
-}
-// end::user-profile[]
-
-// tag::user-setting[]
-class UserSetting extends React.Component {
-	render() {
-		var setting = this.props.setting;
-		var highlightEl = null;
-		if (setting) {
-			var options = {}
-			if (setting.badge) {
-				_.extend(options, setting.badge, {right: true});
-				highlightEl = <Badge options={options} />
-			} else if (setting.label) {
-				_.extend(options, setting.label, {right: true});
-				highlightEl = <Label options={options} />
-			}
-		}
-		return (
-			<a href="#">
-				{highlightEl}
-				<i className="fa fa-gear fa-fw fa-lg"></i> Settings
-			</a>
-		)
-	}
-}
-// end::user-setting[]
-
-// tag::user-help[]
-class UserHelp extends React.Component {
-	render() {
-		var help = this.props.help;
-		var highlightEl = null;
-		if (help) {
-			var options = {}
-			if (help.badge) {
-				_.extend(options, help.badge, {right: true});
-				highlightEl = <Badge options={options} />
-			} else if (help.label) {
-				_.extend(options, help.label, {right: true});
-				highlightEl = <Label options={options} />
-			}
-		}
-		return (
-			<a href="#">
-				{highlightEl}
-				<i className="fa fa-question-circle fa-fw fa-lg"></i> Help
-			</a>
-		)
-	}
-}
-// end::user-help[]
-
-// tag::user-lock[]
-class UserLock extends React.Component {
-	render() {
-		return (
-			<a href="#">
-				<i className="fa fa-lock fa-fw fa-lg"></i> Lock screen
-			</a>
-		)
-	}
-}
-// end::user-lock[]
+// end::user-dropdown[]
 
 // end::user[]
