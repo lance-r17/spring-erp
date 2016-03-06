@@ -1,7 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { WrapIcons, RoleLabels, RoleShortNameLabels, Badge, Button, Dropdown, DropdownMenu, Label, MenuItem, NavDropdown, FaIcon } from '../controls';
+import { WrapIcons, RoleLabels, RoleShortNameLabels, Badge, Button, Dropdown, DropdownMenu, Label, MenuItem, MenuItemLink, Navbar, Nav, NavDropdown, FaIcon } from '../controls';
 
 const notifications = [
 	{
@@ -299,97 +299,53 @@ const languages = [
 ];
 
 // tag::nav-bar[]
-export default class NavBar extends React.Component {
+export default class Header extends React.Component {
 	render() {
+        const { brandName, user } = this.props;
+
 		return (
+
 			<header id="navbar">
 				<div id="navbar-container" className="boxed">
 
-					<NavBarBrand brandName="Spring ERP" />
+                    <Navbar.Header>
+                        <Navbar.Brand>
+                            <a href="/">
+                                <img src="img/logo.png" alt={`${brandName} Logo`} className="brand-icon" />
+                                <div className="brand-title">
+                                    <span className="brand-text">{brandName}</span>
+                                </div>
+                            </a>
+                        </Navbar.Brand>
+                    </Navbar.Header>
 
-					<NavBarContent notifications={notifications} mega={mega} languages={languages} user={this.props.user} />
+                    <div className="navbar-content clearfix">
+                        <Nav className="navbar-top-links" pullLeft>
+                            <MenuItem href="#" className="mainnav-toggle">
+                                <FaIcon fa="navicon" large />
+                            </MenuItem>
+                            {/* notification dropdown */}
+                            <NotificationDropdown notifications={notifications} />
 
-				</div>
-			</header>
+                            {/* Mega menu dropdown */}
+                            <MegaMenuDropdown mega={mega} />
+                        </Nav>
+
+                        <Nav className="navbar-top-links" pullRight>
+                            {/* Language selector */}
+                            <LanguageDropdown languages={languages} />
+
+
+                            {/* User dropdown */}
+                            <UserDropdown user={user} />
+                        </Nav>
+                    </div>
+                </div>
+            </header>
 		)
 	}
 }
 // end::nav-bar[]
-
-// tag::nav-bar-brand[]
-class NavBarBrand  extends React.Component {
-	render() {
-		return (
-			<div className="navbar-header">
-				<a href="/" className="navbar-brand">
-					<img src="img/logo.png" alt={this.props.brandName + " Logo"} className="brand-icon" />
-					<div className="brand-title">
-						<span className="brand-text">{this.props.brandName}</span>
-					</div>
-				</a>
-			</div>
-		)
-	}
-}
-// end::nav-bar-brand[]
-
-// tag::nav-bar-content[]
-class NavBarContent extends React.Component {
-	render() {
-		return (
-			<div className="navbar-content clearfix">
-				<NavBarDropdownMain notifications={this.props.notifications} mega={this.props.mega} />
-
-				<NavBarDropdownSlave languages={this.props.languages} user={this.props.user} />
-			</div>
-		)
-	}
-}
-// end::nav-bar-content[]
-
-// tag::nav-bar-dropdown-main[]
-class NavBarDropdownMain extends React.Component {
-	render() {
-		return (
-			<ul className="nav navbar-top-links pull-left">
-				{/* Navigation toogle button */}
-				<li classNamee="tgl-menu-btn">
-					<a className="mainnav-toggle" href="#">
-						<i className="fa fa-navicon fa-lg"></i>
-					</a>
-				</li>
-
-
-				{/* notification dropdown */}
-				<NotificationDropdown notifications={this.props.notifications} />
-
-				{/* Mega menu dropdown */}
-				<MegaMenuDropdown mega={this.props.mega} />
-			</ul>
-		)
-	}
-}
-// end::nav-bar-dropdown-main[]
-
-// tag::nav-bar-dropdown-slave[]
-class NavBarDropdownSlave  extends React.Component {
-	render() {
-		return (
-			<ul className="nav navbar-top-links pull-right">
-
-				{/* Language selector */}
-				<LanguageDropdown languages={this.props.languages} />
-
-
-				{/* User dropdown */}
-				<UserDropdown user={this.props.user} />
-
-			</ul>
-		)
-	}
-}
-// end::nav-bar-dropdown-slave[]
-
 
 // tag::notification-dropdown[]
 class NotificationDropdown  extends React.Component {
@@ -398,15 +354,31 @@ class NotificationDropdown  extends React.Component {
 		var badge = length > 0 ? <Badge className={cx(['badge-header', 'badge-danger'])}>{length}</Badge> : null;
 
 		return (
-			<li className="dropdown">
-				<a href="#" data-toggle="dropdown" className="dropdown-toggle">
-					<FaIcon fa="bell" large={true} />
-					{badge}
-				</a>
+            <Dropdown id="dropdown-language" componentClass="li">
+                <Dropdown.Toggle useAnchor noCaret>
+                    <FaIcon fa="bell" large={true} />
+                    {badge}
+                </Dropdown.Toggle>
 
-				{/* Notification dropdown menu */}
-				<NotificationDropdownMenu notifications={this.props.notifications} />
-			</li>
+                {/* Notification dropdown menu */}
+                <Dropdown.Menu className="dropdown-menu-md">
+                    <div className="pad-all bord-btm">
+                        <p className="text-lg text-muted text-semibold mar-no">You have {this.props.notifications.length} notifications.</p>
+                    </div>
+                    <div className="nano scrollable">
+                        <div className="nano-content">
+                            <NotificationDropdownList notifications={this.props.notifications} />
+                        </div>
+                    </div>
+
+                    {/* Dropdown footer */}
+                    <div className="pad-all bord-top">
+                        <a href="#" className="btn-link text-dark box-block">
+                            <FaIcon fa="angle-right" large pullRight />Show All Notifications
+                        </a>
+                    </div>
+                </Dropdown.Menu>
+            </Dropdown>
 		)
 	}
 }
@@ -667,7 +639,6 @@ class MegaMenuColList extends React.Component {
 }
 // end::mega-menu-col-list[]
 
-// tag::language[]
 
 // tag::language-dropdown[]
 class LanguageDropdown extends React.Component {
@@ -681,7 +652,7 @@ class LanguageDropdown extends React.Component {
 			</MenuItem>
 		)
 		return (
-			<Dropdown id="dropdown-language" eventKey={4} componentClass="li">
+			<Dropdown id="dropdown-language" componentClass="li">
 				<Dropdown.Toggle className="lang-selector" useAnchor noCaret>
 					<span className="lang-selected">
 						<img className="lang-flag" src={langSelected.flagUrl} alt={langSelected.name} />
@@ -700,10 +671,6 @@ class LanguageDropdown extends React.Component {
 }
 // end::language-dropdown[]
 
-// end::language[]
-
-// tag::user[]
-
 // tag::user-dropdown[]
 class UserDropdown extends React.Component {
 	render() {
@@ -713,8 +680,8 @@ class UserDropdown extends React.Component {
             roles.push(RoleLabels[role]);
 		});
 		return (
-			<Dropdown id="dropdown-user" eventKey={5} componentClass="li" pullRight={true}>
-				<Dropdown.Toggle useAnchor noCaret href="#">
+			<Dropdown id="dropdown-user" componentClass="li" pullRight={true}>
+				<Dropdown.Toggle useAnchor noCaret>
 					<span className="pull-right">
 						<img className="img-circle img-user media-object" src={"img/" + user.avatarUrl} alt="Profile Picture" />
 					</span>
@@ -727,18 +694,19 @@ class UserDropdown extends React.Component {
 						</p>
 					</div>
 
-					<MenuItem>
+					<MenuItemLink href="/profile">
 						<FaIcon fa="user" large={true} wide={true} /> Profile
-					</MenuItem>
-					<MenuItem>
+					</MenuItemLink>
+					<MenuItemLink href="/setting">
 						<FaIcon fa="gear" large={true} wide={true} /> Setting
-					</MenuItem>
-					<MenuItem>
+					</MenuItemLink>
+					<MenuItemLink href="#">
 						<FaIcon fa="question-circle" large={true} wide={true} /> Help
-					</MenuItem>
-					<MenuItem>
+					</MenuItemLink>
+					<MenuItemLink href="#">
 						<FaIcon fa="lock" large={true} wide={true} /> Lock Screen
-					</MenuItem>
+					</MenuItemLink>
+
 					<div className="pad-all text-right">
 						<Button href="/logout" className="btn btn-primary">
 							<FaIcon fa="sign-out" large={true} wide={true} /> Logout
@@ -750,5 +718,3 @@ class UserDropdown extends React.Component {
 	}
 }
 // end::user-dropdown[]
-
-// end::user[]

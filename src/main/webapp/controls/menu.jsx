@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import classNames from 'classnames';
 import { Icons } from './icon.jsx';
-import { Badge } from './badge.jsx';
+//import { Badge } from './badge.jsx';
 import { Label } from './label.jsx';
 
 

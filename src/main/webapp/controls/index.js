@@ -1,6 +1,5 @@
 import { Icon, Icons, WrapIcon, WrapIcons } from './icon.jsx';
 import { Buttons, ScrollTopButton } from './button.jsx';
-// import Badge from './badge.jsx';
 import { Label, RoleLabel, RoleLabels, RoleShortNameLabels } from './label.jsx';
 import { MenuItemLink, SubMenu } from './menu.jsx';
 import FormControls from './form.jsx';
@@ -18,12 +17,11 @@ _.extend(Controls,
 		WrapIcons,
 		Buttons,
 		ScrollTopButton,
-		// Badge,
 		// Label,
 		RoleLabel,
 		RoleLabels,
 		RoleShortNameLabels,
-		MenuItemLink,
+		//MenuItemLink,
 		SubMenu
 	},
 	// tag::formsy[]

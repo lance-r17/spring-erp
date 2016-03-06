@@ -1,7 +1,7 @@
 import React from 'react';
-import classNames from 'classnames';
+import cx from 'classnames';
 import _ from 'lodash';
-import { Icons, Badge, Label, MenuItemLink, SubMenu } from '../controls';
+import { Icons, Badge, Label, FaIcon, MenuItemLink, SubMenu } from '../controls';
 
 
 
@@ -85,11 +85,24 @@ var MainNavMenuList = React.createClass({
 			if (header) {
 				menuItemEl = <li className="list-header">{header.name}</li>
 			} else if (link) {
-				var className = classNames(link.active ? 'active-link' : '');
+				var className = cx({'active-link': link.active});
+                var highlight = null;
+                if (link.label) {
+                    highlight = <Label bsStyle={link.label.color} className="pull-right">{link.label.content}</Label>
+                } else if (link.badge) {
+                    highlight = <Badge pullRight={true} className={cx(`badge-${link.badge.color}`)}>{link.badge.content}</Badge>
+                }
 				menuItemEl = (
-					<li className={className}>
-						<MenuItemLink options={link} />
-					</li>
+                    <MenuItemLink className={className}
+                                  href={link.href}
+                                  onlyActiveOnIndex={true}
+                                  activeClassName="active-link">
+                        <FaIcon fa={link.icon.name} />
+                        <span className="menu-title">
+                            {link.name}
+                            {highlight}
+                        </span>
+                    </MenuItemLink>
 				)
 			} else if (divider) {
 				menuItemEl = <li className="list-divider"></li>

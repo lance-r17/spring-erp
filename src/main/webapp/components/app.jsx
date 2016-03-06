@@ -4,7 +4,7 @@ import { ScrollTopButton } from '../controls';
 // import client from '../lib/client';
 import api from '../lib/apiHelper';
 
-import NavBar from './header.jsx';
+import Header from './header.jsx';
 import MainNav from './navigation.jsx';
 import Footer from './footer.jsx';
 
@@ -56,7 +56,7 @@ export default class App extends React.Component {
 
 		return (
 			<div id="container" className={containerClass}>
-				<NavBar user={this.state.user} />
+				<Header brandName="Spring ERP" user={this.state.user} />
 
 				<div className="boxed">
 
