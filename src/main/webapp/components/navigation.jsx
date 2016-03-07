@@ -1,7 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { Icons, Badge, Label, FaIcon, MenuItemLink, SubMenu } from '../controls';
+import { Badge, Label, FaIcon, MenuItemLink, SubMenu } from '../controls';
 
 
 

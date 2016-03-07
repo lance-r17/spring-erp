@@ -1,7 +1,5 @@
-import { Icon, Icons, WrapIcon, WrapIcons } from './icon.jsx';
-import { Buttons, ScrollTopButton } from './button.jsx';
 import { Label, RoleLabel, RoleLabels, RoleShortNameLabels } from './label.jsx';
-import { MenuItemLink, SubMenu } from './menu.jsx';
+import { SubMenu } from './menu.jsx';
 import FormControls from './form.jsx';
 import BootstrapControls from './bootstrap.jsx';
 import Paging from './paging.jsx';
@@ -11,17 +9,10 @@ import NanoScroller from './scroll.jsx';
 var Controls = {};
 _.extend(Controls, 
 	{
-		Icon,
-		Icons,
-		WrapIcon,
-		WrapIcons,
-		Buttons,
-		ScrollTopButton,
 		// Label,
 		RoleLabel,
 		RoleLabels,
 		RoleShortNameLabels,
-		//MenuItemLink,
 		SubMenu
 	},
 	// tag::formsy[]

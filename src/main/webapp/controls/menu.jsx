@@ -1,72 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router';
-import classNames from 'classnames';
-import { Icons } from './icon.jsx';
-//import { Badge } from './badge.jsx';
-import { Label } from './label.jsx';
-
-
-// tag::menu-item-link[]
-var MenuItemLink = React.createClass({
-	render: function() {
-		var { name, href, active, icon, badge, label, next } = this.props.options;
-		var iconEl = null;
-		if (icon) {
-			iconEl = Icons[icon.name]
-		}
-
-		var highlightEl = null;
-		var options = {}
-		if (badge) {
-			_.extend(options, badge, {right: true});
-			highlightEl = <Badge options={options} />
-		} else if (label) {
-			_.extend(options, label, {right: true});
-			highlightEl = <Label options={options} />
-		}
-
-		var arrowEl = null;
-		if (next && !highlightEl) {
-			arrowEl = <i className="arrow"></i>
-		}
-
-		var innerEl = null;
-		if (iconEl) {
-			innerEl = (
-                <span className="menu-title">
-					<strong>&nbsp;{name}</strong>
-					{highlightEl}
-				</span>
-			)
-		} else {
-			innerEl = name;
-		}
-		
-		return (
-			<Link to={href} onlyActiveOnIndex={true} activeClassName='active-link'>
-				{iconEl}
-            	{innerEl}
-            	{arrowEl}
-            </Link>
-		)
-	}
-});
-// end::menu-item-link[]
+import cx from 'classnames';
 
 // tag::divider[]
-var Divider = React.createClass({
-	render: function() {
+class Divider extends React.Component {
+	render() {
 		return (
 			<li className="list-divider"></li>
 		)
 	}
-});
+}
 // end::divider[]
 
 // tag::menu[]
-var SubMenu = React.createClass({
+class SubMenu extends React.Component {
 	
-	render: function() {
+	render() {
 		var { name, icon, link, badge, label, subMenu} = this.props.options,
 			options = { name, icon, link, badge, label };
 
@@ -77,7 +26,7 @@ var SubMenu = React.createClass({
 			if (divider) {
 				menuItemEl = <Divider />
 			} else if (link) {
-				var className = classNames(link.active ? 'active-link' : '');
+				var className = cx({'active-link': link.active});
 				menuItemEl = (
 					<li className={className}> 
 						<MenuItemLink options={link} />
@@ -103,14 +52,11 @@ var SubMenu = React.createClass({
             </li>
 		)
 	}
-});
+}
 // end::menu[]
 
-var MenuControls = {};
-MenuControls.MenuItemLink = MenuItemLink;
-MenuControls.SubMenu = SubMenu;
+var MenuControls = {
+	SubMenu
+};
 
-// tag::export-menu-controls[]
-module.exports = MenuControls;
-module.exports.MenuControls = MenuControls;
-// tag::export-menu-controls[]
+export default MenuControls;
