@@ -1,13 +1,12 @@
 import React from 'react';
 import cx from 'classnames';
-import _ from 'lodash';
-import { Badge, Label, FaIcon, MenuItemLink, SubMenu } from '../controls';
+import { Badge, Col, Label, FaIcon, Link, MenuItemLink, Nav, SubMenu } from '../controls';
 
 
 
 // tag::main-nav[]
-var MainNav = React.createClass({
-	render: function () {
+class MainNav extends React.Component {
+	render() {
 		return (
 			<nav id="mainnav-container">
 				<div id="mainnav">
@@ -22,7 +21,7 @@ var MainNav = React.createClass({
 			</nav>
 		)
 	}
-});
+}
 // end::main-nav[]
 
 // tag::main-nav-shortcut[]
@@ -30,23 +29,23 @@ var MainNavShortcut = React.createClass({
 	render: function () {
 		return (
 			<div id="mainnav-shortcut">
-				<ul className="list-unstyled">
-					<li className="col-xs-4" data-content="Additional Sidebar">
-						<a id="demo-toggle-aside" className="shortcut-grid" href="#">
-							<i className="fa fa-magic"></i>
-						</a>
-					</li>
-					<li className="col-xs-4" data-content="Notification">
+                <ul className="list-unstyled">
+                    <Col componentClass="li" xs={4} data-content="Additional Sidebar">
+                        <a id="demo-toggle-aside" className="shortcut-grid" href="#">
+                            <FaIcon fa="magic" />
+                        </a>
+                    </Col>
+                    <Col componentClass="li" xs={4} data-content="Notification">
 						<a id="demo-alert" className="shortcut-grid" href="#">
-							<i className="fa fa-bullhorn"></i>
+							<FaIcon fa="bullhorn" />
 						</a>
-					</li>
-					<li className="col-xs-4" data-content="Page Alerts">
+                    </Col>
+                    <Col componentClass="li" xs={4} data-content="Page Alerts">
 						<a id="demo-page-alert" className="shortcut-grid" href="#">
-							<i className="fa fa-bell"></i>
+							<FaIcon fa="bell" />
 						</a>
-					</li>
-				</ul>
+					</Col>
+                </ul>
 			</div>
 		)
 	}

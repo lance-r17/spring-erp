@@ -1,7 +1,7 @@
 import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
-import { RoleLabels, Badge, Button, Dropdown, DropdownMenu, Label, Image, Avatar, MenuItem, MenuItemLink, Navbar, Nav, NavDropdown, ProgressBar, FaIcon, NanoScroller } from '../controls';
+import { RoleLabels, Badge, Button, Col, Dropdown, DropdownMenu, Label, Image, Avatar, MenuItem, MenuItemLink, Navbar, Nav, NavDropdown, ProgressBar, FaIcon, NanoScroller } from '../controls';
 
 const notifications = [
 	{
@@ -454,9 +454,9 @@ class MegaMenuDropdown extends React.Component {
 		var i = 0;
 		if (news) {
 			columns.push(
-				<div className="col-sm-12 col-md-3" key={'mega-col-' + i++}>
+				<Col sm={12} md={3} key={`mega-col-${i++}`}>
 					<MegaMenuNewsWidget news={news} />
-				</div>
+				</Col>
 			);
 		}
 		if (cols) {
@@ -464,11 +464,10 @@ class MegaMenuDropdown extends React.Component {
 			cols.forEach((col) => {
 				if (i <= this.state.maxCols) {
 					columns.push(
-						<div className='col-sm-4 col-md-3' key={'mega-col-' + i}>
+						<Col sm={4} md={3} key={`mega-col-${i++}`}>
 							<MegaMenuColList menus={col.menus} />
-						</div>
+						</Col>
 					);
-					i++;
 				}
 			});
 		}
