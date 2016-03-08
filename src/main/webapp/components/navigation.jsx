@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router';
 import cx from 'classnames';
-import { Badge, Col, Label, FaIcon, ListGroup, ListGroupItem, MenuItem, MenuItemLink, Nav, ProgressBar, SubMenu } from '../controls';
+import { Badge, Col, Collapse, Label, FaIcon, ListGroup, ListGroupItem, MenuItem, MenuItemLink, Nav, ProgressBar } from '../controls';
 
 
 
 // tag::main-nav[]
-class MainNav extends React.Component {
+export default class MainNav extends React.Component {
 	render() {
 		return (
 			<nav id="mainnav-container">
@@ -26,8 +26,8 @@ class MainNav extends React.Component {
 // end::main-nav[]
 
 // tag::main-nav-shortcut[]
-var MainNavShortcut = React.createClass({
-	render: function () {
+class MainNavShortcut extends React.Component {
+	render() {
 		return (
 			<div id="mainnav-shortcut">
                 <ul className="list-unstyled">
@@ -50,12 +50,12 @@ var MainNavShortcut = React.createClass({
 			</div>
 		)
 	}
-});
+}
 // end::main-nav-shortcut[]
 
 // tag::main-nav-menu-wrapper[]
-var MainNavMenuWrapper = React.createClass({
-	render: function () {
+class MainNavMenuWrapper extends React.Component {
+	render() {
 		return (
 			<div id="mainnav-menu-wrap">
 				<div className="nano">
@@ -72,40 +72,31 @@ var MainNavMenuWrapper = React.createClass({
 			</div>
 		)
 	}
-});
+}
 // end::main-nav-menu-wrapper[]
 
 // tag::main-nav-menu-list[]
-var MainNavMenuList = React.createClass({
-	render: function () {
+class MainNavMenuList extends React.Component {
+	render() {
 		var menus =[];
 		this.props.menus.forEach( (menu, i) => {
 			const { header, links } = menu;
 
 			if (i > 0) {
-				menus.push(<MenuItem className="list-divider" divider />);
+				menus.push(<MenuItem key={`divider-${i}`} className="list-divider" divider />);
 			}
 
 			if (header) {
-				menus.push(<MenuItem bsClass="list" header>{header}</MenuItem>);
+				menus.push(<MenuItem key={`header-${i}`} bsClass="list" header>{header}</MenuItem>);
 			} 
 
 			if (links) {
 				links.forEach( (link, j) => {
-					const { name, ...props } = link;
 					menus.push(
-						<MenuItemLink {...props} 
-									  onlyActiveOnIndex={true}
-									  activeClassName="active-link">
-							{ name }
-						</MenuItemLink>
+						<NavLink key={`link-${i}`} {...link} />
 					)
 				});
-			} 
-
-			// if (level) {
-			// 	menuItemEl = <SubMenu options={level} />
-			// }
+			}
 		});
 
 		return (
@@ -114,12 +105,80 @@ var MainNavMenuList = React.createClass({
 			</ListGroup>
 		)
 	}
-});
+}
 // end::main-nav-menu-list[]
 
+// tag::nav-link[]
+class NavLink extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        const { collapse, name, ...props } = this.props;
+
+        if (collapse) {
+            return (
+                <NavCollapseLink {...collapse} />
+            )
+        } else {
+            return (
+                <MenuItemLink {...props}
+                    onlyActiveOnIndex={true}
+                    activeClassName="active-link">
+                    { name }
+                </MenuItemLink>
+            )
+        }
+    }
+}
+// end::nav-link[]
+
+// tag::nav-collapse-link[]
+class NavCollapseLink extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            open: false
+        };
+    }
+
+    handleClick = () => {
+        this.setState({
+            open: !this.state.open
+        });
+    }
+
+    render() {
+        const { links, name, fa, ...props } = this.props;
+
+        var navLinks = links.map( (link, i) =>
+            <NavLink key={`sublink-${i}`} {...link} />
+        )
+
+        return (
+            <li>
+                <a href="#" onClick={this.handleClick}>
+                    <FaIcon fa={fa} />
+                    <span className="menu-title">{name}</span>
+                    <i className="arrow"></i>
+                </a>
+
+                <Collapse in={this.state.open}>
+                    <ul>
+                        { navLinks }
+                    </ul>
+                </Collapse>
+            </li>
+        )
+    }
+}
+// end::nav-collapse-link[]
+
 // tag::main-nav-menu-widget[]
-var MainNavMenuWidget = React.createClass({
-	render: function () {
+class MainNavMenuWidget extends React.Component {
+	render() {
 		return (
 			<div className="mainnav-widget">
 
@@ -133,7 +192,9 @@ var MainNavMenuWidget = React.createClass({
 				{/*  Hide the content on collapsed navigation  */}
 				<div id="demo-wg-server" className="hide-small mainnav-widget-content">
 					<ListGroup componentClass="ul">
-						<ListGroupItem className="pad-no pad-ver" bsClass="list-header" listItem>Server Status</ListGroupItem>
+						<ListGroupItem className="pad-no pad-ver" bsClass="list-header" listItem>
+							Server Status
+						</ListGroupItem>
 						
 						<ListGroupItem bsClass="mar-btm" listItem>
 							<Label bsStyle="info" className="pull-right">15%</Label>
@@ -155,7 +216,5 @@ var MainNavMenuWidget = React.createClass({
 			</div>
 		)
 	}
-});
+}
 // end::main-nav-menu-widget[]
-
-module.exports = MainNav;

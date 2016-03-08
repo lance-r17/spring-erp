@@ -1,5 +1,4 @@
 import { Label, RoleLabel, RoleLabels, RoleShortNameLabels } from './label.jsx';
-import { SubMenu } from './menu.jsx';
 import FormControls from './form.jsx';
 import BootstrapControls from './bootstrap.jsx';
 import Paging from './paging.jsx';
@@ -12,8 +11,7 @@ _.extend(Controls,
 		// Label,
 		RoleLabel,
 		RoleLabels,
-		RoleShortNameLabels,
-		SubMenu
+		RoleShortNameLabels
 	},
 	// tag::formsy[]
 	FormControls,

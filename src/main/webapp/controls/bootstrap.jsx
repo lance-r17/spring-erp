@@ -29,10 +29,8 @@ class ScrollTopButton extends React.Component {
         let scrollTop = event.srcElement.body.scrollTop;
 
         if (scrollTop > this.state.offsetTop && !this.state.visible) {
-            // nifty.navbar.addClass('shadow');
             this.setState({visible: true});
         }else if (scrollTop < this.state.offsetTop && this.state.visible) {
-            // nifty.navbar.removeClass('shadow');
             this.setState({visible: false});
         }
     }

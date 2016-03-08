@@ -7,7 +7,7 @@ import Header from './header.jsx';
 import MainNav from './navigation.jsx';
 import Footer from './footer.jsx';
 
-import { FullMenu, SimpleMenu } from '../stubs/menus';
+import { SimpleMenu } from '../stubs/menus';
 
 // tag::app[]
 export default class App extends React.Component {

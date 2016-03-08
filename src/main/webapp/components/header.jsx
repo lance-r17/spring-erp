@@ -131,7 +131,8 @@ const mega = {
 							name: 'Font Awesome',
 							badge: {
 								content: '479',
-								color: 'purple'
+								bsStyle: 'purple',
+                                pullRight: true
 							}
 						},
 						{
@@ -150,7 +151,8 @@ const mega = {
 							name: 'Indox',
 							label: {
 								content: 'Hot',
-								color: 'danger'
+								bsStyle: 'danger',
+                                pullRight: true
 							}
 						},
 						{
@@ -171,7 +173,8 @@ const mega = {
 							name: 'Exclusive plugins',
 							badge: {
 								content: '6',
-								color: 'success'
+								bsStyle: 'success',
+                                pullRight: true
 							}
 						},
 						{
@@ -534,18 +537,18 @@ class MegaMenuColList extends React.Component {
 
 				if (menu.links) {
 					menu.links.forEach((link, j) => {
-						const { badge, label, name, ...props } = link;
+						//const { badge, label, name, ...props } = link;
 
-						var highlight = null;
-						if (badge) {
-							highlight = <Badge className={cx(`badge-${badge.color}`)} pullRight>{badge.content}</Badge>
-						} else if (label) {
-							highlight = <Label bsStyle={label.color} className="pull-right">{label.content}</Label>
-						}
+						//var highlight = null;
+						//if (badge) {
+						//	highlight = <Badge className={cx(`badge-${badge.color}`)} pullRight>{badge.content}</Badge>
+						//} else if (label) {
+						//	highlight = <Label bsStyle={label.color} className="pull-right">{label.content}</Label>
+						//}
+						const { name, ...props } = link;
 
 						rows.push(
 							<MenuItemLink key={`link-${i}-${j}`} {...props}>
-								{highlight}
 								{name}
 							</MenuItemLink>
 						);
