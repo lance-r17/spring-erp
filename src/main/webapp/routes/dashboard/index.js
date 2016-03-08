@@ -1,4 +1,4 @@
-import { Dashboard } from './components';
+import Dashboard from './components/dashboard.jsx';
 
 module.exports = {
 	path: 'dashboard',

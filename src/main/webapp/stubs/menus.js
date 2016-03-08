@@ -524,40 +524,29 @@ const FullMenu = [
 
 const SimpleMenu = [
 	{
-		header: {
-			name: 'Navigation'
-		}
-	},
-	{
-		link: {
-			name: 'Dashboard',
-			href: '#',
-			active: true,
-			icon: {
-				name: 'dashboard'
-			},
-			label: {
-				color: 'success',
-				content: 'Top'
+		header: 'Navigation',
+		links: [
+			{
+				name: 'Dashboard',
+				href: '/dashboard',
+				fa: 'dashboard',
+				label: {
+					bsStyle: 'success',
+					pullRight: true,
+					content: 'Top'
+				}
 			}
-		}
+		]
 	},
 	{
-		divider: {}
-	},
-	{
-		header: {
-			name: 'Admin'
-		}
-	},
-	{
-		link: {
-			name: 'Users',
-			href: '/users',
-			icon: {
-				name: 'users'
+		header: 'Admin',
+		links: [
+			{
+				name: 'Users',
+				href: '/users',
+				fa: 'users'
 			}
-		}
+		]
 	}
 ];
 

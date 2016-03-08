@@ -1,9 +1,9 @@
 import React from 'react';
 import { Accordion, Alert, Badge, Breadcrumb, BreadcrumbItem, Button, ButtonGroup, ButtonInput, ButtonToolbar, Carousel, CarouselItem, Col, CollapsibleNav, Dropdown, DropdownButton, Glyphicon, Grid, Image, Input, Interpolate, Jumbotron, Label, ListGroup, ListGroupItem, MenuItem, Modal, ModalBody, ModalFooter, ModalHeader, ModalTitle, Nav, Navbar, NavBrand, NavbarBrand, NavDropdown, NavItem, Overlay, OverlayTrigger, PageHeader, PageItem, Pager, Pagination, Panel, PanelGroup, Popover, ProgressBar, ResponsiveEmbed, Row, SafeAnchor, SplitButton, Tab, Table, Tabs, Thumbnail, Tooltip, Well, Collapse, Fade, FormControls, utils } from 'react-bootstrap';
-import { Link } from 'react-router';
+import { Link, IndexLink } from 'react-router';
 import cx from 'classnames';
 
-const { bool, object, string, func, oneOfType } = React.PropTypes
+const { bool, object, string, func, oneOfType, oneOf } = React.PropTypes
 
 // tag::scorll-top-button[]
 class ScrollTopButton extends React.Component {
@@ -58,17 +58,35 @@ class ScrollTopButton extends React.Component {
 
 // tag::menu-item-link[]
 class MenuItemLink extends MenuItem {
+
     constructor(props) {
         super(props);
     }
 
     render() {
-        const { href, className, style, onClick, ...props } = this.props;
+        const { index, href, className, style, fa, label, badge, children, onClick, ...props } = this.props;
 
         const classes = {
             disabled: this.props.disabled,
             active: this.props.active
         };
+
+        var icon = null;
+        if (fa) {
+            icon = <FaIcon fa={fa} />
+        }
+
+        var highlight = null;
+        if (label) {
+            const { content, className, pullRight, ...labelProps } = label;
+            highlight = <Label className={cx(className, { 'pull-right': pullRight })} {...labelProps} >{content}</Label>
+        } else if (badge) {
+            const { content, className, bsStyle, ...badgeProps } = badge;
+            const classes = {
+                [utils.bootstrapUtils.prefix({bsClass: 'badge'}, bsStyle)]: true
+            };
+            highlight = <Badge className={cx(className, classes)} {...badgeProps} >{content}</Badge>
+        }
 
         return (
             <li role="presentation"
@@ -81,7 +99,11 @@ class MenuItemLink extends MenuItem {
                     role="menuitem"
                     tabIndex="-1"
                     onClick={utils.createChainedFunction(onClick, this.handleClick)}
-                />
+                >
+                    { icon }
+                    { children }
+                    { highlight }
+                </Link>
             </li>
         )
     }

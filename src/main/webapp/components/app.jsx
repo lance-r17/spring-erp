@@ -1,7 +1,6 @@
 import React from 'react';
 import cx from 'classnames';
 import { ScrollTopButton } from '../controls';
-// import client from '../lib/client';
 import api from '../lib/apiHelper';
 
 import Header from './header.jsx';
@@ -9,8 +8,6 @@ import MainNav from './navigation.jsx';
 import Footer from './footer.jsx';
 
 import { FullMenu, SimpleMenu } from '../stubs/menus';
-
-import { Dashboard } from '../routes/dashboard/components';
 
 // tag::app[]
 export default class App extends React.Component {
@@ -61,10 +58,10 @@ export default class App extends React.Component {
 				<div className="boxed">
 
 					{/* MAIN CONTENT CONTAINER */}
-					{this.props.children || <Dashboard />}
+					{this.props.children }
 
 					{/* MAIN NAVIGATION */}
-					<MainNav menu={SimpleMenu} />
+					<MainNav menus={SimpleMenu} />
 				</div>
 
 				{/* FOOTER */}

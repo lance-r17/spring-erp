@@ -8,16 +8,22 @@ import { DashboardRoute, UsersRoute } from './routes';
 define(function (require){
 	'use strict';
 
+	const indexRoute = {
+		getComponent: DashboardRoute.getComponent
+	};
+
     const rootRoute = {
 		component: 'div',
 		childRoutes: [
 			{
 				path: '/',
 				component: App,
+				indexRoute: { onEnter: (nextState, replace) => replace('/dashboard') },
 				childRoutes: [
 					DashboardRoute,
 					UsersRoute
-				]
+				],
+				// indexRoute: indexRoute
 			}
 		]	
 	};
