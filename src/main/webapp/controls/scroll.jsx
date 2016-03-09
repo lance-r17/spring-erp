@@ -3,18 +3,18 @@ import ReactDOM from 'react-dom';
 import nanoScroller from 'nanoscroller';
 import $ from 'jquery';
 
-var NanoScroller =  React.createClass({
-    componentDidMount: function () {
+class NanoScroller extends React.Component {
+    componentDidMount() {
         this.scrollContainer = $(ReactDOM.findDOMNode(this.refs['scroll-container']));
 
         this.scrollContainer.nanoScroller({preventPageScrolling: true});
-    },
+    }
 
-    componentWillUnmount: function () {
+    componentWillUnmount() {
         this.scrollContainer.nanoScroller({destroy: true});
-    },
+    }
 
-    render: function () {
+    render() {
         return (
             <div ref="scroll-container" {...this.props} className="nano scrollable">
                 <div className="nano-content">
@@ -23,6 +23,6 @@ var NanoScroller =  React.createClass({
             </div>
         )
     }
-});
+}
 
-module.exports = NanoScroller;
+export default NanoScroller;

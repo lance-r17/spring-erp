@@ -1,5 +1,6 @@
 import React from 'react';
 import { findDOMNode } from 'react-dom';
+import { Pagination, FaIcon, Row, Col } from './bootstrap.jsx';
 
 var Paging = {};
 
@@ -36,8 +37,8 @@ Paging.Toolbar = class extends React.Component {
         );
         return (
             <div className="toolbar form-inline">
-                <div className="row">
-                    <div className="col-sm-6 table-toolbar-left">
+                <Row>
+                    <Col sm={6} className="table-toolbar-left">
                         <label>
                             Show&nbsp;
                             <select ref="pageSize" className="form-control input-sm" onChange={this.handleChange} value={this.props.pageSize}>
@@ -45,11 +46,11 @@ Paging.Toolbar = class extends React.Component {
                             </select>
                             &nbsp;entries
                         </label>
-                    </div>
-                    <div className="col-sm-6 table-toolbar-right">
+                    </Col>
+                    <Col sm={6} className="table-toolbar-right">
                         {this.props.children}
-                    </div>
-                </div>
+                    </Col>
+                </Row>
             </div>
         )
     }
@@ -59,107 +60,70 @@ Paging.Toolbar = class extends React.Component {
 
 // tag::pagination[]
 Paging.Pagination = class extends React.Component {
-    // tag::handle-nav[]
-    handleNavFirst = (event) => {
-        event.preventDefault();
 
-        this.props.onNavigate(this.props.links.first.href);
+    constructor(props) {
+        super(props);
     }
 
-    handleNavPrev = (event) => {
-        event.preventDefault();
-        
-        this.props.onNavigate(this.props.links.prev.href);
-    }
+    handleSelect = (event, selectedEvent) => {
+        const selectedPage = selectedEvent.eventKey;
+        const currentPage = this.props.page.number + 1;
+        const { first, last, next, prev } = this.props.links;
 
-    handleNavNext = (event) => {
-        event.preventDefault();
-        
-        this.props.onNavigate(this.props.links.next.href);
-    }
+        var href = null;
 
-    handleNavLast = (event) => {
-        event.preventDefault();
-        
-        this.props.onNavigate(this.props.links.last.href);
-    }
+        if (selectedPage === currentPage) {
+            return;
+        } else if (selectedPage > currentPage) {
+            href = ((selectedPage === currentPage + 1) && next) ? next.href : last.href;
+        } else {
+            href = ((selectedPage === currentPage -1) && prev) ? prev.href : first.href;
+        }
 
-    handleDisableClick = (event) => {
-        event.preventDefault();
+        this.props.onNavigate(href);
     }
-    // end::handle-nav[]
 
     render() {
-        var records = null;
-        var navLinks = [];
+
+        const { prev, next } = this.props.links;
+
+        var records = null,
+            activePage = 1,
+            items = 1,
+            maxButtons = (prev && next) ? 3 : 2;
 
         if (this.props.page) {
-            var { size, totalElements, totalPages, number } = this.props.page;
+            
+            const { size, totalElements, totalPages, number } = this.props.page;
+            activePage = number + 1;
+            items = totalPages;
             var first = number * size + 1;
             var last = Math.min((number + 1) * size, totalElements);
             records = `Showing ${first} to ${last} of ${totalElements} entries`;
-
-            // build pagination links
-            if ("prev" in this.props.links) {
-                navLinks.push(<li key="prev"><a className="fa fa-angle-left" href="#" onClick={this.handleNavPrev}></a></li>)
-            } else {
-                navLinks.push(<li key="prev" className="disabled"><a className="fa fa-angle-left" href="#" onClick={this.handleDisableClick}></a></li>);
-            }
-            
-            if ("first" in this.props.links && number !== 0) {
-                navLinks.push(<li key="first"><a href="#" onClick={this.handleNavFirst}>1</a></li>);
-            } else {
-                navLinks.push(<li key="first" className="active"><a href="#" onClick={this.handleDisableClick}>1</a></li>);
-            }
-
-            if (number > 3 || (number === 3 & number < totalPages - 1)) {
-                navLinks.push(<li key="others-before"><span>...</span></li>);
-            }
-
-            if (number > 1 && number + 3 != totalPages && "prev" in this.props.links) {
-                navLinks.push(<li key="preceeding"><a href="#" onClick={this.handleNavPrev}>{number}</a></li>)
-            }
-
-            if (number > 0 && number < totalPages - 1) {
-                navLinks.push(<li key="current" className="active"><a href="#" onClick={this.handleDisableClick}>{number + 1}</a></li>);
-            }
-
-            if (number !== 2 && number + 2 < totalPages && "next" in this.props.links) {
-                navLinks.push(<li key="after"><a href="#" onClick={this.handleNavNext}>{number + 2}</a></li>)
-            }
-
-            if (number < totalPages - 3) {
-                navLinks.push(<li key="others-after"><span>...</span></li>);
-            }
-
-            if ("last" in this.props.links && totalPages > number + 1) {
-                navLinks.push(<li key="last"><a href="#" onClick={this.handleNavLast}>{totalPages}</a></li>);
-            } else if (totalPages > 1 && totalPages === number + 1) {
-                navLinks.push(<li key="last" className="active"><a href="#" onClick={this.handleDisableClick}>{totalPages}</a></li>);
-            }
-            
-            if ("next" in this.props.links) {
-                navLinks.push(<li key="next"><a className="fa fa-angle-right" href="#" onClick={this.handleNavNext}></a></li>)
-            } else {
-                navLinks.push(<li key="next" className="disabled"><a className="fa fa-angle-right" href="#" onClick={this.handleDisableClick}></a></li>);
-            }
         }
 
         return (
-            <div className="row">
-                <div className="col-sm-6">
+            <Row>
+                <Col sm={6}>
                     <div className="dataTables_info" role="status" aria-live="polite">
                         {records}
                     </div>
-                </div>
-                <div className="col-sm-6">
+                </Col>
+                <Col sm={6}>
                     <div className="text-right">
-                        <ul className="pagination mar-no">
-                            {navLinks}
-                        </ul>
+                        <Pagination
+                            className="mar-no"
+                            prev={ <FaIcon fa="angle-left" />}
+                            next={ <FaIcon fa="angle-right" />}
+                            ellipsis
+                            boundaryLinks
+                            items={ items }
+                            maxButtons={ maxButtons }
+                            activePage={ activePage }
+                            onSelect={ this.handleSelect } />
                     </div>
-                </div>
-            </div>
+                </Col>
+            </Row>
         )
     }
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import api from '../../../lib/apiHelper';
 
-import { RoleLabel, RoleLabels, Formsy, FormStatic, FormInput, FormCheckboxGroup, ImageSelect, Button, Label, Modal, PanelAlert, Paging, NanoScroller } from '../../../controls';
+import { RoleLabel, RoleLabels, Formsy, FormStatic, FormInput, FormCheckboxGroup, ImageSelect, Button, Label, Modal, PanelAlert, Paging, Table, NanoScroller } from '../../../controls';
 
 
 // tag::vars[]
@@ -227,15 +227,13 @@ export default class Users extends React.Component {
                                 </Paging.Toolbar>
 
                                 {/*  User list  */}
-                                <div className="table-responsive">
-                                    <UserTable users={this.state.users} 
-                                               page={this.state.page} 
-                                               onUpdate={this.onUpdate}
-                                               onDisable={this.onDisable}
-                                               onEnable={this.onEnable}
-                                               onDelete={this.onDelete}
-                                               refreshCurrentPage={this.refreshCurrentPage} />
-                                </div>
+                                <UserTable users={this.state.users} 
+                                           page={this.state.page} 
+                                           onUpdate={this.onUpdate}
+                                           onDisable={this.onDisable}
+                                           onEnable={this.onEnable}
+                                           onDelete={this.onDelete}
+                                           refreshCurrentPage={this.refreshCurrentPage} />
 
                                 <hr/>
 
@@ -687,37 +685,28 @@ class UserTable extends React.Component {
                           refreshCurrentPage={this.props.refreshCurrentPage} />
         );
         return (
-            <table className="table table-hover table-striped table-vcenter mar-top">
-                <UserTableHeader />
+            <Table className="table-vcenter mar-top" striped hover responsive>
+                <thead>
+                    <tr>
+                        <th className="min-w-td">#</th>
+                        <th className="min-w-td">User</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Join Date</th>
+                        <th>Status</th>
+                        <th>Roles</th>
+                        <th className="min-w-td text-center">Actions</th>
+                    </tr>
+                </thead>
+
                 <tbody>
                     {users}
                 </tbody>
-            </table>
+            </Table>
         )
     }
 }
 // end::user-table[]
-
-// tag::user-table-header[]
-class UserTableHeader extends React.Component {
-    render () {
-        return (
-            <thead>
-                <tr>
-                    <th className="min-w-td">#</th>
-                    <th className="min-w-td">User</th>
-                    <th>Full Name</th>
-                    <th>Email</th>
-                    <th>Join Date</th>
-                    <th>Status</th>
-                    <th>Roles</th>
-                    <th className="min-w-td text-center">Actions</th>
-                </tr>
-            </thead>
-        )
-    }
-}
-// end::user-table-header[]
 
 // tag::user-table-row[]
 class UserTableRow extends React.Component {

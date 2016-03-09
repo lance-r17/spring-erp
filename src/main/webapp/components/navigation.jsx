@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router';
 import cx from 'classnames';
-import { Badge, Col, Collapse, Label, FaIcon, ListGroup, ListGroupItem, MenuItem, MenuItemLink, Nav, ProgressBar } from '../controls';
+import { Badge, Col, Collapse, Label, FaIcon, ListGroup, ListGroupItem, MenuItem, MenuItemLink, Nav, ProgressBar, NanoScroller } from '../controls';
 
 
 
@@ -58,17 +58,15 @@ class MainNavMenuWrapper extends React.Component {
 	render() {
 		return (
 			<div id="mainnav-menu-wrap">
-				<div className="nano">
-					<div className="nano-content">
+				<NanoScroller>
 
-						{/* Menu List */}
-						<MainNavMenuList menus={this.props.menus} />
+					{/* Menu List */}
+					<MainNavMenuList menus={this.props.menus} />
 
-						{/* Widget */}
-						<MainNavMenuWidget />
+					{/* Widget */}
+					<MainNavMenuWidget />
 
-					</div>
-				</div>
+				</NanoScroller>
 			</div>
 		)
 	}

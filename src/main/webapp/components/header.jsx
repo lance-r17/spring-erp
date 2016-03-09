@@ -537,14 +537,6 @@ class MegaMenuColList extends React.Component {
 
 				if (menu.links) {
 					menu.links.forEach((link, j) => {
-						//const { badge, label, name, ...props } = link;
-
-						//var highlight = null;
-						//if (badge) {
-						//	highlight = <Badge className={cx(`badge-${badge.color}`)} pullRight>{badge.content}</Badge>
-						//} else if (label) {
-						//	highlight = <Label bsStyle={label.color} className="pull-right">{label.content}</Label>
-						//}
 						const { name, ...props } = link;
 
 						rows.push(
