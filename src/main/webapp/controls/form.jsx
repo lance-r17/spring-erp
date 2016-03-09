@@ -239,7 +239,7 @@ class ImageSelect extends React.Component {
         var { className, values } = this.props;
         var images = values.map( (value, i) =>
             <MenuItem key={`image-${name}-option-${i}`} onClick={this.changeValue.bind(this, value)}>
-                <img src={'img/' + value} alt="Profile Picture" className={className} />
+                <img src={'img/' + value} className={className} />
             </MenuItem>
         );
         var dropdownMenu = (
