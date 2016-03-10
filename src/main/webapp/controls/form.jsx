@@ -5,7 +5,10 @@ import InputElement from 'react-input-mask';
 import cx from 'classnames';
 import validator from 'validator';
 import NanoScroller from './scroll.jsx';
-import { Dropdown, MenuItem } from 'react-bootstrap';
+import { Dropdown, ImageX, MenuItem } from './bootstrap.jsx';
+import { toggleable } from '../decorators';
+
+const { bool, object, string, func, oneOfType, oneOf } = React.PropTypes
 
 // tag::validation-rules[]
 Formsy.addValidationRule('isDate', (values, value) => {
@@ -182,14 +185,25 @@ class FormCheckboxGroup extends React.Component {
 }
 
 @FormsyElement()
+@toggleable
 class ImageSelect extends React.Component {
+
+    static propTypes = {
+        responsive: bool,
+        rounded: bool,
+        circle: bool,
+        thumbnail: bool
+    };
+
+    static defaultProps = {
+        responsive: false,
+        rounded: false,
+        circle: false,
+        thumbnail: false
+    };
 
     constructor(props) {
         super(props);
-
-        this.state = {
-            openDropdown: false
-        };
     }
 
     componentWillMount() {
@@ -208,55 +222,37 @@ class ImageSelect extends React.Component {
         }
     }
 
-    close = () => {
-        this.setState({
-            openDropdown: false
-        });
-    }
-
-    open = () => {
-        this.setState({
-            openDropdown: true
-        });
-    }
-
-    handleToggle = (open) => {
-        if (open) {
-            this.open();
-        } else {
-            this.close();
-        }
-    }
-
     changeValue = (value, event) => {
         event.preventDefault();
 
         this.props.setValue(value);
-        this.close();
+        this.props.onToggle(false);
     }
 
     render() {
-        var { className, values } = this.props;
+        const { id, className, values, bsSize, circle, responsive, rounded, thumbnail, open, onToggle } = this.props;
+        const imgProps = { bsSize, circle, responsive, rounded, thumbnail };
         var images = values.map( (value, i) =>
-            <MenuItem key={`image-${name}-option-${i}`} onClick={this.changeValue.bind(this, value)}>
-                <img src={'img/' + value} className={className} />
+            <MenuItem key={`image-option-${i}`} onClick={this.changeValue.bind(this, value)}>
+                <ImageX src={`img/${value}`} className={className} {...imgProps} />
             </MenuItem>
         );
-        var dropdownMenu = (
+        var dropdownMenu = open ? (
             <NanoScroller>
                 <ul className="head-list">
-                    {images}
+                    { images }
                 </ul>
             </NanoScroller>
-        );
+        ) : null;
+
         return(
-            <Dropdown id={this.props.id} onToggle={this.handleToggle} open={this.state.openDropdown} >
+            <Dropdown id={id} onToggle={onToggle} open={open} >
                 <Dropdown.Toggle className="with-caret-bottom-right" useAnchor noCaret>
-                    <img className={cx(className, ['media-object', 'mar-hor'])} src={'img/' + this.props.getValue()} />
+                    <ImageX src={'img/' + this.props.getValue()} className={cx(className, ['media-object', 'mar-hor'])} {...imgProps} />
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu className="dropdown-menu-img dropdown-menu-img-lg">
-                    { this.state.openDropdown ? dropdownMenu : null }
+                    { dropdownMenu }
                 </Dropdown.Menu>
             </Dropdown>
         )

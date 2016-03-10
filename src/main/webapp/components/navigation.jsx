@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import cx from 'classnames';
 import { Badge, Col, Collapse, Label, FaIcon, ListGroup, ListGroupItem, MenuItem, MenuItemLink, Nav, ProgressBar, NanoScroller } from '../controls';
+import { toggleable } from '../decorators';
 
 
 
@@ -133,23 +134,14 @@ class NavLink extends React.Component {
 // end::nav-link[]
 
 // tag::nav-collapse-link[]
+@toggleable
 class NavCollapseLink extends React.Component {
     constructor(props) {
         super(props);
-
-        this.state = {
-            open: false
-        };
-    }
-
-    handleClick = () => {
-        this.setState({
-            open: !this.state.open
-        });
     }
 
     render() {
-        const { links, name, fa, ...props } = this.props;
+        const { links, name, fa, open, onToggle, ...props } = this.props;
 
         var navLinks = links.map( (link, i) =>
             <NavLink key={`sublink-${i}`} {...link} />
@@ -157,13 +149,13 @@ class NavCollapseLink extends React.Component {
 
         return (
             <li>
-                <a href="#" onClick={this.handleClick}>
+                <a href="#" onClick={onToggle}>
                     <FaIcon fa={fa} />
                     <span className="menu-title">{name}</span>
                     <i className="arrow"></i>
                 </a>
 
-                <Collapse in={this.state.open}>
+                <Collapse in={open}>
                     <ul>
                         { navLinks }
                     </ul>

@@ -40,6 +40,10 @@ const SimpleMenu = [
                                 bsStyle: 'primary',
                                 pullRight: true
                             }
+                        },
+                        {
+                            name: 'Menu',
+                            href: '/menu'
                         }
                     ]
                 }
@@ -48,7 +52,4 @@ const SimpleMenu = [
 	}
 ];
 
-var menus = {}
-menus.SimpleMenu = SimpleMenu;
-
-module.exports = menus;
+export { SimpleMenu }

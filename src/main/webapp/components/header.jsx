@@ -2,6 +2,7 @@ import React from 'react';
 import cx from 'classnames';
 import _ from 'lodash';
 import { RoleLabels, Badge, Button, Col, Dropdown, DropdownMenu, Label, Image, Avatar, MenuItem, MenuItemLink, Navbar, Nav, NavDropdown, ProgressBar, FaIcon, NanoScroller } from '../controls';
+import { toggleable } from '../decorators';
 
 const notifications = [
 	{
@@ -44,7 +45,12 @@ const notifications = [
 	{
 		id: 5,
 		message: {
-			icon: 'comment',
+			icon: {
+				fa: 'comment',
+				wrap: {
+					bsStyle: 'purple'
+				}
+			},
 			subject: 'New comments waiting approval',
 			since: '15 minutes ago'
 		}
@@ -52,7 +58,13 @@ const notifications = [
 	{
 		id: 6,
 		message: {
-			icon: 'hdd-o',
+			icon: {
+				fa: 'hdd-o',
+				wrap: {
+					bsStyle: 'danger',
+					circle: true
+				}
+			},
 			subject: 'HDD is full',
 			since: '50 minutes ago',
 			badge: {
@@ -64,7 +76,12 @@ const notifications = [
 	{
 		id: 7,
 		message: {
-			icon: 'file-word-o',
+			icon: {
+				fa: 'file-word-o',
+				wrap: {
+					bsStyle: 'info'
+				}
+			},
 			subject: 'Write a news article',
 			since: 'Last Update 8 hours ago'
 		}
@@ -72,7 +89,12 @@ const notifications = [
 	{
 		id: 8,
 		message: {
-			icon: 'user',
+			icon: {
+				fa: 'user',
+				wrap: {
+					bsStyle: 'success'
+				}
+			},
 			subject: 'New User Registered',
 			since: '4 minutes ago',
 			label: {
@@ -290,34 +312,6 @@ export default class Header extends React.Component {
 }
 // end::nav-bar[]
 
-// tag::decorators[]
-const toggleable = (DecoratedComponent) => {
-
-    return class extends React.Component {
-    	constructor(props) {
-			super(props);
-
-			this.state = {
-				open: false
-			}
-		}
-
-		onToggle = (open) => {
-			this.setState({
-				open: open
-			});
-		}
-
-		render() {
-			var props = {}
-			_.extend(props, this.props, { onToggle: this.onToggle });
-			return (
-				<DecoratedComponent {...props} {...this.state} />
-			)
-		}
-    }
-}
-// end::decorators[]
 
 // tag::notification-dropdown[]
 @toggleable
@@ -419,10 +413,9 @@ class MessageNotification extends React.Component {
 
 		var image = null;
 		if (icon) {
-			// image = WrapIcons[icon];
-			image = <FaIcon fa={icon} wrap={{bsStyle: 'primary'}} />
+			image = <FaIcon {...icon} large />
 		} else if (from) {
-			image = <Avatar src={`img/${from.avatarUrl}`} small />
+			image = <Avatar src={`img/${from.avatarUrl}`} bsSize="sm" />
 		}
 
 		return (

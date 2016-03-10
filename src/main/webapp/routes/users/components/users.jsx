@@ -2,7 +2,7 @@ import React from 'react';
 import api from '../../../lib/apiHelper';
 
 import { RoleLabel, RoleLabels, Formsy, FormStatic, FormInput, FormCheckboxGroup, ImageSelect, Button, Label, Modal, PanelAlert, Paging, Table, Tooltip, OverlayTrigger, Avatar, FaIcon, NanoScroller } from '../../../controls';
-
+import { formModal } from '../../../decorators';
 
 // tag::vars[]
 
@@ -221,7 +221,7 @@ export default class Users extends React.Component {
 
                                 <Paging.Toolbar pageSize={this.state.pageSize}
                                                 updatePageSize={this.updatePageSize} >
-                                    <UserCreateModal toggle={{value: 'Add', className: 'btn-labeled fa fa-plus', bsStyle: 'info'}}
+                                    <UserCreateModal toggleButton={{value: 'Add', className: 'btn-labeled fa fa-plus', bsStyle: 'info'}}
                                                      onCreate={this.onCreate}
                                                      refreshAndGoToLastPage={this.refreshAndGoToLastPage} />
                                 </Paging.Toolbar>
@@ -252,103 +252,6 @@ export default class Users extends React.Component {
     }
 }
 // end::users[]
-
-// tag::modal-form[]
-const formModal = (DecoratedComponent) => {
-
-    return class extends React.Component {
-
-        constructor(props) {
-            super(props);
-
-            this.state = {
-                canSubmit: false,
-                showModal: false,
-                hasAlert: false,
-                alertTitle: '',
-                alertDetails: ''
-            }
-        }
-
-        clearAlert = () => {
-            this.setState({
-                hasAlert: false,
-                alertTitle: '',
-                alertDetails: ''
-            });
-        }
-
-        popAlert = (title, details) => {
-            this.setState({
-                hasAlert: true,
-                alertTitle: title,
-                alertDetails: details
-            })
-        }
-
-        closeModal = () => {
-            this.clearAlert();
-            this.setState({ showModal: false });
-        }
-        
-        openModal = () => {
-            this.setState({ showModal: true });
-        }
-
-        onToggle = (e) => {
-            e.preventDefault();
-
-            this.openModal();
-        }
-
-        enableSubmit = () => {
-            this.setState({
-                canSubmit: true
-            });
-        }
-
-        disableSubmit = () => {
-            this.setState({
-                canSubmit: false
-            });
-        }
-
-        render() {
-            const { toggle, tooltip, ...propsForDecoration } = this.props;
-            const methods = {
-                enableSubmit: this.enableSubmit,
-                disableSubmit: this.disableSubmit,
-                popAlert: this.popAlert,
-                closeModal: this.closeModal
-            };
-            const alerts = <PanelAlert bsStyle="danger" show={this.state.hasAlert} title={this.state.alertTitle} errors={this.state.alertDetails} />
-
-            var props = {};
-            _.extend(props, {...propsForDecoration}, {...this.state}, { alerts }, {...methods});
-
-            var button = <Button {...toggle} onClick={this.onToggle}>{toggle.value}</Button>
-
-            if (tooltip) {
-                const { placement, title } = tooltip;
-                button = (
-                    <OverlayTrigger placement={placement} overlay={<Tooltip>{title}</Tooltip>}>
-                        { button }
-                    </OverlayTrigger>
-                );
-            }
-
-            return (
-                <span>
-                    { button }
-                    <Modal show={this.state.showModal} onHide={this.closeModal}>
-                        <DecoratedComponent {...props} />
-                    </Modal>
-                </span>
-            )
-        }
-    }
-}
-// end::modal-form[]
 
 // tag::user-create-modal[]
 @formModal
@@ -391,7 +294,7 @@ class UserCreateModal extends React.Component {
                         {this.props.alerts}
 
                         <div className="media-left navbar-top-links">
-                            <ImageSelect id="user-create-img-sel" name="avatarUrl" className="img-lg img-circle" values={AVATAR_IMAGES} />
+                            <ImageSelect id="user-create-img-sel" name="avatarUrl" values={AVATAR_IMAGES} bsSize="lg" circle />
                         </div>
                         <div className="media-body">
                             <FormInput name="name" title="Username" required />
@@ -462,7 +365,7 @@ class UserEditModal extends React.Component {
 
                     <div className="media">
                         <div className="media-left navbar-top-links">
-                            <ImageSelect id="user-create-img-sel" name="avatarUrl" defaultValue={avatarUrl} className="img-lg img-circle" values={AVATAR_IMAGES} />
+                            <ImageSelect id="user-create-img-sel" name="avatarUrl" defaultValue={avatarUrl} values={AVATAR_IMAGES} bsSize="lg" circle />
                         </div>
                         <div className="media-body">
                             <FormStatic name="name" defaultValue={name} title="Username" />
@@ -530,7 +433,7 @@ class UserDeleteModal extends React.Component {
 
                     <div className="media">
                         <div className="media-left">
-                            <Avatar src={`img/${avatarUrl}`} large />
+                            <Avatar src={`img/${avatarUrl}`} bsSize="lg" />
                         </div>
                         <div className="media-body">
                             <h4 className="text-thin">Are you sure to delete user profile of <strong>{ `${firstName} ${lastName}` }</strong>?</h4>
@@ -594,7 +497,7 @@ class UserDisableModal extends React.Component {
 
                     <div className="media">
                         <div className="media-left">
-                            <Avatar src={`img/${avatarUrl}`} large />
+                            <Avatar src={`img/${avatarUrl}`} bsSize="lg" />
                         </div>
                         <div className="media-body">
                             <h4 className="text-thin">Are you sure to disable user profile of <strong>{ `${firstName} ${lastName}` }</strong>?</h4>
@@ -659,7 +562,7 @@ class UserEnableModal extends React.Component {
 
                     <div className="media">
                         <div className="media-left">
-                            <Avatar src={`img/${avatarUrl}`} large />
+                            <Avatar src={`img/${avatarUrl}`} bsSize="lg" />
                         </div>
                         <div className="media-body">
                             <h4 className="text-thin">Are you sure to enable user profile of <strong>{ `${firstName} ${lastName}` }</strong>?</h4>
@@ -737,21 +640,21 @@ class UserTableRow extends React.Component {
         if (active) {
             actions.push(<UserEditModal key="action-edit"
                                         user={this.props.user}
-                                        toggle={{href: '#', className: 'btn-icon btn-hover-success fa fa-pencil', bsSize: "small"}}
+                                        toggleButton={{href: '#', className: 'btn-icon btn-hover-success fa fa-pencil', bsSize: "small"}}
                                         tooltip={{placement: "top", title: "Edit"}}
                                         onUpdate={this.props.onUpdate}
                                         refreshCurrentPage={this.props.refreshCurrentPage} />
             );
             actions.push(<UserDeleteModal key="action-delete"
                                           user={this.props.user}
-                                          toggle={{href: '#', className: 'btn-icon btn-hover-danger fa fa-times', bsSize: "small"}}
+                                          toggleButton={{href: '#', className: 'btn-icon btn-hover-danger fa fa-times', bsSize: "small"}}
                                           tooltip={{placement: "top", title: "Delete"}}
                                           onDelete={this.props.onDelete}
                                           refreshCurrentPage={this.props.refreshCurrentPage} />
             );
             actions.push(<UserDisableModal key="action-disable"
                                            user={this.props.user}
-                                           toggle={{href: '#', className: 'btn-icon btn-hover-warning fa fa-lock', bsSize: "small"}}
+                                           toggleButton={{href: '#', className: 'btn-icon btn-hover-warning fa fa-lock', bsSize: "small"}}
                                            tooltip={{placement: "top", title: "Ban User"}}
                                            onDisable={this.props.onDisable}
                                            refreshCurrentPage={this.props.refreshCurrentPage} />
@@ -759,14 +662,14 @@ class UserTableRow extends React.Component {
         } else {
             actions.push(<UserEnableModal key="action-enable"
                                           user={this.props.user}
-                                          toggle={{href: '#', className: 'btn-icon btn-hover-success fa fa-unlock', bsSize: "small"}}
+                                          toggleButton={{href: '#', className: 'btn-icon btn-hover-success fa fa-unlock', bsSize: "small"}}
                                           tooltip={{placement: "top", title: "Enable User"}}
                                           onEnable={this.props.onEnable}
                                           refreshCurrentPage={this.props.refreshCurrentPage} />
             );
             actions.push(<UserDeleteModal key="action-delete"
                                           user={this.props.user}
-                                          toggle={{href: '#', className: 'btn-icon btn-hover-danger fa fa-times', bsSize: "small"}}
+                                          toggleButton={{href: '#', className: 'btn-icon btn-hover-danger fa fa-times', bsSize: "small"}}
                                           tooltip={{placement: "top", title: "Delete"}}
                                           onDelete={this.props.onDelete}
                                           refreshCurrentPage={this.props.refreshCurrentPage} />
@@ -775,7 +678,7 @@ class UserTableRow extends React.Component {
         return (
             <tr>
                 <td className="min-w-td">{this.props.sequence}</td>
-                <td><Avatar src={`img/${avatarUrl}`} small /></td>
+                <td><Avatar src={`img/${avatarUrl}`} bsSize="sm" /></td>
                 <td><a className="btn-link" href="#">{fullName}</a></td>
                 <td>{email}</td>
                 <td><span className="text-muted"><FaIcon fa="clock-o" /> {joinDate}</span></td>

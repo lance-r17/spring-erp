@@ -108,6 +108,41 @@ class MenuItemLink extends MenuItem {
 }
 // end::menu-item-link[]
 
+// tag::image-x[]
+class ImageX extends Image {
+
+    static propTypes = {
+        bsClass: string,
+        bsSize: string
+    };
+
+    static defaultProps = {
+        bsClass: 'img',
+        bsSize: ''
+    };
+
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        let sizeClass = utils.bootstrapUtils.prefix(this.props, this.props.bsSize);
+
+        const classes = {
+            'img-responsive': this.props.responsive,
+            'img-rounded': this.props.rounded,
+            'img-circle': this.props.circle,
+            'img-thumbnail': this.props.thumbnail,
+            [sizeClass]: (this.props.bsSize||'').trim().length > 0
+        };
+
+        return (
+            <img {...this.props} className={cx(this.props.className, classes)} />
+        )
+    }
+}
+// tag::image-x[]
+
 // tag::panel-alert[]
 class PanelAlert extends React.Component {
     constructor(props) {
@@ -167,31 +202,31 @@ class FaIcon extends React.Component {
     }
 
     render() {
-        const { className, bsClass, wrap, fa, large, wide, pullRight, ...otherProps } = this.props;
+        const { className, bsClass, wrap, fa, large, wide, pullRight, ...iconProps } = this.props;
         const classes = {
+            [utils.bootstrapUtils.prefix(this.props)]: true,
             [utils.bootstrapUtils.prefix(this.props, fa)]: true,
             [utils.bootstrapUtils.prefix(this.props, 'lg')]: large,
             [utils.bootstrapUtils.prefix(this.props, 'fw')]: wide,
-            'pull-right': pullRight
+            ['pull-right']: pullRight
         };
 
         if (wrap) {
-            const wrapperClasses = { 
-                [utils.bootstrapUtils.prefix({bsClass: 'bg'}, wrap.bsStyle || '')]: (wrap.bsStyle !== null),
+            let bgClass = utils.bootstrapUtils.prefix({bsClass: 'bg'}, wrap.bsStyle || '');
+            let sizeClass = utils.bootstrapUtils.prefix({bsClass: 'icon-wrap'}, wrap.bsSize || '');
+            const wrapClasses = {
                 'icon-circle': wrap.circle, 
-                'icon-wrap-xs': wrap.xsmall, 
-                'icon-wrap-sm': wrap.small, 
-                'icon-wrap-md': wrap.middle, 
-                'icon-wrap-lg': wrap.large
+                [bgClass]: (wrap.bsStyle||'').trim().length > 0,
+                [sizeClass]: (wrap.bsSize||'').trim().length > 0
             };
             return (
-                <span className={cx('icon-wrap', wrapperClasses)}>
-                    <i className={cx(className, bsClass, classes)} {...otherProps} />
+                <span className={cx('icon-wrap', wrapClasses)}>
+                    <i className={cx(className, classes)} {...iconProps} />
                 </span>
             )
         } else {
             return (
-                <i className={cx(className, bsClass, classes)} {...otherProps} />
+                <i className={cx(className, classes)} {...iconProps} />
             )
         }
     }
@@ -207,26 +242,23 @@ class Avatar extends React.Component {
     static propTypes = {
         alt: string,
         circle: bool,
-        xsmall: bool,
-        small: bool,
-        middle: bool,
-        large: bool
+        bsSize: string
     };
 
     static defaultProps = {
         alt: 'Profile Picture',
         circle: true,
-        xsmall: false,
-        small: false,
-        middle: false,
-        large: false
+        bsSize: ''
     };
 
     render() {
-        var { className, xsmall, small, middle, large, ...otherProps } = this.props;
-        className = cx(className, [{'img-lg': large}, {'img-md': middle}, {'img-sm': small}, {'img-xs': xsmall}, {'img-user': !(large||middle||small||xsmall)}]);
+        const { className, ...imageProps } = this.props;
+        const classes = {
+            'img-user': (this.props.bsSize||'').trim().length === 0
+        };
+
         return (
-            <Image className={className} {...otherProps} />
+            <ImageX className={cx(className, classes)} {...imageProps} />
         )
     }
 }
@@ -242,4 +274,4 @@ _.extend(
 
 export default controls;
 export { Accordion, Alert, Badge, Breadcrumb, BreadcrumbItem, Button, ButtonGroup, ButtonInput, ButtonToolbar, Carousel, CarouselItem, Col, CollapsibleNav, Dropdown, DropdownButton, Glyphicon, Grid, Image, Input, Interpolate, Jumbotron, Label, ListGroup, ListGroupItem, MenuItem, Modal, ModalBody, ModalFooter, ModalHeader, ModalTitle, Nav, Navbar, NavBrand, NavbarBrand, NavDropdown, NavItem, Overlay, OverlayTrigger, PageHeader, PageItem, Pager, Pagination, Panel, PanelGroup, Popover, ProgressBar, ResponsiveEmbed, Row, SafeAnchor, SplitButton, Tab, Table, Tabs, Thumbnail, Tooltip, Well, Collapse, Fade, FormControls, utils };
-export { ScrollTopButton, MenuItemLink, PanelAlert, FaIcon, Avatar };
+export { ScrollTopButton, ImageX, MenuItemLink, PanelAlert, FaIcon, Avatar };
