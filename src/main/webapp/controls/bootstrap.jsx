@@ -3,7 +3,7 @@ import { Accordion, Alert, Badge, Breadcrumb, BreadcrumbItem, Button, ButtonGrou
 import { Link, IndexLink } from 'react-router';
 import cx from 'classnames';
 
-const { bool, object, string, func, oneOfType, oneOf } = React.PropTypes
+const { bool, object, string, number, func, oneOfType, oneOf } = React.PropTypes
 
 // tag::scorll-top-button[]
 class ScrollTopButton extends React.Component {

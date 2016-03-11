@@ -1,6 +1,6 @@
 import Dashboard from './components/dashboard.jsx';
 
-module.exports = {
+let route = {
 	path: 'dashboard',
 	getComponent(location, cb) {
 		require.ensure([], (require) => {
@@ -8,3 +8,5 @@ module.exports = {
 		})
 	}
 }
+
+export default route;

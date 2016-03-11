@@ -1,11 +1,11 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { findDOMNode } from 'react-dom';
 import nanoScroller from 'nanoscroller';
 import $ from 'jquery';
 
 class NanoScroller extends React.Component {
     componentDidMount() {
-        this.scrollContainer = $(ReactDOM.findDOMNode(this.refs['scroll-container']));
+        this.scrollContainer = $(findDOMNode(this.refs['scroll-container']));
 
         this.scrollContainer.nanoScroller({preventPageScrolling: true});
     }

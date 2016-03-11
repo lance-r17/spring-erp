@@ -1,9 +1,7 @@
 import Users from './components/users.jsx';
 
-const path = 'users';
-
-var route = {
-	path: path,
+let route = {
+	path: 'users',
 	getComponent(location, callback) {
 		require.ensure([], (require) => {
 			callback(null, Users)
@@ -11,4 +9,4 @@ var route = {
 	}
 }
 
-module.exports = route;
+export default route;

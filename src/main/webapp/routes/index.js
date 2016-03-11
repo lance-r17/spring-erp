@@ -1,9 +1,5 @@
-import DashboardRoute from './dashboard';
-import UsersRoute from './users';
+import Dashboard from './dashboard';
+import Users from './users';
+import Menu from './menu';
 
-var routes = {};
-
-routes.DashboardRoute = DashboardRoute;
-routes.UsersRoute = UsersRoute;
-
-module.exports = routes;
+export { Dashboard, Users, Menu };

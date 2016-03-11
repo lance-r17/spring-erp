@@ -3,14 +3,14 @@ import { render } from 'react-dom';
 import { Router, Route, Link, hashHistory, browserHistory } from 'react-router';
 
 import { App } from './components';
-import { DashboardRoute, UsersRoute } from './routes';
+import { Dashboard, Users, Menu } from './routes';
 
 define(function (require){
 	'use strict';
 
-	const indexRoute = {
-		getComponent: DashboardRoute.getComponent
-	};
+	// const indexRoute = {
+	// 	getComponent: Dashboard.getComponent
+	// };
 
     const rootRoute = {
 		component: 'div',
@@ -20,12 +20,12 @@ define(function (require){
 				component: App,
 				indexRoute: { onEnter: (nextState, replace) => replace('/dashboard') },
 				childRoutes: [
-					DashboardRoute,
-					UsersRoute
-				],
-				// indexRoute: indexRoute
+					Dashboard,
+					Users,
+					Menu
+				]
 			}
-		]	
+		]
 	};
 
 	// tag::render[]
