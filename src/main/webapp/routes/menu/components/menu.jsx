@@ -22,8 +22,8 @@ const Nestable = (DecoratedComponent) => {
         static defaultProps = {
             maxDepth: 3,
             group: 1,
-            expandBtnHTML   : '<button class="pull-right" data-action="expand" type="button"><i class="fa fa-plus-square" /></button>',
-            collapseBtnHTML : '<button class="pull-right" data-action="collapse" type="button"><i class="fa fa-minus-square" /></button>',
+            expandBtnHTML   : '<button data-action="expand" type="button"><i class="fa fa-plus-square" /></button>',
+            collapseBtnHTML : '<button data-action="collapse" type="button"><i class="fa fa-minus-square" /></button>',
         };
 
         constructor(props) {
@@ -50,11 +50,12 @@ const Nestable = (DecoratedComponent) => {
         }
 
         render() {
-            let { maxDepth, group, ...props } = this.props;
-            _.extend(props, { nestable: this.nestable });
+            let { maxDepth, group, menu, ...props } = this.props;
+            _.extend(props, { list: menu.children }, { nestable: this.nestable });
 
             return (
                 <div ref="nestable-container" className="dd">
+                    <div className="dd-header" data-header={menu.header}>{menu.header}</div>
                     <DecoratedComponent {...props} {...this.state} />
                 </div>
             )
@@ -111,6 +112,9 @@ export default class Menu extends React.Component {
     }    
 
     render() {
+        let menus = NestedMenu.map( menu =>
+            <NestableMenuList menu={menu}/>
+        )
         return (
             <div id="content-container">
 
@@ -122,7 +126,7 @@ export default class Menu extends React.Component {
 
                 {/* Page content */}
                 <div id="page-content">
-                    <NestableMenuList list={NestedMenu}/>
+                    { menus }
                 </div>
                 {/* End page content */}
 
@@ -156,7 +160,7 @@ class NestableMenuList extends React.Component {
             let childList = children ? (<NestableMenuList list={children} />) : null;
 
             items.push(
-                <li className="dd-item dd3-item" data-header={header} data-name={name} data-path={path} data-fa={fa} >
+                <li key={i} className="dd-item dd3-item" data-header={header} data-name={name} data-path={path} data-fa={fa} >
                     <div className="dd-handle dd3-handle">Drag</div>
                     { content }
                     { childList }
@@ -169,16 +173,5 @@ class NestableMenuList extends React.Component {
                 { items }
             </ol>
         )
-    }
-}
-
-class NestableMenuItem extends React.Component {
-
-    constructor(props) {
-        super(props);
-    }
-
-    render() {
-        
     }
 }
