@@ -1,82 +1,49 @@
 import React from 'react';
+import update from 'react/lib/update';
 import { findDOMNode } from 'react-dom';
 import { Link } from 'react-router';
+import { DragSource, DropTarget, DragDropContext } from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
 import cx from 'classnames';
-import nestable from 'nestable';
-import $ from 'jquery';
 
-import { FaIcon } from '../../../controls';
+import { FaIcon, Label, Collapse } from '../../../controls';
+import { toggleable } from '../../../decorators';
 
 const { bool, object, string, number, func, oneOfType, oneOf } = React.PropTypes
 
-const Nestable = (DecoratedComponent) => {
-    return class extends React.Component {
+const ItemTypes = {
+    LINK: 'link',
+    SUBTREE: 'subtree',
+    BLOCK: 'block',
+    MENUTREE: 'menutree'
+};
 
-        static propTypes = {
-            maxDepth : number,
-            group: number,
-            expandBtnHTML: string,
-            collapseBtnHTML: string
-        };
-
-        static defaultProps = {
-            maxDepth: 3,
-            group: 1,
-            expandBtnHTML   : '<button data-action="expand" type="button"><i class="fa fa-plus-square" /></button>',
-            collapseBtnHTML : '<button data-action="collapse" type="button"><i class="fa fa-minus-square" /></button>',
-        };
-
-        constructor(props) {
-            super(props);
-        }
-
-        componentDidMount() {
-            this.nestable();
-        }
-
-        nestable = () => {
-            this.nestableContainer = $(findDOMNode(this.refs['nestable-container']));
-
-            this.nestableContainer.nestable({
-                maxDepth: this.props.maxDepth,
-                group: this.props.group,
-                expandBtnHTML: this.props.expandBtnHTML,
-                collapseBtnHTML: this.props.collapseBtnHTML
-            });
-
-            this.nestableContainer.on('change', () => {
-                console.log(this.nestableContainer.nestable('serialize'));
-            });
-        }
-
-        render() {
-            let { maxDepth, group, menu, ...props } = this.props;
-            _.extend(props, { list: menu.children }, { nestable: this.nestable });
-
-            return (
-                <div ref="nestable-container" className="dd">
-                    <div className="dd-header" data-header={menu.header}>{menu.header}</div>
-                    <DecoratedComponent {...props} {...this.state} />
-                </div>
-            )
-        }
-    }
-}
+const style = {
+    border: '1px dashed gray',
+    cursor: 'move'
+};
 
 const NestedMenu = [
     {
+        id: 1,
         header: 'Navigation',
-        children: [
+        links: [
             {
                 name: 'Dashboard',
                 path: '/dashboard',
                 fa: 'dashboard',
+                label: {
+                    content: 'Top',
+                    bsStyle: 'success',
+                    pullRight: true
+                }
             }
         ]
     },
     {
+        id: 2,
         header: 'Admin',
-        children: [
+        links: [
             {
                 name: 'Users',
                 path: '/users',
@@ -85,21 +52,29 @@ const NestedMenu = [
         ]
     },
     {
+        id: 3,
         header: 'Development',
-        children: [
+        links: [
             {
-                name: 'Toolkits',
-                fa: 'briefcase',
-                children: [
-                    {
-                        name: 'Page',
-                        path: '/page'
-                    },
-                    {
-                        name: 'Menu',
-                        path: '/menu'
-                    }
-                ]
+                collapse: {
+                    name: 'Toolkits',
+                    fa: 'briefcase',
+                    links: [
+                        {
+                            name: 'Page',
+                            href: '/page',
+                            label: {
+                                content: 'new',
+                                bsStyle: 'primary',
+                                pullRight: true
+                            }
+                        },
+                        {
+                            name: 'Menu',
+                            href: '/menu'
+                        }
+                    ]
+                }
             }
         ]
     }
@@ -109,12 +84,9 @@ const NestedMenu = [
 export default class Menu extends React.Component {
     constructor(props) {
         super(props);
-    }    
+    }
 
     render() {
-        let menus = NestedMenu.map( menu =>
-            <NestableMenuList menu={menu}/>
-        )
         return (
             <div id="content-container">
 
@@ -126,7 +98,11 @@ export default class Menu extends React.Component {
 
                 {/* Page content */}
                 <div id="page-content">
-                    { menus }
+                    <nav className="nav-container">
+                        <div className="nav">
+                            <MenuTree />
+                        </div>
+                    </nav>
                 </div>
                 {/* End page content */}
 
@@ -137,41 +113,210 @@ export default class Menu extends React.Component {
     }
 }
 
-@Nestable
-class NestableMenuList extends React.Component {
+
+@DragDropContext(HTML5Backend)
+@DropTarget(
+    ItemTypes.BLOCK,
+    { drop() {} }, 
+    connect => ({
+        connectDropTarget: connect.dropTarget()
+    })
+)
+class MenuTree extends React.Component {
+
+    static propTypes = {
+        connectDropTarget: func.isRequired
+    };
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            blocks: NestedMenu
+        }
+    }
+
+    moveBlock = (id, atIndex) => {
+        const { block, index } = this.findBlock(id);
+        this.setState(update(this.state, {
+            blocks: {
+                $splice: [
+                    [index, 1],
+                    [atIndex, 0, block]
+                ]
+            }
+        }));
+    }
+
+    findBlock = (id) => {
+        const { blocks } = this.state;
+        const block = blocks.filter(c => c.id === id)[0];
+
+        return {
+            block,
+            index: blocks.indexOf(block)
+        };
+    }
+
+    render() {
+        const { connectDropTarget } = this.props;
+        const { blocks } = this.state;
+
+        return connectDropTarget(
+            <ul className="nav-menu">
+                { blocks.map( (block) => {
+                    return (
+                        <MenuBlock key={block.id}
+                                   { ...block } 
+                                   moveBlock={this.moveBlock}
+                                   findBlock={this.findBlock}/> 
+                    )
+                }) }
+            </ul>
+        );
+    }
+}
+
+const blockSource = {
+    beginDrag(props) {
+        return {
+            id: props.id,
+            originalIndex: props.findBlock(props.id).index
+        };
+    },
+
+    endDrag(props, monitor) {
+        const { id: droppedId, originalIndex } = monitor.getItem();
+        const didDrop = monitor.didDrop();
+
+        if (!didDrop) {
+            props.moveBlock(droppedId, originalIndex);
+        }
+    }
+};
+
+const blockTarget = {
+    canDrop() {
+        return false;
+    },
+
+    hover(props, monitor) {
+        const { id: draggedId } = monitor.getItem();
+        const { id: overId } = props;
+
+        if (draggedId !== overId) {
+            const { index: overIndex } = props.findBlock(overId);
+            props.moveBlock(draggedId, overIndex);
+        }
+    }
+};
+
+@DropTarget(
+    ItemTypes.BLOCK,
+    blockTarget, 
+    connect => ({
+        connectDropTarget: connect.dropTarget()
+    })
+)
+@DragSource(
+    ItemTypes.BLOCK,
+    blockSource, 
+    (connect, monitor) => ({
+        connectDragSource: connect.dragSource(),
+        isDragging: monitor.isDragging()
+    })
+)
+class MenuBlock extends React.Component {
+    static propTypes = {
+        connectDragSource: func.isRequired,
+        connectDropTarget: func.isRequired,
+        isDragging: bool.isRequired,
+        id: number.isRequired,
+        header: string.isRequired,
+        moveBlock: func.isRequired,
+        findBlock: func.isRequired
+    };
+
     constructor(props) {
         super(props);
     }
 
     render() {
-        const { list } = this.props;
-        let items = [];
+        const { id, header, links, isDragging, connectDragSource, connectDropTarget } = this.props;
+        const opacity = isDragging ? 0 : 1;
 
-        list.forEach( (item, i) => {
-            const { header, name, path, fa, children } = item;
-
-            let content = (
-                <div className="dd3-content">
-                    { fa ? <FaIcon fa={fa} /> : null }
-                    { header || name  }
+        return connectDragSource(connectDropTarget(
+            <li className="block" style={{ ...style, opacity }}>
+                <div className="list-header">
+                    { header }
                 </div>
-            );
+                <ul>
+                { links.map( (link, i) => {
+                    const { collapse, ...linkProps} = link;
+                    if (collapse) {
+                        return (
+                            <MenuSubtree key={i} {...collapse} />
+                        )
+                    } else {
+                        return (
+                            <MenuLink key={i} {...linkProps} />
+                        )
+                    }
+                })}
+                </ul>
+            </li>
+        ));
+    }
 
-            let childList = children ? (<NestableMenuList list={children} />) : null;
+}
 
-            items.push(
-                <li key={i} className="dd-item dd3-item" data-header={header} data-name={name} data-path={path} data-fa={fa} >
-                    <div className="dd-handle dd3-handle">Drag</div>
-                    { content }
-                    { childList }
-                </li>
-            );
-        });
+@toggleable
+class MenuSubtree extends React.Component {
+    constructor(props) {
+        super(props);
+    }
 
+    render() {
+        const { name, fa, links, open, onToggle } = this.props;
         return (
-            <ol className="dd-list">
-                { items }
-            </ol>
+            <li className={cx({ 'active': open })} style={{ ...style }}>
+                <a href="#" onClick={onToggle}>
+                    <FaIcon fa={fa} />
+                    <span className="menu-title">{name}</span>
+                    <i className="arrow"></i>
+                </a>
+
+                <Collapse in={open}>
+                    <ul>
+                        { links.map( (link, i) => {
+                            return (
+                                <MenuLink key={i} {...link} />
+                            )
+                        }) }
+                    </ul>
+                </Collapse>
+            </li>
+        )
+    }
+}
+
+class MenuLink extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        const { name, path, fa, label } = this.props;
+        let highlight = null;
+        if (label) {
+            const { content, pullRight, ...props } = label;
+            highlight = <Label {...props} className={cx({'pull-right': pullRight})}>{ content }</Label>
+        }
+        return (
+            <li style={{ ...style }}>
+                { fa ? <FaIcon fa={fa} /> : null }
+                { name }
+                { highlight }
+            </li>
         )
     }
 }
