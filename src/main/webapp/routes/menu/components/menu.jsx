@@ -25,7 +25,6 @@ const style = {
 
 const NestedMenu = [
     {
-        id: 1,
         header: 'Navigation',
         links: [
             {
@@ -41,7 +40,6 @@ const NestedMenu = [
         ]
     },
     {
-        id: 2,
         header: 'Admin',
         links: [
             {
@@ -52,7 +50,6 @@ const NestedMenu = [
         ]
     },
     {
-        id: 3,
         header: 'Development',
         links: [
             {
@@ -100,7 +97,7 @@ export default class Menu extends React.Component {
                 <div id="page-content">
                     <nav className="nav-container">
                         <div className="nav">
-                            <MenuTree />
+                            <MenuTree menu={NestedMenu} />
                         </div>
                     </nav>
                 </div>
@@ -130,8 +127,35 @@ class MenuTree extends React.Component {
 
     constructor(props) {
         super(props);
+
+        let numOfLinks = 0,
+            numOfSubtree = 0;
+
+        let blocks = this.props.menu.map( (block, i) => {
+            block.id = `b${i}`;
+            let { links } = block;
+
+            if (links) {
+                links.forEach( link => {
+                    if (link.collapse) {
+                        link.collapse.id = `s${numOfSubtree++}`;
+
+                        let subLinks = link.collapse.links;
+                        subLinks.forEach( subLink => {
+                            subLink.id = `l${numOfLinks++}`;
+                        })
+                    } else {
+                        link.id = `l${numOfLinks++}`;
+                    }
+                })
+            }
+
+            return block;
+        });
         this.state = {
-            blocks: NestedMenu
+            blocks: blocks,
+            numOfSubtree: numOfSubtree,
+            numOfLinks: numOfLinks
         }
     }
 
@@ -153,6 +177,28 @@ class MenuTree extends React.Component {
 
         return {
             block,
+            index: blocks.indexOf(block)
+        };
+    }
+
+    findSubtree = (id) => {
+        const { blocks } = this.state;
+        let subtree = null,
+            block = null;
+
+        blocks.forEach( b => {
+            if (b.links) {
+                b.links.forEach( link => {
+                    if (link.collapse && link.collapse.id === id) {
+                        subtree = link.collapse;
+                        block = b;
+                    }
+                })
+            }
+        });
+
+        return {
+            subtree,
             index: blocks.indexOf(block)
         };
     }
@@ -211,8 +257,8 @@ const blockTarget = {
 };
 
 @DropTarget(
-    ItemTypes.BLOCK,
-    blockTarget, 
+    [ItemTypes.BLOCK, ItemTypes.SUBTREE],
+    blockTarget,
     connect => ({
         connectDropTarget: connect.dropTarget()
     })
@@ -230,7 +276,7 @@ class MenuBlock extends React.Component {
         connectDragSource: func.isRequired,
         connectDropTarget: func.isRequired,
         isDragging: bool.isRequired,
-        id: number.isRequired,
+        id: string.isRequired,
         header: string.isRequired,
         moveBlock: func.isRequired,
         findBlock: func.isRequired
@@ -254,11 +300,11 @@ class MenuBlock extends React.Component {
                     const { collapse, ...linkProps} = link;
                     if (collapse) {
                         return (
-                            <MenuSubtree key={i} {...collapse} />
+                            <MenuSubtree key={collapse.id} {...collapse} />
                         )
                     } else {
                         return (
-                            <MenuLink key={i} {...linkProps} />
+                            <MenuLink key={linkProps.id} {...linkProps} />
                         )
                     }
                 })}
@@ -269,6 +315,55 @@ class MenuBlock extends React.Component {
 
 }
 
+const subtreeSource = {
+    beginDrag(props) {
+        return {
+            id: props.id,
+            originalIndex: props.findSubtree(props.id).index
+        };
+    },
+
+    endDrag(props, monitor) {
+        const { id: droppedId, originalIndex } = monitor.getItem();
+        const didDrop = monitor.didDrop();
+
+        if (!didDrop) {
+            props.moveBlock(droppedId, originalIndex);
+        }
+    }
+};
+
+const subtreeTarget = {
+    canDrop() {
+        return false;
+    },
+
+    hover(props, monitor) {
+        const { id: draggedId } = monitor.getItem();
+        const { id: overId } = props;
+
+        if (draggedId !== overId) {
+            const { index: overIndex } = props.findSubtree(overId);
+            props.moveBlock(draggedId, overIndex);
+        }
+    }
+};
+
+@DropTarget(
+    [ItemTypes.SUBTREE],
+    subtreeTarget,
+    connect => ({
+        connectDropTarget: connect.dropTarget()
+    })
+)
+@DragSource(
+    ItemTypes.SUBTREE,
+    subtreeSource,
+    (connect, monitor) => ({
+        connectDragSource: connect.dragSource(),
+        isDragging: monitor.isDragging()
+    })
+)
 @toggleable
 class MenuSubtree extends React.Component {
     constructor(props) {
@@ -276,9 +371,11 @@ class MenuSubtree extends React.Component {
     }
 
     render() {
-        const { name, fa, links, open, onToggle } = this.props;
-        return (
-            <li className={cx({ 'active': open })} style={{ ...style }}>
+        const { name, fa, links, open, onToggle, isDragging, connectDragSource, connectDropTarget } = this.props;
+        const opacity = isDragging ? 0 : 1;
+
+        return connectDragSource(connectDropTarget(
+            <li className={cx({ 'active': open })} style={{ ...style, opacity }}>
                 <a href="#" onClick={onToggle}>
                     <FaIcon fa={fa} />
                     <span className="menu-title">{name}</span>
@@ -289,13 +386,13 @@ class MenuSubtree extends React.Component {
                     <ul>
                         { links.map( (link, i) => {
                             return (
-                                <MenuLink key={i} {...link} />
+                                <MenuLink key={link.id} {...link} />
                             )
                         }) }
                     </ul>
                 </Collapse>
             </li>
-        )
+        ));
     }
 }
 
