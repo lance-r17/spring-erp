@@ -233,17 +233,30 @@ class MenuTree extends React.Component {
 
     moveSubtree = (id, atIndex, atBlockIndex) => {
         let { blocks } = this.state;
-        const { subtree, index, block, blockIndex } = this.findSubtree(id);
+        const { subtree, index, blockIndex } = this.findSubtree(id);
 
-        if (blockIndex !== atBlockIndex) {
-            blocks = blocks.deleteIn([blockIndex, "links", index]);
+        if (blockIndex === atBlockIndex && index === atIndex) {
+            return;
         }
-        blocks = blocks.updateIn([atBlockIndex, "links"], links => {
-            // if (atIndex == -1) {
-            //     atIndex = links.getSize() - 1;
-            // }
-            return links.splice(atIndex, 0, subtree);
-        });
+
+        if (blockIndex === atBlockIndex) {
+            //blocks = blocks.deleteIn([blockIndex, "links", index]);
+            blocks = blocks.updateIn([atBlockIndex, "links"], links => {
+                links.splice(index, 1).splice(atIndex, 0, subtree);
+            });
+        } else {
+            blocks = blocks.updateIn([blockIndex, "links"], links => {
+                if (links) {
+                    links.splice(index, 1);
+                }
+            });
+
+            blocks = blocks.updateIn([atBlockIndex, "links"], List(), links => {
+                if (links) {
+                    links.splice(atIndex < 0 ? links.count() - 1: atIndex, 0, subtree);
+                }
+            });
+        }
 
         this.setState({
             blocks: blocks
@@ -256,16 +269,18 @@ class MenuTree extends React.Component {
             subtree = null;
 
         const blockIndex = blocks.findIndex( block => {
-            let links = Immutable.Map(block).get("links");
-            
-            let linkIndex = links.findIndex( link =>
-                Immutable.Map(link).getIn(["collapse", "id"]) === id
-            );
+            let links = block.get("links");
 
-            if (linkIndex !== -1) {
-                index = linkIndex;
-                subtree = links.get(linkIndex);
-                return true;
+            if (links) {
+                let linkIndex = links.findIndex( link =>
+                    Immutable.Map(link).getIn(["collapse", "id"]) === id
+                );
+
+                if (linkIndex !== -1) {
+                    index = linkIndex;
+                    subtree = links.get(linkIndex);
+                    return true;
+                }
             }
 
             return false;
@@ -322,8 +337,9 @@ const blockSource = {
 };
 
 const blockTarget = {
-    canDrop() {
-        return false;
+    canDrop(props, monitor) {
+        const { itemType } = monitor.getItem();
+        return itemType !== ItemTypes.BLOCK;
     },
 
     hover(props, monitor) {
@@ -343,7 +359,7 @@ const blockTarget = {
 };
 
 @DropTarget(
-    [ItemTypes.BLOCK],
+    [ItemTypes.BLOCK, ItemTypes.SUBTREE],
     blockTarget,
     connect => ({
         connectDropTarget: connect.dropTarget()
@@ -376,27 +392,32 @@ class MenuBlock extends React.Component {
         const { id, header, links, findSubtree, moveSubtree, isDragging, connectDragSource, connectDropTarget } = this.props;
         const opacity = isDragging ? 0 : 1;
 
+        let subLinks = [];
+        if (links) {
+            subLinks = links.map( (link, i) => {
+                const { collapse, ...linkProps} = link;
+                if (collapse) {
+                    return (
+                        <MenuSubtree key={collapse.id}
+                                     {...collapse}
+                                     findSubtree={findSubtree}
+                                     moveSubtree={moveSubtree} />
+                    )
+                } else {
+                    return (
+                        <MenuLink key={linkProps.id} {...linkProps} />
+                    )
+                }
+            });
+        }
+
         return connectDragSource(connectDropTarget(
             <li className="block" style={{ ...style, opacity }}>
                 <div className="list-header">
                     { header }
                 </div>
                 <ul>
-                { links.map( (link, i) => {
-                    const { collapse, ...linkProps} = link;
-                    if (collapse) {
-                        return (
-                            <MenuSubtree key={`${collapse.id}-${i}`} 
-                                         {...collapse} 
-                                         findSubtree={findSubtree}
-                                         moveSubtree={moveSubtree} />
-                        )
-                    } else {
-                        return (
-                            <MenuLink key={`${linkProps.id}-${i}`} {...linkProps} />
-                        )
-                    }
-                })}
+                { subLinks }
                 </ul>
             </li>
         ));
@@ -493,7 +514,7 @@ class MenuSubtree extends React.Component {
                     <ul>
                         { links.map( (link, i) => {
                             return (
-                                <MenuLink key={`${link.id}-${i}`} {...link} />
+                                <MenuLink key={link.id} {...link} />
                             )
                         }) }
                     </ul>
