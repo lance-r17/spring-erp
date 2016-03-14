@@ -12,6 +12,7 @@
     "classnames": "^2.2.3",
     "font-awesome": "^4.5.0",
     "formsy-react": "^0.17.0",
+    "immutable": "^3.7.6",
     "jquery": "^2.2.0",
     "lodash": "^4.5.0",
     "nanoscroller": "^0.8.7",
