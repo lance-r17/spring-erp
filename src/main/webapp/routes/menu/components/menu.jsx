@@ -44,10 +44,19 @@ const NestedMenu = [
         header: 'Admin',
         links: [
             {
-                name: 'Users',
-                path: '/users',
-                fa: 'users'
+                collapse: {
+                    name: 'Entitle',
+                    fa: 'sitemap',
+                    links: [
+                        {
+                            name: 'Users',
+                            path: '/users',
+                            fa: 'users'
+                        }
+                    ]
+                }
             }
+
         ]
     },
     {
@@ -166,7 +175,7 @@ class MenuTree extends React.Component {
         let item = null,
             itemType = null,
             depth = [],
-            index = 0;
+            index = -1;
 
         if (id.startsWith('b')) {
             index = blocks.findIndex( block =>
@@ -183,7 +192,7 @@ class MenuTree extends React.Component {
 
                 if (links) {
                     let linkIndex = links.findIndex( link =>
-                        Immutable.Map(link).getIn(["collapse", "id"]) === id
+                        link.getIn(["collapse", "id"]) === id
                     );
 
                     if (linkIndex !== -1) {
@@ -197,7 +206,50 @@ class MenuTree extends React.Component {
             });
 
             itemType = ItemTypes.SUBTREE;
-            depth = [blockIndex, "links"];
+            depth = [blockIndex, "links"].concat(depth);
+        } else if (id.startsWith('l')) {
+            const blockIndex = blocks.findIndex( block => {
+                let links = block.get("links");
+
+                if (links) {
+                    let linkIndex = links.findIndex(link => {
+                        const subtree = link.get("collapse");
+
+                        if (subtree) {
+                            let sublinks = subtree.getIn("links");
+
+                            if (sublinks) {
+                                let sublinkIndex = sublinks.findIndex(sublink =>
+                                    sublink.id === id
+                                );
+
+                                if (sublinkIndex !== -1) {
+                                    index = sublinkIndex;
+                                    depth = ["collapse", "links"];
+                                    item = sublink;
+                                    return true;
+                                }
+                            }
+                        } else {
+                            return link.get("id") === id;
+                        }
+                    });
+
+                    if (linkIndex !== -1) {
+                        if (index === -1) {
+                            index = linkIndex;
+                            item = links.get(linkIndex);
+                        }
+
+                        return true;
+                    }
+                }
+
+                return false;
+            });
+
+            itemType = ItemTypes.LINK;
+            depth = [blockIndex, "links"].concat(depth);
         }
 
         return {
@@ -214,7 +266,7 @@ class MenuTree extends React.Component {
 
         if (itemType === ItemTypes.BLOCK) {
             blocks = blocks.splice(index, 1).splice(atIndex, 0, item);
-        } else if (itemType === ItemTypes.SUBTREE) {
+        } else if (itemType === ItemTypes.SUBTREE || itemType === ItemTypes.LINK) {
             if (_.isEqual(depth, atDepth)) {
                 if (index === atIndex) {
                     return;
@@ -238,83 +290,47 @@ class MenuTree extends React.Component {
         });
     }
 
-    moveBlock = (id, atIndex) => {
-        let { blocks } = this.state;
-        const { block, index } = this.findBlock(id);
+    findAvailablePath = (id, sourceId) => {
+        const { index, itemType, depth } = this.findItem(id);
+        const { itemType: sourceItemType, depth: sourceDepth } = this.findItem(sourceId);
 
-        blocks = blocks.splice(index, 1).splice(atIndex, 0, block);
-        this.setState({
-            blocks: blocks
-        });
-    }
-
-    findBlock = (id) => {
-        const { blocks } = this.state;
-        const index = blocks.findIndex( block =>
-            block.get("id") === id
-        );
-
-        return {
-            index,
-            block: blocks.get(index)
-        };
-    }
-
-    moveSubtree = (id, atIndex, atBlockIndex) => {
-        let { blocks } = this.state;
-        const { subtree, index, blockIndex } = this.findSubtree(id);
-
-        if (blockIndex === atBlockIndex && index === atIndex) {
-            return;
-        }
-
-        if (blockIndex === atBlockIndex) {
-            blocks = blocks.updateIn([atBlockIndex, "links"], links => {
-                return links.splice(index, 1).splice(atIndex, 0, subtree);
-            });
-        } else {
-            blocks = blocks.updateIn([blockIndex, "links"], links => {
-                if (links) {
-                    return links.splice(index, 1);
+        if (itemType === ItemTypes.BLOCK) {
+            if (sourceItemType === ItemTypes.BLOCK) {
+                return {
+                    index,
+                    itemType,
+                    depth
                 }
-            }).updateIn([atBlockIndex, "links"], Immutable.List.of(), links => {
-                return links.splice(atIndex, 0, subtree);
-            });
-        }
-
-        this.setState({
-            blocks: blocks
-        });
-    }
-
-    findSubtree = (id) => {
-        const { blocks } = this.state;
-        let index = null,
-            subtree = null;
-
-        const blockIndex = blocks.findIndex( block => {
-            let links = block.get("links");
-
-            if (links) {
-                let linkIndex = links.findIndex( link =>
-                    Immutable.Map(link).getIn(["collapse", "id"]) === id
-                );
-
-                if (linkIndex !== -1) {
-                    index = linkIndex;
-                    subtree = links.get(linkIndex);
-                    return true;
+            } else if (sourceItemType === ItemTypes.SUBTREE || sourceItemType === ItemTypes.LINK) {
+                return {
+                    index: -1,
+                    itemType,
+                    depth: [index, "links"]
                 }
             }
-
-            return false;
-        });
-
-        return {
-            subtree,
-            index,
-            blockIndex
-        };
+        } else if (itemType === ItemTypes.SUBTREE) {
+            if (sourceItemType === ItemTypes.SUBTREE) {
+                return {
+                    index,
+                    itemType,
+                    depth
+                }
+            } else if (sourceItemType === ItemTypes.LINK) {
+                return {
+                    index: -1,
+                    itemType,
+                    depth: depth.push("links")
+                }
+            }
+        } else if (itemType === ItemTypes.LINK) {
+            if (sourceItemType === ItemTypes.LINK) {
+                return {
+                    index,
+                    itemType,
+                    depth
+                }
+            }
+        }
     }
 
     render() {
@@ -326,13 +342,10 @@ class MenuTree extends React.Component {
                 { blocks.toJS().map( (block, i) => {
                     return (
                         <MenuBlock key={block.id}
-                                   { ...block } 
-                                   moveItem={this.moveItem}
+                                   { ...block }
                                    findItem={this.findItem}
-                                   moveBlock={this.moveBlock}
-                                   findBlock={this.findBlock}
-                                   findSubtree={this.findSubtree}
-                                   moveSubtree={this.moveSubtree} /> 
+                                   moveItem={this.moveItem}
+                                   findAvailablePath={this.findAvailablePath} />
                     )
                 }) }
             </ul>
@@ -356,7 +369,6 @@ const blockSource = {
         const didDrop = monitor.didDrop();
 
         if (!didDrop) {
-            // props.moveBlock(droppedId, originalIndex);
             props.moveItem(droppedId, originalIndex, originalDepth);
         }
     }
@@ -369,31 +381,18 @@ const blockTarget = {
     },
 
     hover(props, monitor) {
-        const { id: draggedId, originalBlockIndex, itemType: draggedItemType } = monitor.getItem();
+        const { id: draggedId } = monitor.getItem();
         const { id: overId } = props;
 
-        if (draggedId !== overId) {
-            // const { index: overIndex, atDepth } = props.findBlock(overId);
-            const { index: overIndex, depth, itemType: overItemType } = props.findItem(overId);
-
-            // if (itemType === ItemTypes.BLOCK) {
-            //     props.moveBlock(draggedId, overIndex);
-            // } else if (itemType === ItemTypes.SUBTREE) {
-            //     props.moveSubtree(draggedId, -1, overIndex);
-            // }
-
-            const atIndex = draggedItemType === ItemTypes.BLOCK ? overIndex : -1;
-            let atDepth = depth;
-            if (draggedItemType === ItemTypes.SUBTREE && overItemType === ItemTypes.BLOCK) {
-                atDepth = [overIndex, "links"];
-            }
+        if (draggedId !== overId && monitor.isOver({ shallow: true })) {
+            const { index: atIndex, depth: atDepth } = props.findAvailablePath(overId, draggedId);
             props.moveItem(draggedId, atIndex, atDepth);
         }
     }
 };
 
 @DropTarget(
-    [ItemTypes.BLOCK, ItemTypes.SUBTREE],
+    [ItemTypes.BLOCK, ItemTypes.SUBTREE, ItemTypes.LINK],
     blockTarget,
     connect => ({
         connectDropTarget: connect.dropTarget()
@@ -416,8 +415,7 @@ class MenuBlock extends React.Component {
         header: string.isRequired,
         findItem: func.isRequired,
         moveItem: func.isRequired,
-        moveBlock: func.isRequired,
-        findBlock: func.isRequired
+        findAvailablePath: func.isRequired
     };
 
     constructor(props) {
@@ -425,7 +423,7 @@ class MenuBlock extends React.Component {
     }
 
     render() {
-        const { id, header, links, findItem, moveItem, findSubtree, moveSubtree, isDragging, connectDragSource, connectDropTarget } = this.props;
+        const { id, header, links, findItem, moveItem, findAvailablePath, isDragging, connectDragSource, connectDropTarget } = this.props;
         const opacity = isDragging ? 0 : 1;
 
         let subLinks = [];
@@ -438,12 +436,15 @@ class MenuBlock extends React.Component {
                                      {...collapse}
                                      moveItem={moveItem}
                                      findItem={findItem}
-                                     findSubtree={findSubtree}
-                                     moveSubtree={moveSubtree} />
+                                     findAvailablePath={findAvailablePath} />
                     )
                 } else {
                     return (
-                        <MenuLink key={linkProps.id} {...linkProps} />
+                        <MenuLink key={linkProps.id}
+                                  {...linkProps}
+                                  moveItem={moveItem}
+                                  findItem={findItem}
+                                  findAvailablePath={findAvailablePath} />
                     )
                 }
             });
@@ -460,12 +461,10 @@ class MenuBlock extends React.Component {
             </li>
         ));
     }
-
 }
 
 const subtreeSource = {
     beginDrag(props) {
-        // const { index: originalIndex, blockIndex: originalBlockIndex } = props.findSubtree(props.id);
         const { index: originalIndex, depth: originalDepth } = props.findItem(props.id);
         return {
             id: props.id,
@@ -480,41 +479,34 @@ const subtreeSource = {
     },
 
     endDrag(props, monitor) {
-        // const { id: droppedId, originalIndex, originalBlockIndex } = monitor.getItem();
         const { id: droppedId, originalIndex, originalDepth } = monitor.getItem();
         const didDrop = monitor.didDrop();
 
         if (!didDrop) {
-            // props.moveSubtree(droppedId, originalIndex, originalBlockIndex);
             props.moveItem(droppedId, originalIndex, originalDepth);
         }
     }
 };
 
 const subtreeTarget = {
-    canDrop() {
-        return false;
+    canDrop(props, monitor) {
+        const { itemType } = monitor.getItem();
+        return itemType === ItemTypes.LINK;
     },
 
     hover(props, monitor) {
-        // const { id: draggedId } = monitor.getItem();
-        // const { id: overId } = props;
+        const { id: draggedId } = monitor.getItem();
+        const { id: overId } = props;
 
-        // if (draggedId !== overId) {
-        //     if (overId.startsWith('s')) {
-        //         const { index: overIndex, blockIndex: overBlockIndex } = props.findSubtree(overId);
-        //         props.moveSubtree(draggedId, overIndex, overBlockIndex);
-        //     } else if (overId.startsWith('b')) {
-        //         const { index: overIndex } = props.findSubtree(overId);
-        //         props.moveSubtree(draggedId, -1, overIndex);
-        //     }
-            
-        // }
+        if (draggedId !== overId && monitor.isOver({ shallow: true })) {
+            const { index: atIndex, depth: atDepth } = props.findAvailablePath(overId, draggedId);
+            props.moveItem(draggedId, atIndex, atDepth);
+        }
     }
 };
 
 @DropTarget(
-    ItemTypes.SUBTREE,
+    [ItemTypes.SUBTREE, ItemTypes.LINK],
     subtreeTarget,
     connect => ({
         connectDropTarget: connect.dropTarget()
@@ -537,8 +529,7 @@ class MenuSubtree extends React.Component {
         id: string.isRequired,
         findItem: func.isRequired,
         moveItem: func.isRequired,
-        findSubtree: func.isRequired,
-        moveSubtree: func.isRequired
+        findAvailablePath: func.isRequired
     };
 
     constructor(props) {
@@ -546,7 +537,7 @@ class MenuSubtree extends React.Component {
     }
 
     render() {
-        const { name, fa, links, open, onToggle, isDragging, connectDragSource, connectDropTarget } = this.props;
+        const { name, fa, links, open, onToggle, findItem, moveItem, findAvailablePath, isDragging, connectDragSource, connectDropTarget } = this.props;
         const opacity = isDragging ? 0 : 1;
 
         return connectDragSource(connectDropTarget(
@@ -561,7 +552,11 @@ class MenuSubtree extends React.Component {
                     <ul>
                         { links.map( (link, i) => {
                             return (
-                                <MenuLink key={link.id} {...link} />
+                                <MenuLink key={link.id}
+                                          {...link}
+                                          moveItem={moveItem}
+                                          findItem={findItem}
+                                          findAvailablePath={findAvailablePath} />
                             )
                         }) }
                     </ul>
@@ -571,24 +566,93 @@ class MenuSubtree extends React.Component {
     }
 }
 
+const linkSource = {
+    beginDrag(props) {
+        const { index: originalIndex, depth: originalDepth } = props.findItem(props.id);
+        return {
+            id: props.id,
+            originalIndex,
+            originalDepth,
+            itemType: ItemTypes.LINK
+        };
+    },
+
+    isDragging(props, monitor) {
+        return props.id === monitor.getItem().id;
+    },
+
+    endDrag(props, monitor) {
+        const { id: droppedId, originalIndex, originalDepth } = monitor.getItem();
+        const didDrop = monitor.didDrop();
+
+        if (!didDrop) {
+            props.moveItem(droppedId, originalIndex, originalDepth);
+        }
+    }
+};
+
+const linkTarget = {
+    canDrop() {
+        return false;
+    },
+
+    hover(props, monitor) {
+        const { id: draggedId } = monitor.getItem();
+        const { id: overId } = props;
+
+        if (draggedId !== overId) {
+            const { index: atIndex, depth: atDepth } = props.findAvailablePath(overId, draggedId);
+            props.moveItem(draggedId, atIndex, atDepth);
+        }
+    }
+};
+
+@DropTarget(
+    ItemTypes.LINK,
+    linkTarget,
+    connect => ({
+        connectDropTarget: connect.dropTarget()
+    })
+)
+@DragSource(
+    ItemTypes.LINK,
+    linkSource,
+    (connect, monitor) => ({
+        connectDragSource: connect.dragSource(),
+        isDragging: monitor.isDragging()
+    })
+)
 class MenuLink extends React.Component {
+
+    static propTypes = {
+        connectDragSource: func.isRequired,
+        connectDropTarget: func.isRequired,
+        isDragging: bool.isRequired,
+        id: string.isRequired,
+        findItem: func.isRequired,
+        moveItem: func.isRequired,
+        findAvailablePath: func.isRequired
+    };
+
     constructor(props) {
         super(props);
     }
 
     render() {
-        const { name, path, fa, label } = this.props;
+        const { name, path, fa, label, isDragging, connectDragSource, connectDropTarget } = this.props;
+        const opacity = isDragging ? 0 : 1;
+
         let highlight = null;
         if (label) {
             const { content, pullRight, ...props } = label;
             highlight = <Label {...props} className={cx({'pull-right': pullRight})}>{ content }</Label>
         }
-        return (
-            <li style={{ ...style }}>
+        return connectDragSource(connectDropTarget(
+            <li style={{ ...style, opacity }}>
                 { fa ? <FaIcon fa={fa} /> : null }
                 { name }
                 { highlight }
             </li>
-        )
+        ));
     }
 }
