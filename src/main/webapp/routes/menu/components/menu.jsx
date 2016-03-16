@@ -211,22 +211,22 @@ class MenuTree extends React.Component {
             const blockIndex = blocks.findIndex( block => {
                 let links = block.get("links");
 
-                if (links) {
+                if (links && links.count() > 0) {
                     let linkIndex = links.findIndex(link => {
                         const subtree = link.get("collapse");
 
                         if (subtree) {
-                            let sublinks = subtree.getIn("links");
+                            let sublinks = subtree.get("links");
 
                             if (sublinks) {
                                 let sublinkIndex = sublinks.findIndex(sublink =>
-                                    sublink.id === id
+                                    sublink.get("id") === id
                                 );
 
                                 if (sublinkIndex !== -1) {
                                     index = sublinkIndex;
                                     depth = ["collapse", "links"];
-                                    item = sublink;
+                                    item = sublinks.get(index);
                                     return true;
                                 }
                             }
@@ -238,7 +238,9 @@ class MenuTree extends React.Component {
                     if (linkIndex !== -1) {
                         if (index === -1) {
                             index = linkIndex;
-                            item = links.get(linkIndex);
+                            item = links.get(index);
+                        } else {
+                            depth = [linkIndex].concat(depth);
                         }
 
                         return true;
@@ -261,6 +263,7 @@ class MenuTree extends React.Component {
     }
 
     moveItem = (id, atIndex, atDepth) => {
+
         let { blocks } = this.state;
         const { item, itemType, depth, index } = this.findItem(id);
 
@@ -276,12 +279,15 @@ class MenuTree extends React.Component {
                     });
                 }
             } else {
+                console.log(blocks.toJS());
                 blocks = 
                     blocks.updateIn(depth, links => {
                         return links ? links.splice(index, 1) : links;
                     }).updateIn(atDepth, Immutable.List.of(), links => {
                         return links.splice(atIndex, 0, item);
                     });
+                console.log(index, atIndex, depth, atDepth);
+                console.log(blocks.toJS());
             }
         }
 
@@ -290,46 +296,43 @@ class MenuTree extends React.Component {
         });
     }
 
-    findAvailablePath = (id, sourceId) => {
-        const { index, itemType, depth } = this.findItem(id);
+    findAvailablePath = (id, sourceId, lastOffset, initialOffset) => {
+        const { blocks } = this.state;
+        const { index: atIndex, itemType, depth: atDepth } = this.findItem(id);
         const { itemType: sourceItemType, depth: sourceDepth } = this.findItem(sourceId);
+
+        let index = -1,
+            depth = [];
 
         if (itemType === ItemTypes.BLOCK) {
             if (sourceItemType === ItemTypes.BLOCK) {
-                return {
-                    index,
-                    itemType,
-                    depth
-                }
+                depth = atDepth;
+                index = atIndex;
             } else if (sourceItemType === ItemTypes.SUBTREE || sourceItemType === ItemTypes.LINK) {
-                return {
-                    index: -1,
-                    itemType,
-                    depth: [index, "links"]
-                }
+                depth = [atIndex, "links"];
+                const links = blocks.getIn(depth);
+                index = (links === null || typeof links === "undefined") || (initialOffset.y >= 0) ? 0 : links.count() - 1;
             }
         } else if (itemType === ItemTypes.SUBTREE) {
             if (sourceItemType === ItemTypes.SUBTREE) {
-                return {
-                    index,
-                    itemType,
-                    depth
-                }
+                depth = atDepth;
+                index = atIndex;
             } else if (sourceItemType === ItemTypes.LINK) {
-                return {
-                    index: -1,
-                    itemType,
-                    depth: depth.push("links")
-                }
+                depth = atDepth.concat([atIndex, "collapse", "links"]);
+                const links = blocks.getIn(depth);
+                index = (links === null || typeof links === "undefined") || (initialOffset.y >= 0) ? 0 : links.count() - 1;
             }
         } else if (itemType === ItemTypes.LINK) {
-            if (sourceItemType === ItemTypes.LINK) {
-                return {
-                    index,
-                    itemType,
-                    depth
-                }
+            if (sourceItemType === ItemTypes.LINK || sourceItemType === ItemTypes.SUBTREE) {
+                depth = atDepth;
+                index = atIndex;
             }
+        }
+
+        return {
+            index,
+            itemType,
+            depth
         }
     }
 
@@ -385,7 +388,7 @@ const blockTarget = {
         const { id: overId } = props;
 
         if (draggedId !== overId && monitor.isOver({ shallow: true })) {
-            const { index: atIndex, depth: atDepth } = props.findAvailablePath(overId, draggedId);
+            const { index: atIndex, depth: atDepth } = props.findAvailablePath(overId, draggedId, monitor.getClientOffset(), monitor.getDifferenceFromInitialOffset());
             props.moveItem(draggedId, atIndex, atDepth);
         }
     }
@@ -490,8 +493,9 @@ const subtreeSource = {
 
 const subtreeTarget = {
     canDrop(props, monitor) {
-        const { itemType } = monitor.getItem();
-        return itemType === ItemTypes.LINK;
+        // const { itemType } = monitor.getItem();
+        // return itemType === ItemTypes.LINK;
+        return false;
     },
 
     hover(props, monitor) {
@@ -499,7 +503,7 @@ const subtreeTarget = {
         const { id: overId } = props;
 
         if (draggedId !== overId && monitor.isOver({ shallow: true })) {
-            const { index: atIndex, depth: atDepth } = props.findAvailablePath(overId, draggedId);
+            const { index: atIndex, depth: atDepth } = props.findAvailablePath(overId, draggedId, monitor.getClientOffset(), monitor.getDifferenceFromInitialOffset());
             props.moveItem(draggedId, atIndex, atDepth);
         }
     }
@@ -601,7 +605,7 @@ const linkTarget = {
         const { id: overId } = props;
 
         if (draggedId !== overId) {
-            const { index: atIndex, depth: atDepth } = props.findAvailablePath(overId, draggedId);
+            const { index: atIndex, depth: atDepth } = props.findAvailablePath(overId, draggedId, monitor.getClientOffset(), monitor.getDifferenceFromInitialOffset());
             props.moveItem(draggedId, atIndex, atDepth);
         }
     }
