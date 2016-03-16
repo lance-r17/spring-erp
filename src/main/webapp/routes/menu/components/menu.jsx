@@ -265,30 +265,35 @@ class MenuTree extends React.Component {
     moveItem = (id, atIndex, atDepth) => {
 
         let { blocks } = this.state;
-        const { item, itemType, depth, index } = this.findItem(id);
+        const { item, depth, index } = this.findItem(id);
 
-        if (itemType === ItemTypes.BLOCK) {
-            blocks = blocks.splice(index, 1).splice(atIndex, 0, item);
-        } else if (itemType === ItemTypes.SUBTREE || itemType === ItemTypes.LINK) {
-            if (_.isEqual(depth, atDepth)) {
-                if (index === atIndex) {
-                    return;
-                } else {
-                    blocks = blocks.updateIn(atDepth, links => {
-                        return links.splice(index, 1).splice(atIndex, 0, item);
-                    });
-                }
+        if (_.isEqual(depth, atDepth)) {
+            if (index === atIndex) {
+                return;
             } else {
-                console.log(blocks.toJS());
-                blocks = 
-                    blocks.updateIn(depth, links => {
-                        return links ? links.splice(index, 1) : links;
-                    }).updateIn(atDepth, Immutable.List.of(), links => {
-                        return links.splice(atIndex, 0, item);
-                    });
-                console.log(index, atIndex, depth, atDepth);
-                console.log(blocks.toJS());
+                blocks = blocks.updateIn(atDepth, list => {
+                    return list.splice(index, 1).splice(atIndex, 0, item);
+                });
             }
+        } else {
+            console.log(blocks.toJS());
+            if (depth.length >= atDepth.length) {
+                blocks =
+                    blocks.updateIn(depth, list => {
+                        return list ? list.splice(index, 1) : list;
+                    }).updateIn(atDepth, Immutable.List.of(), list => {
+                        return list.splice(atIndex, 0, item);
+                    });
+            } else {
+                blocks =
+                    blocks.updateIn(atDepth, Immutable.List.of(), list => {
+                        return list.splice(atIndex, 0, item);
+                    }).updateIn(depth, list => {
+                        return list ? list.splice(index, 1) : list;
+                    });
+            }
+            console.log(index, atIndex, depth, atDepth);
+            console.log(blocks.toJS());
         }
 
         this.setState({
@@ -493,9 +498,8 @@ const subtreeSource = {
 
 const subtreeTarget = {
     canDrop(props, monitor) {
-        // const { itemType } = monitor.getItem();
-        // return itemType === ItemTypes.LINK;
-        return false;
+        const { itemType } = monitor.getItem();
+        return itemType === ItemTypes.LINK;
     },
 
     hover(props, monitor) {
@@ -612,7 +616,7 @@ const linkTarget = {
 };
 
 @DropTarget(
-    ItemTypes.LINK,
+    [ItemTypes.SUBTREE, ItemTypes.LINK],
     linkTarget,
     connect => ({
         connectDropTarget: connect.dropTarget()
