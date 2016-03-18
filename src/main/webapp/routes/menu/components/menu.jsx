@@ -11,6 +11,8 @@ import cx from 'classnames';
 import { FaIcon, Label, Collapse } from '../../../controls';
 import { toggleable } from '../../../decorators';
 
+import { SimpleMenu as NestedMenu } from '../../../stubs/menus';
+
 const { bool, object, string, number, func, oneOfType, oneOf } = React.PropTypes
 
 const ItemTypes = {
@@ -24,70 +26,6 @@ const style = {
     border: '1px dashed gray',
     cursor: 'move'
 };
-
-const NestedMenu = [
-    {
-        header: 'Navigation',
-        links: [
-            {
-                name: 'Dashboard',
-                path: '/dashboard',
-                fa: 'dashboard',
-                label: {
-                    content: 'Top',
-                    bsStyle: 'success',
-                    pullRight: true
-                }
-            }
-        ]
-    },
-    {
-        header: 'Admin',
-        links: [
-            {
-                collapse: {
-                    name: 'Entitle',
-                    fa: 'sitemap',
-                    links: [
-                        {
-                            name: 'Users',
-                            path: '/users',
-                            fa: 'users'
-                        }
-                    ]
-                }
-            }
-
-        ]
-    },
-    {
-        header: 'Development',
-        links: [
-            {
-                collapse: {
-                    name: 'Toolkits',
-                    fa: 'briefcase',
-                    links: [
-                        {
-                            name: 'Page',
-                            href: '/page',
-                            label: {
-                                content: 'new',
-                                bsStyle: 'primary',
-                                pullRight: true
-                            }
-                        },
-                        {
-                            name: 'Menu',
-                            href: '/menu'
-                        }
-                    ]
-                }
-            }
-        ]
-    }
-    
-];
 
 export default class Menu extends React.Component {
     constructor(props) {
@@ -106,11 +44,24 @@ export default class Menu extends React.Component {
 
                 {/* Page content */}
                 <div id="page-content">
-                    <nav className="nav-container">
-                        <div className="nav">
-                            <MenuTree menu={NestedMenu} />
+                    <div className="panel">
+                        <div className="panel-heading">
+                            <h3 className="panel-title">Developer</h3>
                         </div>
-                    </nav>
+
+                        <div className="panel-body">
+                            <div className="row">
+                                <div className="col-sm-4">
+                                </div>
+                                <div className="col-sm-4">
+                                    <MenuContainer menu={NestedMenu} />
+                                </div>
+                                <div className="col-sm-4">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                 </div>
                 {/* End page content */}
 
@@ -123,6 +74,22 @@ export default class Menu extends React.Component {
 
 
 @DragDropContext(HTML5Backend)
+class MenuContainer extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        return (
+            <nav className="nav-container">
+                <div className="nav">
+                    <MenuTree menu={this.props.menu} />
+                </div>
+            </nav>
+        )
+    }
+}
+
 @DropTarget(
     ItemTypes.BLOCK,
     { drop() {} }, 
@@ -315,7 +282,15 @@ class MenuTree extends React.Component {
         if (itemType === ItemTypes.BLOCK) {
             _.forEach( data, (value, key) => {
                 blocks = blocks.updateIn([index, key], originalValue => value);
-            })
+            });
+        } else if (itemType === ItemTypes.SUBTREE) {
+            _.forEach( data, (value, key) => {
+                blocks = blocks.updateIn([...depth, index, "collapse", key], originalValue => value);
+            });
+        } else if (itemType === ItemTypes.LINK) {
+            _.forEach( data, (value, key) => {
+                blocks = blocks.updateIn([...depth, index, key], originalValue => value);
+            });
         } else {
             return;
         }
@@ -495,7 +470,8 @@ class MenuBlock extends React.Component {
     }
 
     render() {
-        const { id, header, links, toggle, findItem, moveItem, findAvailablePath, isDragging, connectDragSource, connectDropTarget } = this.props;
+        const { id, header, links, toggle, findItem, moveItem, updateItem, findAvailablePath, isDragging, connectDragSource, connectDropTarget } = this.props;
+        const passThrough = { findItem, moveItem, updateItem, findAvailablePath };
         const opacity = isDragging ? 0 : 1;
 
         let subLinks = [];
@@ -507,17 +483,13 @@ class MenuBlock extends React.Component {
                         <MenuSubtree key={collapse.id}
                                      {...collapse}
                                      toggle={toggle}
-                                     moveItem={moveItem}
-                                     findItem={findItem}
-                                     findAvailablePath={findAvailablePath} />
+                                     {...passThrough} />
                     )
                 } else {
                     return (
                         <MenuLink key={linkProps.id}
                                   {...linkProps}
-                                  moveItem={moveItem}
-                                  findItem={findItem}
-                                  findAvailablePath={findAvailablePath} />
+                                  {...passThrough} />
                     )
                 }
             });
@@ -605,6 +577,7 @@ class MenuSubtree extends React.Component {
         id: string.isRequired,
         findItem: func.isRequired,
         moveItem: func.isRequired,
+        updateItem: func.isRequired,
         findAvailablePath: func.isRequired
     };
 
@@ -618,15 +591,25 @@ class MenuSubtree extends React.Component {
         this.props.toggle(this.props.id);
     }
 
+    updateName = (data) => {
+        this.props.updateItem(this.props.id, data);
+    }
+
     render() {
-        const { name, fa, links, expanded, findItem, moveItem, findAvailablePath, isDragging, connectDragSource, connectDropTarget } = this.props;
+        const { name, fa, links, expanded, findItem, moveItem, updateItem, findAvailablePath, isDragging, connectDragSource, connectDropTarget, ...passThrough } = this.props;
+        const passThrough = { findItem, moveItem, updateItem, findAvailablePath };
         const opacity = isDragging ? 0 : 1;
 
         return connectDragSource(connectDropTarget(
             <li className={cx({ 'active': expanded })} style={{ ...style, opacity }}>
                 <a href="#" onClick={this.handleToggle}>
                     <FaIcon fa={fa} />
-                    <span className="menu-title">{name}</span>
+                    <span className="menu-title">
+                        <InlineEdit activeClassName="editing"
+                                    text={name} 
+                                    paramName="name"
+                                    change={this.updateName} />
+                    </span>
                     <i className="arrow"></i>
                 </a>
 
@@ -636,9 +619,7 @@ class MenuSubtree extends React.Component {
                             return (
                                 <MenuLink key={link.id}
                                           {...link}
-                                          moveItem={moveItem}
-                                          findItem={findItem}
-                                          findAvailablePath={findAvailablePath} />
+                                          {...passThrough} />
                             )
                         }) }
                     </ul>
@@ -717,11 +698,16 @@ class MenuLink extends React.Component {
         id: string.isRequired,
         findItem: func.isRequired,
         moveItem: func.isRequired,
+        updateItem: func.isRequired,
         findAvailablePath: func.isRequired
     };
 
     constructor(props) {
         super(props);
+    }
+
+    updateName = (data) => {
+        this.props.updateItem(this.props.id, data);
     }
 
     render() {
@@ -736,7 +722,10 @@ class MenuLink extends React.Component {
         return connectDragSource(connectDropTarget(
             <li style={{ ...style, opacity }}>
                 { fa ? <FaIcon fa={fa} /> : null }
-                { name }
+                <InlineEdit activeClassName="editing"
+                            text={name} 
+                            paramName="name"
+                            change={this.updateName} />
                 { highlight }
             </li>
         ));
