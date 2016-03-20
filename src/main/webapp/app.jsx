@@ -3,7 +3,7 @@ import { render } from 'react-dom';
 import { Router, Route, Link, hashHistory, browserHistory } from 'react-router';
 
 import { App } from './components';
-import { Dashboard, Users, Menu } from './routes';
+import { Dashboard, Users, Menu, Report } from './routes';
 
 define(function (require){
 	'use strict';
@@ -25,7 +25,8 @@ define(function (require){
 				childRoutes: [
 					Dashboard,
 					Users,
-					Menu
+					Menu,
+					Report
 				]
 			}
 		]

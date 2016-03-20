@@ -36,7 +36,7 @@ const SimpleMenu = [
                             name: 'Page',
                             href: '/page',
                             label: {
-                                content: 'new',
+                                content: 'New',
                                 bsStyle: 'primary',
                                 pullRight: true
                             }
@@ -44,7 +44,16 @@ const SimpleMenu = [
                         {
                             name: 'Menu',
                             href: '/menu'
-                        }
+                        },
+						{
+							name: 'Report',
+							href: '/report',
+                            label: {
+                                content: 'Hot',
+                                bsStyle: 'danger',
+                                pullRight: true
+                            }
+						}
                     ]
                 }
 			}
